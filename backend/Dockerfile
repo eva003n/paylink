@@ -24,7 +24,8 @@ WORKDIR /app
 RUN apk add --no-cache libc6-compat
 # Install pnpm in runner stage
 RUN npm install -g pnpm
-RUN npm install -g pm2 
+RUN npm install pm2 -g
+
 
 
 # Create non-root user
@@ -45,6 +46,7 @@ RUN mkdir -p /app/uploads && chown -R node:node /app/uploads
 
 EXPOSE 8000
 
-# CMD ["./wait-for-db.sh"]
-# CMD [ "node", "index.js"]
-CMD ["pm2-runtime", "ecosystem.config.js"]
+#for development
+CMD ["pm2-dev", "--json", "ecosystem.config.js"]
+# for production
+# CMD ["pm2-runtime", "--json", "ecosystem.config.js"]
