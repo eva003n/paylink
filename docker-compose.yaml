@@ -7,8 +7,11 @@ services:
     # include the image 
     dockerfile: Dockerfile
   container_name: paylink_api
+  # inject env variable into a container without baking them into the image which is not safe
   env_file:
+     - backend/.env
      - backend/.env.development
+     - backend/.env.production
 
   depends_on:
      - db 
