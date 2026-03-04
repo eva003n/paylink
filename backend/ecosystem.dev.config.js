@@ -2,13 +2,12 @@ module.exports = {
   apps: [
     {
       name: "paylink-api",
-      script: "./src/index.js",
-      instances: -1,
+      script: "./dist/index.js",
+      instances: "max",
       exec_mode: "cluster",
       autorestart: true,
       kill_timeout: 3000,
-      wait_ready: true, // enable graceful start up
-      env_production: {
+      env_development: {
         //.env
         PORT: process.env.PORT,
         NODE_ENV: process.env.NODE_ENV,
@@ -20,48 +19,34 @@ module.exports = {
     },
     {
       name: "payment-worker",
-      script: "./src/workers/payment.worker.js",
+      script: "./dist/workers/payment.worker.js",
       instances: 1, // payments are safer processed in single threaded
-      // exec_mode: "fork",
+      exec_mode: "fork",
       autorestart: true,
-      env_production: {
+      env_development: {
         NODE_ENV: process.env.NODE_ENV,
       },
     },
     {
       name: "email-worker",
-      script: "./src/workers/email.worker.js",
+      script: "./dist/workers/email.worker.js",
       instances: 2, // control concurrency
-      // exec_mode: "fork",
+      exec_mode: "fork",
       autorestart: true,
-      env_production: {
-        NODE_ENV: process.env.NODE_ENV,
+      env_development: {
+        NODE_ENV: "development",
       },
     },
     {
       name: "pdf-worker",
-      script: "./src/workers/pdf.worker.js",
+      script: "./dist/workers/pdf.worker.js",
       instances: 1, // control concurrency
-      // exec_mode: "fork",
+      exec_mode: "fork",
       max_memory_restart: "700M",
       autorestart: true,
-      env_production: {
-        NODE_ENV: process.env.NODE_ENV,
+      env_development: {
+        NODE_ENV: "development",
       },
     },
-  ],
-
-  deploy: {
-    production: {
-      user: "SSH_USERNAME",
-      host: "SSH_HOSTMACHINE",
-      ref: "origin/master",
-      repo: "GIT_REPOSITORY",
-      path: "DESTINATION_PATH",
-      "pre-deploy-local": "",
-      "post-deploy":
-        "npm install && pm2 reload ecosystem.config.js --env production",
-      "pre-setup": "",
-    },
-  },
+  ]
 };

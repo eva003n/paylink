@@ -37,10 +37,8 @@ app.use(morganMiddleware);
 
 /* ---- API endpoints ---- */
 import paymentRouter from "./routes/payment.route"
-import linkRouter from "./routes/link.route" 
 
 app.use("/api/v1/payment", paymentRouter)
-app.use("/api/v1/link", linkRouter)
 
 // error handling middleware
 import errorHandlerMiddlware from "./middlewares/error.middleware";

@@ -24,23 +24,6 @@ services:
     - app-net
   # restart: true
   
-#  worker:
-#   build: 
-#     context: ./backend
-#     dockerfile: Dockerfile
-#   container_name: backend_worker
-#   # restart: true
-#   env_file:
-#     - backend/.env.development
-#   depends_on:
-#     - db
-#     - redis
-#   ports: 
-#     - 8080:8080
-#   networks:
-#       - app-net
-
-  
  db:
     image: postgres:15
     restart: always
@@ -82,6 +65,7 @@ services:
     container_name: paylink_web
     env_file:
       - frontend/.env.development
+      - frontend/.env.production
     ports:
        - 5173:80
     networks:

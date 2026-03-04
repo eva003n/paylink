@@ -1,15 +1,8 @@
 import { Sequelize } from "Sequelize";
-import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER } from "../env";
-import { tryCatch } from "bullmq";
 import logger from "../../logger/logger.winston";
+import { POSTGRES_URL } from "../env";
 
-export const sequelize = new Sequelize({
-  host: DB_HOST as string,
-  dialect: "postgres",
-  username: DB_USER as string,
-  password: DB_PASSWORD as string,
-  database: DB_NAME as string,
-  port: parseInt(DB_PORT as string),
+export const sequelize = new Sequelize(POSTGRES_URL as string,{
   logging: logger.info.bind(logger),
 });
 

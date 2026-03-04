@@ -5,12 +5,11 @@
   "main": "src/index.js",
   "scripts": {
     "build": "tsc -b",
-    "start": "pm2 start ecosystem.config.js", 
+    "start": "tsc -b && pm2 start ecosystem.config.js & pm2-logs",
     "restart": "pm2 restart ecosystem.config.js",
     "stop": "pm2 stop ecosystem.config.js",
     "reload": "pm2 reload ecosystem.config.js",
-
-    "dev": "tsc -b && pm2 start ecosystem.dev.config.js",
+    "dev": "nodemon",
     "make:migration": "ts-node src/make-migrations.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -42,6 +41,7 @@
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
     "@types/multer": "^2.0.0",
+    "@types/node": "^25.3.3",
     "dotenv": "^17.3.1",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",

@@ -1,4 +1,3 @@
-
 {
   "compilerOptions": {
     // base options
@@ -11,7 +10,8 @@
     "moduleDetection": "force",
     "isolatedModules": true,
     // "verbatimModuleSyntax": true,
-    "types": ["node", ],
+    "typeRoots": ["types" ],
+    // "types": ["node", "express"],
 
     // module
     "rootDir": "src",
@@ -33,11 +33,9 @@
     "strictPropertyInitialization": true,
     "noUncheckedIndexedAccess": false,
     "noImplicitThis": true,
-    "noUncheckedSideEffectImports": true,
-    
+    "noUncheckedSideEffectImports": true
   },
 
-  "include": ["src"],
+  "include": ["src", "types"],
   "exclude": ["node_modules"]
-
 }

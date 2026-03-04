@@ -19,12 +19,7 @@ export const {
   API_DOC_URI,
 
   /* ---- Postgres database ----*/
-  DB_USER,
-  DB_PASSWORD,
-  DB_DIALECT,
-  DB_HOST,
-  DB_NAME,
-  DB_PORT,
+  POSTGRES_URL,
   /*--- Mpesa sandbox--- */
   SANDBOX_CONSUMER_KEY,
   SANDBOX_CONSUMER_SECRET,

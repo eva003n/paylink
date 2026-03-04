@@ -1,52 +1,33 @@
 ARG NODE_VERSION=22.21.1
-FROM node:${NODE_VERSION}-alpine AS base
-RUN apk update
+# Stage 1: dependancies
+FROM node:${NODE_VERSION}-alpine AS deps
 WORKDIR /app
-RUN apk add --no-cache libc6-compat
-# install pnpm package manager
-RUN npm install -g pnpm 
-RUN npm install -g pm2 
-
-#cache dependacies
-FROM base AS deps
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm fetch
+#enable working with pnpm
+RUN corepack enable
+RUN corepack prepare pnpm@latest --activate
+COPY package.json  pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
-# Builder
-FROM deps AS builder
+# Stage 2: build
+FROM node:20-alpine AS build
+WORKDIR /app
+RUN corepack enable
+RUN corepack prepare pnpm@latest --activate
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm run build
+RUN pnpm build
 
-# ---- Production Runner ----
+# Stage 3: Runtime
 FROM node:${NODE_VERSION}-alpine AS runner
 WORKDIR /app
-RUN apk add --no-cache libc6-compat
-# Install pnpm in runner stage
-RUN npm install -g pnpm
-RUN npm install pm2 -g
-
-
-
-# Create non-root user
-RUN addgroup --system --gid 1001 nodejs \
-    && adduser --system --uid 1001 expressjs
-
-USER expressjs
-
-# Copy only necessary files
-COPY --from=builder /app/dist ./
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/ecosystem.config.js ./
-
-COPY --from=deps /app/node_modules ./node_modules
-USER root
-RUN mkdir -p /app/uploads && chown -R node:node /app/uploads
-# RUN dotenvx ext prebuild
+RUN npm install -g pm2
+COPY --from=build /app/dist .
+COPY ecosystem.config.js ./
+COPY package.json ./
 
 EXPOSE 8000
 
-#for development
-CMD ["pm2-dev", "--json", "ecosystem.config.js"]
-# for production
-# CMD ["pm2-runtime", "--json", "ecosystem.config.js"]
+# dev
+# CMD ["pm2-dev", "--json","ecosystem.config.js"]
+# prod
+CMD ["pm2-runtime", "--json", "ecosystem.config.js"]

@@ -4,3 +4,5 @@
 /**/**/*.env.development
 /**/**/*.env.production
 res.json
+/**/**/app.log
+/**/**/dist
