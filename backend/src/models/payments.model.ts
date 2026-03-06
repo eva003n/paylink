@@ -28,7 +28,7 @@ Payment.init({
         primaryKey: true
     }, 
     merchant_id: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
             model: "merchants",
@@ -36,7 +36,7 @@ Payment.init({
         }
     }, 
     client_id: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
             model: "clients",

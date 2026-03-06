@@ -1,11 +1,11 @@
 import path from "path"
 import { ZodIssue } from "zod";
 
-const getAbsolutePath = (pathString: string) => {
-    // const __dirName = path.dirname(__filename);
+const getAbsolutePath = (pathString: string, dirname?: string) => {
+  // const __dirName = path.dirname(__filename);
 
-    return path.resolve(__dirname, pathString);
-}
+  return path.resolve(dirname || __dirname, pathString);
+};
 
 const formatError = (errors: ZodIssue[]) => {
   return errors.map((error: ZodIssue) => ({

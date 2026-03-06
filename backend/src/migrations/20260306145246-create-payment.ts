@@ -11,15 +11,15 @@ async function up({ context: queryInterface }: {context: QueryInterface }) {
       primaryKey: true,
     },
     merchant_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: "merchants",
+        model: "users",
         key: "id",
       },
     },
     client_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: "clients",
