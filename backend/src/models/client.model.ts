@@ -1,14 +1,13 @@
 import { sequelize } from "../config/db/postgres";
 import { DataTypes, Model } from "sequelize";
 
-export default class Client extends Model {
+export  class Client extends Model {
   declare id?: string;
   declare merchant_id: string;
-  declare name: string;
   declare phone_number: string;
   declare email: string;
-  declare createdAt?: Date;
-  declare updatedAt?: Date;
+  declare createdAt: Date;
+  declare updatedAt: Date;
 }
 
 Client.init(
@@ -24,14 +23,9 @@ Client.init(
       type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: "merchants",
+        model: "users",
         key: "id",
       },
-    },
-
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
     },
     email: {
       type: DataTypes.STRING,

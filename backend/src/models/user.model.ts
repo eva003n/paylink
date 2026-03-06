@@ -5,7 +5,7 @@ export enum UserRoles {
   MERCHANT= "merchant",
   ADMIN = "admin"
 }
-export default class User extends Model {
+export class User extends Model {
   declare id?: string;
   // declare username: string;
   declare clerk_id: string;
@@ -24,22 +24,11 @@ User.init(
       primaryKey: true,
     },
 
-    // username: {
-    //   type: DataTypes.STRING,
-    //   allowNull: false,
-    //   defaultValue: "",
-    // },
     clerk_id: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: ""
     },
-
-    // role: {
-    //   type: DataTypes.ENUM(...Object.values(UserRoles)),
-    //   allowNull: false,
-    //   defaultValue: UserRoles.MERCHANT
-    // },
   },
   {
     tableName: "users",

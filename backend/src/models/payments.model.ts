@@ -7,13 +7,13 @@ export enum PaymentStatus {
   Failed = "Failed",
 }
 
-export default class Payment extends Model {
+export  class Payment extends Model {
   declare id?: string;
   declare client_id: string;
   declare merchant_id: string;
   declare short_code: string;
   declare mpesa_ref: string;
-  declare payment_ref: string;
+  declare invoice_no: string;
   declare amount: number;
   declare status: PaymentStatus;
   declare createdAt?: Date;
@@ -57,7 +57,7 @@ Payment.init({
         allowNull: false,
         defaultValue: ""
     },
-    payment_ref: {
+    invoice_no: {
         type: DataTypes.STRING,
         allowNull: false
     },
