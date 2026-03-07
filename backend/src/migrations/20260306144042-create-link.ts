@@ -18,6 +18,10 @@ import { LinkStatus } from "../models/index";
         key: "id",
       },
     },
+    url: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     invoice_no: {
       type: DataTypes.STRING,
       allowNull: false,

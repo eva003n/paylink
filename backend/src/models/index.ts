@@ -1,13 +1,13 @@
-import Merchant from "./user.model"
-import Client from "./client.model"
-import Payment from "./payments.model"
-import { PaymentStatus } from "./payments.model"
-
-
+import {User} from "./user.model"
+import {Client} from "./client.model"
+import {Payment, PaymentStatus} from "./payments.model"
+import { Link, LinkStatus } from "./link.model"
 
 export {
-    Merchant,
+    User,
     Client,
     Payment,
-    PaymentStatus
+    PaymentStatus,
+    Link,
+    LinkStatus
 }

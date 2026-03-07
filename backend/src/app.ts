@@ -36,8 +36,10 @@ app.use(clerkMiddleware())
 app.use(morganMiddleware);
 
 /* ---- API endpoints ---- */
+import authRouter from "./routes/auth.route"
 import paymentRouter from "./routes/payment.route"
 
+app.use("/api/v1/auth", authRouter)
 app.use("/api/v1/payment", paymentRouter)
 
 // error handling middleware

@@ -1,12 +1,15 @@
-import { clerkClient } from "@clerk/express";
 import { Auth } from "../middlewares/validators";
+import { User } from "../models/index";
 
 export const createUser = async(authData: Auth) => {
-    const user = await clerkClient.users.createUser({
-        emailAddress: [authData.email],
-        password: authData.password,
+    const [newuser, isUser] = await User.findOrCreate({
+        where: {clerk_id: authData.data.id},
+        defaults: {
+            clerk_id: authData.data.id
+        }
     })
+    if(isUser) return 
 
-    return user
+    return newuser
 
 }

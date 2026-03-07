@@ -25,7 +25,7 @@ const umzug = new Umzug({
 
 // helper functions
 
-export const runmigrations = async () => {
+export const runMigrations = async () => {
   logger.info(`Running migrations in ${NODE_ENV} environment`);
 
   logger.info(`🔍 Searching for migrations in ${sequelize.config.database} database`);
@@ -41,11 +41,14 @@ export const runmigrations = async () => {
   await umzug.up();
     let percentage =
       (pendingMigrations.length / (await umzug.executed()).length) * 100;
-    while (pendingMigrations.length) {
+      
       logger.info(`✅ Migrations done: ${percentage}%`);
-    }
 
 };
+
+(async() => {
+  await runMigrations()
+})()
 
 export const revertLastMigration = async () => {
   logger.info(`Rerveting migrations in ${NODE_ENV} environment`);

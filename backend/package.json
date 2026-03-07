@@ -11,6 +11,7 @@
     "reload": "pm2 reload ecosystem.config.js",
     "dev": "nodemon",
     "make:migration": "ts-node src/make-migrations.ts",
+    "migrate": "ts-node src/config/db/umzug.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -19,6 +20,7 @@
   "packageManager": "pnpm@10.24.0",
   "dependencies": {
     "@clerk/express": "^1.7.76",
+    "@sindresorhus/base62": "^1.0.0",
     "axios": "^1.13.6",
     "bullmq": "^5.70.1",
     "cookie-parser": "^1.4.7",

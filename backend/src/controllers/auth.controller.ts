@@ -5,11 +5,16 @@ import { Request, Response, NextFunction } from "express";
 
 export const signUp = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-        const user = await createUser(req.body);
+        const {event} = req.body
+
+        if(event && event.type === "user:created") {
+          const user = event.data
+          await createUser(user) 
+        }
 
     res
       .status(201)
-      .json(new ApiResponse(201,  user, "Account created"));
+      .json(new ApiResponse(201,  {}, "Account created"))
   },
 );
 export const signIn = asyncHandler(

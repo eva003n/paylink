@@ -1,10 +1,11 @@
+import { SignUp } from "@clerk/clerk-react";
 
-const SignUp = () => {
+const SignUpPage = () => {
   return (
-    <section className="" >
-
+    <section className="grid place-content-center">
+      <SignUp />
     </section>
-  )
-}
+  );
+};
 
-export default SignUp
+export default SignUpPage;

@@ -10,7 +10,9 @@ export class Link extends Model {
   declare id: string;
   declare invoice_no: string;
   declare merchant_id: string;
+  declare url: string;
   declare status: LinkStatus;
+  declare expiresAt: Date;
   declare createdAt: Date;
   declare updatedAt: Date;
 }
@@ -30,6 +32,12 @@ export default Link.init({
         model: "users",
         key: "id"
     }
+  },
+  url: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: ""
+    
   },
   invoice_no: {
     type: DataTypes.STRING,
