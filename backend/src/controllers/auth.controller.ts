@@ -1,28 +1,23 @@
-import { createUser } from "../services/auth.service";
+import { createUser, logOutUser } from "../services/auth.service";
+import ApiError from "../utils/ApiError";
 import ApiResponse from "../utils/ApiResponse";
 import asyncHandler from "../utils/asynchandler";
 import { Request, Response, NextFunction } from "express";
 
 export const signUp = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-        const {event} = req.body
+    const { newuser, created } = await createUser(req.body);
 
-        if(event && event.type === "user:created") {
-          const user = event.data
-          await createUser(user) 
-        }
+    if (!created)
+      return next(ApiError.unAuthorizedRequest(401, req.originalUrl));
 
-    res
-      .status(201)
-      .json(new ApiResponse(201,  {}, "Account created"))
+    res.status(201).json(new ApiResponse(201, newuser, "Account created"));
   },
 );
-export const signIn = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {},
-);
+
 export const signOut = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    // const {email, password}:Auth = req.body
-
+    const {sessionId} = req.body
+    await logOutUser(sessionId)
   },
 );

@@ -1,9 +1,13 @@
 import z from "zod"
 
-const signUpSchema = z.object({
-  data: z.object({
-    id: z.string()
-  })
+export const signUpSchema = z.object({
+  username: z.string().min(4).max(64),
+  email: z.email(),
+  password: z.string().min(8).max(72)
+})
+export const signInSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8).max(72)
 })
 
 const MpesaPaymentSTKFailedSchema = z.object({
@@ -58,7 +62,8 @@ const paymentLinkSchema = z.object({
   merchant_id: z.string(),
   expiresAt: z.string()
 })
-export type Auth = z.infer<typeof signUpSchema> 
+export type SignUpAuth = z.infer<typeof signUpSchema> 
+export type SignInAuth = z.infer<typeof signInSchema> 
 export type Token = z.infer<typeof TokenResponseSchema >
 export type MpesaSTKFailed = z.infer<typeof MpesaPaymentSTKFailedSchema >
 export type MpesaSTKSuccess = z.infer<typeof MpesaPaymentSTKSuccessSchema >

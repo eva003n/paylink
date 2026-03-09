@@ -7,9 +7,9 @@ export enum UserRoles {
 }
 export class User extends Model {
   declare id?: string;
-  // declare username: string;
+  declare username: string;
   declare clerk_id: string;
-//  declare role: UserRoles;
+ declare role: UserRoles;
   // declare short_code: string;
   declare createdAt?: Date;
   declare updatedAt?: Date;
@@ -27,7 +27,20 @@ User.init(
     clerk_id: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: ""
+    },
+
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    role: {
+      type: DataTypes.ENUM(...Object.values(UserRoles)),
+      allowNull: false,
+      defaultValue: UserRoles.MERCHANT
     },
   },
   {
@@ -37,8 +50,8 @@ User.init(
     indexes: [
       {
         unique: true,
-        fields: ["username", "clerk_id"],
+        fields: ["username", "clerk_id", "email"],
       },
-],
+    ],
   },
 );

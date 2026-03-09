@@ -1,7 +1,8 @@
 import { DataTypes } from "sequelize";
-import {QueryInterface} from "sequelize"
+import { QueryInterface } from "sequelize";
+import { UserRoles } from "../models/index";
 
- async function up({ context: queryInterface }: {context: QueryInterface }) {
+async function up({ context: queryInterface }: { context: QueryInterface }) {
   queryInterface.createTable("users", {
     id: {
       type: DataTypes.UUID,
@@ -14,6 +15,19 @@ import {QueryInterface} from "sequelize"
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: "",
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    role: {
+      type: DataTypes.ENUM(...Object.values(UserRoles)),
+      allowNull: false,
+      defaultValue: UserRoles.MERCHANT,
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -28,8 +42,8 @@ import {QueryInterface} from "sequelize"
   });
 }
 
- async function down({ context: queryInterface }: {context: QueryInterface }) {
-  await queryInterface.dropTable("users")
+async function down({ context: queryInterface }: { context: QueryInterface }) {
+  await queryInterface.dropTable("users");
 }
 
 export { up, down };
