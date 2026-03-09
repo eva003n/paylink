@@ -4,16 +4,29 @@ import { Router, Route, BrowserRouter, Routes} from "react-router-dom"
 import { SignIn, SignUp } from "@clerk/clerk-react";
 import SignUpPage from "./pages/Auth/SignUp";
 import SignInPage from "./pages/Auth/SignIn"
+import Header from "./components/Header";
+import PaymentCheckOut from "./pages/Clients/PaymentCheckOut";
+import CreateLink from "./pages/Merchant/CreateLink";
 
-function App() {
+const App = () => {
 
   return (
     <BrowserRouter>
+      <Header></Header>
+
       <Routes>
-        <Route >
+        <Route>
           <Route path="/" element={<h1>Home</h1>}></Route>
-          <Route path="/sign-up" element={<SignUpPage/>}></Route>
+          <Route path="/sign-up" element={<SignUpPage />}></Route>
           <Route path="/sign-in" element={<SignInPage />}></Route>
+        </Route>
+        <Route path="payment">
+          <Route path="status"></Route>
+          <Route path="link">
+            <Route path="create" element={<CreateLink/>}></Route>
+            <Route path=":id" element={<PaymentCheckOut/>}></Route>
+          </Route>
+
         </Route>
       </Routes>
     </BrowserRouter>
