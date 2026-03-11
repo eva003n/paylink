@@ -21,7 +21,7 @@ A web platform that enables business owners eg freelancers, small service provid
 2. Communicate to clients via email, to send invoices and receipt 
 3. Generate PDF documents for a receipts and invoices
 
- Clients that receive the url are anonymous
+***NB*** Clients that receive the url are partially anonymous
 
 ### Non functional requirements
 1. Security - since we are dealing wiht payment we must ensure the generated links can be trusted by users through branding, for the payment security that is handled by Mpesa
@@ -32,21 +32,21 @@ A web platform that enables business owners eg freelancers, small service provid
 
 - Node(Backend)
 - React(Frontend)
-- Mpesa API
-- WEbhooks
+- Mpesa API*(Handle payments)
+- WEbhooks(Payment confirmation)
 - PDFkit(Invoices and receipt) https://pdfkit.org/
 - Docker(Easier deployment)
 
 ### Architecture design
-This system have adopt a client server architecture which will include a client(that users interact with) and a server(whose complexity(mpesa integration code) will be abstracted via an API service)
+This system have adopt a client server architecture which will include a client(that users interact with) and a server(whose complexity(mpesa integration code) will be abstracted via an API service layer)
 
 
-![Diagram representing the high level design of paylink]()
+![Diagram representing the high level design of paylink](/assets/Diagrams/High-level-diagram.svg)
 
 ### Component design
 #### Payment link
 ##### Merchant's side
-- Merchant generates a sharable link, this link contains all the metadata required to process payment, one link per client
+- Merchant generates a sharable link, this link contains all the metadata required to process payment
 - Sends the link to client via any method eg email, whatsapp, sms but for know we use the official communication which is email for mvp app
 
 - Payment links can be customized for specific needs one time link that expires after a period of time
@@ -54,8 +54,9 @@ This system have adopt a client server architecture which will include a client(
 - Then paylink will generate a receipt and send it via email
 
 ##### How it works on the client's side
-- When the link is tapped, client receives an mpesa ussd prompt where they enter their mpesa pin
-- On success the mpesa confirmation sms message is received
+- When the link is tapped, client is nvigated to an open route on the frontend app where they enter their phone number to receive an mpesa USSD prompt, an STK push is performed and a USSD prompt is presented where they enter their mpesa pin
+- On success the mpesa confirmation sms message is received and paylink will be notifies via webhooks
+
 ### References
 - [Article from stripe on invoicing](https://stripe.com/resources/more/when-to-invoice-a-customer#how-stripe-invoicing-can-help)
 

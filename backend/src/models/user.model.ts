@@ -2,15 +2,15 @@ import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../config/db/postgres";
 
 export enum UserRoles {
-  MERCHANT= "merchant",
-  ADMIN = "admin"
+  MERCHANT = "merchant",
+  ADMIN = "admin",
 }
 export class User extends Model {
   declare id?: string;
   declare username: string;
-  declare clerk_id: string;
- declare role: UserRoles;
-  // declare short_code: string;
+  declare email: string;
+  declare password: string;
+  declare role: UserRoles;
   declare createdAt?: Date;
   declare updatedAt?: Date;
 }
@@ -23,12 +23,6 @@ User.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-
-    clerk_id: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-
     email: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -40,7 +34,7 @@ User.init(
     role: {
       type: DataTypes.ENUM(...Object.values(UserRoles)),
       allowNull: false,
-      defaultValue: UserRoles.MERCHANT
+      defaultValue: UserRoles.MERCHANT,
     },
   },
   {
@@ -50,7 +44,7 @@ User.init(
     indexes: [
       {
         unique: true,
-        fields: ["username", "clerk_id", "email"],
+        fields: ["email", "refresh_token"],
       },
     ],
   },

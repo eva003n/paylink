@@ -4,17 +4,11 @@ import { UserRoles } from "../models/index";
 
 async function up({ context: queryInterface }: { context: QueryInterface }) {
   queryInterface.createTable("users", {
-    id: {
+   id: {
       type: DataTypes.UUID,
       allowNull: false,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-    },
-
-    clerk_id: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: "",
     },
     email: {
       type: DataTypes.STRING,
@@ -29,16 +23,7 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
       allowNull: false,
       defaultValue: UserRoles.MERCHANT,
     },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
+
   });
 }
 

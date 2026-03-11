@@ -1,20 +1,14 @@
-import { SignUpAuth } from "../middlewares/validators";
+import { SignInAuth, SignUpAuth } from "../middlewares/validators";
 import { User } from "../models/index";
-import { clerkAuthClient } from "../config/clerk/clerkclient";
 
 export const createUser = async(authData: SignUpAuth) => {
-    const user = await clerkAuthClient.users.createUser({
-        emailAddress: [authData.email],
-        username: authData.username,
-        password: authData.password
 
-    })
     const [newuser, created] = await User.findOrCreate({
-        where: {clerk_id: user.id},
+        where: {email: authData.email},
         defaults: {
-            clerk_id: user.id,
-            email: user.emailAddresses[0],
-            username: user.username
+            email: authData.email,
+            username: authData.username,
+            password: authData.password
         }
     })
     if(!created) return {newuser, created}
@@ -23,7 +17,10 @@ export const createUser = async(authData: SignUpAuth) => {
 
 }
 
+export const logInUser = async(authData: SignInAuth) => {
+
+}
+
 export const logOutUser = async(sessionId: string) => {
-    await clerkAuthClient.sessions.revokeSession(sessionId)
    
 }
