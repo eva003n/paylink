@@ -9,8 +9,7 @@ const errorHandlerMiddlware = async(err: any, req: Request, res: Response) => {
 
    return res.type("application/problem+json").status(err.status).json(err);
  } else if (err instanceof MulterError) {
-   return res
-     .type("application/problem+json")
+   return res.type("application/problem+json")
      .status(400)
      .json(
        ApiError.badRequest(
