@@ -1,9 +1,9 @@
-import { Request, Response} from "express";
+import { NextFunction, Request, Response} from "express";
 import {MulterError} from "multer"
 import ApiError from "../utils/ApiError";
 import logger from "../logger/logger.winston";
 
-const errorHandlerMiddlware = async(err: any, req: Request, res: Response) => {
+const errorHandlerMiddleware = (err: any, req: Request, res: Response, next: NextFunction) => {
  if (err instanceof ApiError) {
    console.dir(err);
 
@@ -34,4 +34,4 @@ const errorHandlerMiddlware = async(err: any, req: Request, res: Response) => {
  }
 }
 
-export default errorHandlerMiddlware
+export default errorHandlerMiddleware

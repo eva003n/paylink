@@ -53,10 +53,12 @@ import paymentRouter from "./routes/payments.route"
 app.use("/api/v1/auth", authRouter)
 app.use("/api/v1/payments", paymentRouter)
 
+import notFoundRouter from "./routes/404.routes";
 // error handling middleware
-import errorHandlerMiddlware from "./middlewares/error.middleware";
+import errorHandlerMiddleware from "./middlewares/error.middleware";
 
-app.use(errorHandlerMiddlware)
+app.use(notFoundRouter)
+app.use(errorHandlerMiddleware)
 const server = createServer(app)
 export {
     server
