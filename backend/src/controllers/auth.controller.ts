@@ -19,6 +19,7 @@ export const signUp = asyncHandler(
       password,
     });
 
+    console.log(created)
     if (!created)
       return next(
         ApiError.unAuthorizedRequest(
@@ -92,7 +93,7 @@ export const signOut = asyncHandler(
       .json(new ApiResponse(200, {}, "Logged out successfully"));
   },
 );
-export const refreshToken = asyncHandler(
+export const tokenRefresh = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const oldAccessToken = req.signedCookies.AccessToken;
     // make request idempotent, dont refresh if access token has not expired
@@ -109,7 +110,7 @@ export const refreshToken = asyncHandler(
     }
 
     const { exists, _accessToken, _refreshToken } =
-      await renewToken(oldAccessToken);
+      await renewToken(oldRefreshToken);
 
     if (!exists) {
       return next(ApiError.forbiddenRequest(403, req.originalUrl));
