@@ -1,6 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../config/db/postgres";
-import {hash} from "bcryptjs"
+import { hash } from "bcryptjs";
 export enum UserRoles {
   MERCHANT = "merchant",
   ADMIN = "admin",
@@ -15,27 +15,25 @@ export class User extends Model {
   declare updatedAt?: Date;
 
   public static async hashPassword(instance: User) {
-    if(instance.changed("password")) {
-      instance.password = await hash(instance.password, 12)
+    if (instance.changed("password")) {
+      instance.password = await hash(instance.password, 12);
     }
-
   }
 
-  public static async validatePassword() {
-
-  }
+  public static async validatePassword() {}
 
   public override toJSON(showHidden = false): object {
-    const attributes = {...this.get()} as any
+    const attributes = { ...this.get() } as any;
 
-    if(!showHidden) {
-      delete attributes.email
-    }
+    // if(!showHidden) {
+    //   delete attributes.email
+    // }
 
-    delete attributes.password
+    delete attributes.email;
 
-    return attributes
-    
+    delete attributes.password;
+
+    return attributes;
   }
 }
 
@@ -52,6 +50,10 @@ User.init(
       allowNull: false,
     },
     username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    password: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -75,5 +77,5 @@ User.init(
 );
 
 // hash password for new users and updating users
-User.beforeCreate(User.hashPassword)
-User.beforeUpdate(User.hashPassword)
+User.beforeCreate(User.hashPassword);
+User.beforeUpdate(User.hashPassword);

@@ -4,7 +4,7 @@ import { UserRoles } from "../models/index";
 
 async function up({ context: queryInterface }: { context: QueryInterface }) {
   queryInterface.createTable("users", {
-   id: {
+    id: {
       type: DataTypes.UUID,
       allowNull: false,
       defaultValue: DataTypes.UUIDV4,
@@ -18,12 +18,25 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     role: {
       type: DataTypes.ENUM(...Object.values(UserRoles)),
       allowNull: false,
       defaultValue: UserRoles.MERCHANT,
     },
-
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   });
 }
 

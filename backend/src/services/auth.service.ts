@@ -16,7 +16,7 @@ export const createUser = async (authData: SignUpAuth) => {
   });
   if (!created) return { newuser, created };
 
-  return { newuser, createUser };
+  return { newuser, created };
 };
 
 export const logInUser = async (authData: SignInAuth) => {
