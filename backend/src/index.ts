@@ -1,6 +1,7 @@
 import { server } from "./app";
 import { connectDb, sequelize } from "./config/db/postgres";
 import { PORT } from "./config/env";
+import { connectRedis } from "./config/redis";
 import logger from "./logger/logger.winston";
 
 
@@ -9,6 +10,8 @@ const port = PORT;
 const gracefulStartUp = async () => {
   // connect to other services
   await connectDb();
+  // connect redis
+  await connectRedis()
 
   process.send?.("ready");
   logger.info("Server gracefully started")

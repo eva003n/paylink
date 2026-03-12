@@ -1,26 +1,98 @@
+import { compare } from "bcryptjs";
 import { SignInAuth, SignUpAuth } from "../middlewares/validators";
-import { User } from "../models/index";
+import { User, UserRoles } from "../models/index";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../config/env";
+import { redisClient } from "../config/redis";
 
-export const createUser = async(authData: SignUpAuth) => {
+export const createUser = async (authData: SignUpAuth) => {
+  const [newuser, created] = await User.findOrCreate({
+    where: { email: authData.email },
+    defaults: {
+      email: authData.email,
+      username: authData.username,
+      password: authData.password,
+    },
+  });
+  if (!created) return { newuser, created };
 
-    const [newuser, created] = await User.findOrCreate({
-        where: {email: authData.email},
-        defaults: {
-            email: authData.email,
-            username: authData.username,
-            password: authData.password
-        }
-    })
-    if(!created) return {newuser, created}
+  return { newuser, createUser };
+};
 
-    return {newuser, createUser}
+export const logInUser = async (authData: SignInAuth) => {
+  // check if user exists
+  const user = await User.findOne({ where: { email: authData.email } });
 
-}
+  if (!user) return { user, isValid: true };
 
-export const logInUser = async(authData: SignInAuth) => {
+  // verify password
+  const isValidPassword = await compare(authData.password, user.password);
+  if (!isValidPassword) return { user, isValid: isValidPassword };
 
-}
+  // generate token
+  const { accessToken, refreshToken } = await generateToken({
+    id: user.id,
+    role: user.role,
+  });
 
-export const logOutUser = async(sessionId: string) => {
-   
-}
+  /** For enhanced security
+ * Refresh token may be kept on some persistent store, which will make it a n opaque token
+
+*/
+  await redisClient.set(`refresh-${user.id}`, refreshToken);
+
+  return { user, isValid: isValidPassword, accessToken, refreshToken };
+};
+
+export const logOutUser = async (sessionId: string) => {
+  await redisClient.del(`refresh-${sessionId}`);
+};
+
+export const renewToken = async (oldRefreshToken: string) => {
+  // verify token
+  const decodedRefreshToken = jwt.verify(
+    oldRefreshToken,
+    REFRESH_TOKEN_SECRET as string,
+  ) as JwtPayload;
+
+  // check token exist in store(redis)
+  const exists = await redisClient.get(`refresh-${decodedRefreshToken.id}`);
+  if (!exists) {
+    return { exists, _accessToken: null, _refreshToken: null };
+  }
+
+  // rotate
+  // delete from redis(invalidate the refresh token)
+  await redisClient.del(`refresh-${decodedRefreshToken.id}`);
+
+  // generate new tokens
+  const { accessToken, refreshToken: newRefreshToken } = await generateToken({
+    id: decodedRefreshToken.id,
+    role: decodedRefreshToken.role,
+  });
+  // save in redis
+  await redisClient.set(`refresh-${decodedRefreshToken.id}`, newRefreshToken);
+
+  return { exists, _accessToken: accessToken, _refreshToken: newRefreshToken };
+};
+
+const generateToken = async (user: { id: string; role: UserRoles }) => {
+  // access token
+  const accessToken = jwt.sign(user, ACCESS_TOKEN_SECRET as string, {
+    issuer: "authapi",
+    expiresIn: "15min",
+    subject: "authentication",
+  });
+
+  // refresh token
+  const refreshToken = jwt.sign(user, REFRESH_TOKEN_SECRET as string, {
+    issuer: "authapi",
+    expiresIn: "1day",
+    subject: "authentication",
+  });
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+};

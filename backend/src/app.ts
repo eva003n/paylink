@@ -47,10 +47,10 @@ app.use(express.urlencoded({extended: false}))
 app.use(morganMiddleware);
 
 /* ---- API endpoints ---- */
-// import authRouter from "./routes/auth.route"
+import authRouter from "./routes/auth.route"
 import paymentRouter from "./routes/payments.route"
 
-// app.use("/api/v1/auth", authRouter)
+app.use("/api/v1/auth", authRouter)
 app.use("/api/v1/payments", paymentRouter)
 
 // error handling middleware
