@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
-import {QueryInterface} from "sequelize"
+import { QueryInterface } from "sequelize";
 import { LinkStatus } from "../models/index";
 
- async function up({ context: queryInterface }: {context: QueryInterface }) {
+async function up({ context: queryInterface }: { context: QueryInterface }) {
   await queryInterface.createTable("links", {
     id: {
       type: DataTypes.UUID,
@@ -20,6 +20,16 @@ import { LinkStatus } from "../models/index";
     },
     url: {
       type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "",
+    },
+
+    shortCode: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    amount: {
+      type: DataTypes.DECIMAL(8, 2),
       allowNull: false,
     },
     invoice_no: {
@@ -49,8 +59,8 @@ import { LinkStatus } from "../models/index";
   });
 }
 
- async function down({ context: queryInterface }: {context: QueryInterface }) {
-  await queryInterface.dropTable("links")
+async function down({ context: queryInterface }: { context: QueryInterface }) {
+  await queryInterface.dropTable("links");
 }
 
 export { up, down };

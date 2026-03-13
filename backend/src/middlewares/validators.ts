@@ -63,10 +63,17 @@ const TokenResponseSchema = z.object({
   expires_in: z.number()
 })
 
-const paymentLinkSchema = z.object({
-  invoiceNo: z.string(),
-  merchant_id: z.string(),
-  expiresAt: z.string()
+export const paymentLinkSchema = z.object({
+  invoiceNo: z.string().optional(),
+  merchant_id: z.string().optional(),
+  amount: z.string().transform(Number).pipe(z.number()),
+  shortCode: z.string(),
+  expiresAt: z.string().optional()
+})
+
+export const paymentSTKSchema = z.object({
+  id: z.string(),
+  phoneNumber: z.string()
 })
 export type SignUpAuth = z.infer<typeof signUpSchema> 
 export type SignInAuth = z.infer<typeof signInSchema> 
@@ -75,3 +82,4 @@ export type JWT_Token = z.infer<typeof jwtSchema >
 export type MpesaSTKFailed = z.infer<typeof MpesaPaymentSTKFailedSchema >
 export type MpesaSTKSuccess = z.infer<typeof MpesaPaymentSTKSuccessSchema >
 export type PaymentLink = z.infer<typeof paymentLinkSchema>
+export type PaymentSTK = z.infer<typeof paymentSTKSchema>

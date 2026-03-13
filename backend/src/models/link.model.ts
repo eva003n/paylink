@@ -10,6 +10,8 @@ export class Link extends Model {
   declare id: string;
   declare invoice_no: string;
   declare merchant_id: string;
+  declare amount: number;
+  declare shortCode: number;
   declare url: string;
   declare status: LinkStatus;
   declare expiresAt: Date;
@@ -38,6 +40,16 @@ export default Link.init({
     allowNull: false,
     defaultValue: ""
     
+  },
+
+  shortCode: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  amount: {
+    type: DataTypes.DECIMAL(8, 2),
+    allowNull: false
+
   },
   invoice_no: {
     type: DataTypes.STRING,
