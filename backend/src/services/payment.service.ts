@@ -6,9 +6,11 @@ import { PaymentLink } from "../middlewares/validators"
 import { Link, User } from "../models/index"
 import  base62  from "@sindresorhus/base62"
 
-export const mpesaSTKPush = async() => {
+export const mpesaSTKPush = async(id: string, phoneNumber: string) => {
   // get id of the generated url use it to query required payment info
-    const shortCode = "" 
+  const link = await Link.findByPk(id)
+if(!link) return {link}
+    const shortCode = link.id
     const passkey = "" 
     const timeStamp = getTimeStamp()
 
@@ -22,10 +24,10 @@ export const mpesaSTKPush = async() => {
       Password: base64String,
       Timestamp: timeStamp,
       TransactionType: "CustomerBuyGoodsOnline",
-      Amount: "", // amount to be paid by customer
-      PartyA: "", // customers phone number
-      PartyB: shortCode,
-      PhoneNumber: "", // to receive ussd prompt
+      Amount: link.amount, // amount to be paid by customer
+      PartyA: phoneNumber, // customers phone number
+      PartyB: link.shortCode,
+      PhoneNumber: phoneNumber, // to receive ussd prompt
       CallbackUrl:
         NODE_ENV === "production"
           ? MPESA_EXPRESS_CALLBACK_URL
@@ -35,6 +37,7 @@ export const mpesaSTKPush = async() => {
     };
 
     await mpesaClient.request("POST", "/stkpush/v1/processrequest", JSON.stringify(payload));
+    return {link}
 } 
 
 export const validateMpesaPayment = async() => {
@@ -51,7 +54,7 @@ export const generatePaymentLink = async(linkData: PaymentLink) => {
 
   if(!merchant) return {merchant, link: null}
     const link = await Link.create({
-      invoice_no: linkData.invoiceNo,
+      invoice_no: linkData.invoiceNo || "",
       merchant_id: merchant.id,
       url: "",
       expiresAt: linkData.expiresAt,
@@ -59,7 +62,7 @@ export const generatePaymentLink = async(linkData: PaymentLink) => {
 
     const base62String = base62.encodeString(link.id)
     const baseUrl = FRONTEND_BASE_URI
-    const url = `${baseUrl}/payment-link?token=${base62String}`
+    const url = `${baseUrl}payments/payment-link?token=${base62String}`
     link.set("url", `${url}`)
 
 

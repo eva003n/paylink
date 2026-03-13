@@ -1,8 +1,11 @@
 import {createClient} from "redis"
 import { RedisStore } from "connect-redis"
 import logger from "../../logger/logger.winston"
+import { REDIS_URL } from "../env"
 
-export const redisClient =  createClient()
+export const redisClient =  createClient({
+    url: REDIS_URL
+})
 
 export const redisStore = new RedisStore({
     client: redisClient

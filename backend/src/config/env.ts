@@ -23,6 +23,8 @@ export const {
 
   /* ---- Postgres database ----*/
   POSTGRES_URL,
+  /* ---- Redis database ----- */
+  REDIS_URL,
   /*--- Mpesa sandbox--- */
   SANDBOX_CONSUMER_KEY,
   SANDBOX_CONSUMER_SECRET,
