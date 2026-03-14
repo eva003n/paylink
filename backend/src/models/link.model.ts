@@ -4,6 +4,7 @@ import { sequelize } from "../config/db/postgres";
 export enum LinkStatus {
   ACTIVE = "active",
   EXPIRED = "expired",
+  CANCELLED = "cancelled"
 }
 
 export class Link extends Model {
@@ -69,9 +70,9 @@ export default Link.init({
  {
     tableName: "links",
     sequelize,
-    indexes: [{
-        unique: true,
-        fields: ["invoice_no"]
-    }]
+    // indexes: [{
+    //     unique: true,
+    //     // fields: ["invoice_no"]
+    // }]
     
 });

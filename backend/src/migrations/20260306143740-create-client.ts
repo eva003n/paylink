@@ -26,7 +26,7 @@ import {QueryInterface} from "sequelize"
       type: DataTypes.STRING,
       allowNull: false,
     },
-        createdAt: {
+      createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,

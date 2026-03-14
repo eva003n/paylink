@@ -1,7 +1,10 @@
 import { Queue } from "bullmq";
-import { connection } from "../config/bullmq";
+import { getSharedConnection } from "../config/bullmq";
+import { QUEUE_NAMES } from "../constants";
 
-const emailQueue = new Queue("emailQueue", {
+const connection = getSharedConnection()
+
+const emailQueue = new Queue(QUEUE_NAMES.EMAIL, {
   connection: connection.options,
   defaultJobOptions: {
     removeOnComplete: true,

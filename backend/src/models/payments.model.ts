@@ -1,5 +1,5 @@
 import { sequelize } from "../config/db/postgres";
-import {DataTypes, Model} from "sequelize"
+import { DataTypes, Model } from "sequelize";
 
 export enum PaymentStatus {
   Pending = "Pending",
@@ -7,71 +7,71 @@ export enum PaymentStatus {
   Failed = "Failed",
 }
 
-export  class Payment extends Model {
-  declare id?: string;
-  declare client_id: string;
+export class Payment extends Model {
+  declare id: string;
+  declare link_id: string;
   declare merchant_id: string;
-  declare short_code: string;
+  declare phone_number: string;
   declare mpesa_ref: string;
-  declare invoice_no: string;
   declare amount: number;
   declare status: PaymentStatus;
   declare createdAt?: Date;
   declare updatedAt?: Date;
 }
 
-Payment.init({
+Payment.init(
+  {
     id: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
-    }, 
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     merchant_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-            model: "merchants",
-            key: "id"
-        }
-    }, 
-    client_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-            model: "clients",
-            key: "id"
-        }
-    }, 
-    
-    short_code: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    }, 
-    amount:{
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false,
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: "merchants",
+        key: "id",
+      },
     },
-    mpesa_ref:{
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: ""
+    phone_number: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
-    invoice_no: {
-        type: DataTypes.STRING,
-        allowNull: false
+    link_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: "links",
+        key: "id",
+      },
     },
+
+    amount: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+    },
+    mpesa_ref: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "",
+    },
+
     status: {
-        type: DataTypes.ENUM(...Object.values(PaymentStatus)),
-        allowNull: false,
-        defaultValue: PaymentStatus.Pending
-    }
- 
-}, {
+      type: DataTypes.ENUM(...Object.values(PaymentStatus)),
+      allowNull: false,
+      defaultValue: PaymentStatus.Pending,
+    },
+  },
+  {
     tableName: "payments",
     sequelize,
-    indexes: [{
+    indexes: [
+      {
         unique: true,
-        fields: ["payment_ref", "mpesa_ref"]
-    }]
-})
+        fields: ["payment_ref", "mpesa_ref"],
+      },
+    ],
+  },
+);

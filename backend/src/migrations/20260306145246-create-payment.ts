@@ -18,17 +18,16 @@ async function up({ context: queryInterface }: {context: QueryInterface }) {
         key: "id",
       },
     },
-    client_id: {
+    link_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: "clients",
+        model: "links",
         key: "id",
       },
     },
-
-    short_code: {
-      type: DataTypes.INTEGER,
+    phone_number: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
     amount: {
@@ -39,10 +38,6 @@ async function up({ context: queryInterface }: {context: QueryInterface }) {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: "",
-    },
-    invoice_no: {
-      type: DataTypes.STRING,
-      allowNull: false,
     },
     status: {
       type: DataTypes.ENUM(...Object.values(PaymentStatus)),

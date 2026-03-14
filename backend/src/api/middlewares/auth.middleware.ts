@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import asyncHandler from "../utils/asynchandler";
-import jwt, { JwtPayload } from "jsonwebtoken"
-import { ACCESS_TOKEN_SECRET } from "../config/env";
-import ApiError from "../utils/ApiError";
+import asyncHandler from "../../utils/asynchandler";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { ACCESS_TOKEN_SECRET } from "../../config/env";
+import ApiError from "../../utils/ApiError";
 import { jwtSchema } from "./validators";
 
 const protectRoute = asyncHandler(async (req, res, next) => {
@@ -14,12 +14,14 @@ const protectRoute = asyncHandler(async (req, res, next) => {
   }
 
   // verify jwt token.
-  const decodedToken = jwt.verify(accessToken, ACCESS_TOKEN_SECRET as string) as JwtPayload;
+  const decodedToken = jwt.verify(
+    accessToken,
+    ACCESS_TOKEN_SECRET as string,
+  ) as JwtPayload;
 
   // sanitize the decoded token to make sure we work with expected properties
   const { error } = jwtSchema.safeParse(decodedToken);
   if (error) {
-
     return next(ApiError.badRequest(400, req.originalUrl));
   }
 
@@ -36,18 +38,20 @@ const protectRoute = asyncHandler(async (req, res, next) => {
 });
 
 // middleware to protect admin routes
-const privateRoute = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-  // only allow admins
+const privateRoute = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // only allow admins
 
-  if (req.user && req.user.role !== "admin") {
-    return res
-      .status(403)
-      .json(ApiError.forbiddenRequest(403, req.originalUrl, "Access denied"));
-  }
+    if (req.user && req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json(ApiError.forbiddenRequest(403, req.originalUrl, "Access denied"));
+    }
 
-  // now the admin can access resource
-  next();
-  return
-});
+    // now the admin can access resource
+    next();
+    return;
+  },
+);
 
 export { protectRoute, privateRoute };

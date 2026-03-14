@@ -1,9 +1,9 @@
 import { compare } from "bcryptjs";
 import { SignInAuth, SignUpAuth } from "../middlewares/validators";
-import { User, UserRoles } from "../models/index";
+import { User, UserRoles } from "../../models/index";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../config/env";
-import { redisClient } from "../config/redis";
+import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../../config/env";
+import { redisClient } from "../../config/redis";
 
 export const createUser = async (authData: SignUpAuth) => {
   const [newuser, created] = await User.findOrCreate({

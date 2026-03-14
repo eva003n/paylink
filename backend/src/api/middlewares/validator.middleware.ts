@@ -1,10 +1,10 @@
-import z  from "zod";
-import asyncHandler from "../utils/asynchandler";
+import z from "zod";
+import asyncHandler from "../../utils/asynchandler";
 import { Request, Response, NextFunction } from "express";
-import ApiError from "../utils/ApiError";
-import { formatError } from "../utils/index";
+import ApiError from "../../utils/ApiError";
+import { formatError } from "../../utils/index";
 
-const validate = <T>(schema:  z.ZodType<T>) =>
+const validate = <T>(schema: z.ZodType<T>) =>
   asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const { error } = schema.safeParse(
       Object.assign({}, req.body, req.params, req.query),
@@ -24,4 +24,4 @@ const validate = <T>(schema:  z.ZodType<T>) =>
     next();
   });
 
-  export {validate}
+export { validate };

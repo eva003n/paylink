@@ -1,15 +1,15 @@
-import z from "zod"
-import { UserRoles } from "../models/index";
+import z from "zod";
+import { UserRoles } from "../../models/index";
 
 export const signUpSchema = z.object({
   username: z.string().min(4).max(64),
   email: z.email(),
-  password: z.string().min(8).max(72)
-})
+  password: z.string().min(8).max(72),
+});
 export const signInSchema = z.object({
   email: z.email(),
-  password: z.string().min(8).max(72)
-})
+  password: z.string().min(8).max(72),
+});
 
 export const jwtSchema = z.object({
   id: z.string(),
@@ -60,26 +60,27 @@ const MpesaPaymentSTKSuccessSchema = z.object({
 
 const TokenResponseSchema = z.object({
   access_token: z.string(),
-  expires_in: z.number()
-})
+  expires_in: z.number(),
+});
 
 export const paymentLinkSchema = z.object({
   invoiceNo: z.string().optional(),
   merchant_id: z.string().optional(),
-  amount: z.string().transform(Number).pipe(z.number()),
-  shortCode: z.string(),
-  expiresAt: z.string().optional()
-})
+  // amount: z.string().transform(Number).pipe(z.number()),
+  amount: z.number(),
+  shortCode: z.number(),
+  expiresAt: z.string().optional(),
+});
 
 export const paymentSTKSchema = z.object({
   id: z.string(),
-  phoneNumber: z.string()
-})
-export type SignUpAuth = z.infer<typeof signUpSchema> 
-export type SignInAuth = z.infer<typeof signInSchema> 
-export type Token = z.infer<typeof TokenResponseSchema >
-export type JWT_Token = z.infer<typeof jwtSchema >
-export type MpesaSTKFailed = z.infer<typeof MpesaPaymentSTKFailedSchema >
-export type MpesaSTKSuccess = z.infer<typeof MpesaPaymentSTKSuccessSchema >
-export type PaymentLink = z.infer<typeof paymentLinkSchema>
-export type PaymentSTK = z.infer<typeof paymentSTKSchema>
+  phoneNumber: z.string().min(12).max(12),
+});
+export type SignUpAuth = z.infer<typeof signUpSchema>;
+export type SignInAuth = z.infer<typeof signInSchema>;
+export type Token = z.infer<typeof TokenResponseSchema>;
+export type JWT_Token = z.infer<typeof jwtSchema>;
+export type MpesaSTKFailed = z.infer<typeof MpesaPaymentSTKFailedSchema>;
+export type MpesaSTKSuccess = z.infer<typeof MpesaPaymentSTKSuccessSchema>;
+export type PaymentLink = z.infer<typeof paymentLinkSchema>;
+export type PaymentSTK = z.infer<typeof paymentSTKSchema>;

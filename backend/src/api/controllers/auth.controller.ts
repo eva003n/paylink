@@ -1,13 +1,13 @@
-import { NODE_ENV } from "../config/env";
+import { NODE_ENV } from "../../config/env";
 import {
   createUser,
   logInUser,
   logOutUser,
   renewToken,
 } from "../services/auth.service";
-import ApiError from "../utils/ApiError";
-import ApiResponse from "../utils/ApiResponse";
-import asyncHandler from "../utils/asynchandler";
+import ApiError from "../../utils/ApiError";
+import ApiResponse from "../../utils/ApiResponse";
+import asyncHandler from "../../utils/asynchandler";
 import { Request, Response, NextFunction } from "express";
 
 export const signUp = asyncHandler(
@@ -19,7 +19,7 @@ export const signUp = asyncHandler(
       password,
     });
 
-    console.log(created)
+    console.log(created);
     if (!created)
       return next(
         ApiError.unAuthorizedRequest(

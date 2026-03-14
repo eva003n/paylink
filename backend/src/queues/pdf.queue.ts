@@ -1,7 +1,10 @@
 import { Queue } from "bullmq";
-import { connection } from "../config/bullmq";
+import { getSharedConnection } from "../config/bullmq";
+import { QUEUE_NAMES } from "../constants";
 
-const pdfQueue = new Queue("pdfQueue", {
+const connection = getSharedConnection()
+
+const pdfQueue = new Queue(QUEUE_NAMES.PDF, {
   connection: connection.options,
   defaultJobOptions: {
     removeOnComplete: true,
