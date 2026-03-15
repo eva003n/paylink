@@ -1,12 +1,12 @@
 import { Queue } from "bullmq";
 import { getSharedConnection } from "../config/bullmq";
-import { PaymentData } from "../jobs/payment/payment.type";
+import { PaymentData, PaymentQuery } from "../jobs/payment/payment.type";
 import { JOB_NAMES, QUEUE_NAMES } from "../constants";
 import { MpesaSTKFailed, MpesaSTKSuccess } from "../api/middlewares/validators";
 
 const connection = getSharedConnection()
 
- export const paymentQueue = new Queue<PaymentData>(QUEUE_NAMES.PAYMENT, {
+ export const paymentQueue = new Queue<PaymentData | PaymentQuery>(QUEUE_NAMES.PAYMENT, {
    connection: connection.options,
    defaultJobOptions: {
      removeOnComplete: true,
@@ -20,7 +20,10 @@ const connection = getSharedConnection()
  });
 
  export const enqueueSTKPush = (paymentData: PaymentData) => {
-  return paymentQueue.add(JOB_NAMES.STKPUSH, paymentData)
+  return paymentQueue.add(JOB_NAMES.STKPUSH, paymentData, {jobId: paymentData.transactionId})
+ }
+ export const enqueueSTKPoll = (paymentQuery: PaymentQuery) => {
+  return paymentQueue.add(JOB_NAMES.STKPOLL, paymentQuery, {jobId: paymentQuery.transactionId})
  }
  export const enqueueSTKPayment = (paymentData: MpesaSTKSuccess | MpesaSTKFailed) => {
 

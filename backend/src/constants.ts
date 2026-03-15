@@ -6,6 +6,7 @@ export  const QUEUE_NAMES = {
 
 export const JOB_NAMES = {
     STKPUSH: "stk.push",
+    STKPOLL: "stk.poll",
     CONFIRMPAYMENT: "stk.payment",
     PAYMENTEXPIRED: "payment.expired" 
 }
