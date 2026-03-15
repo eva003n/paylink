@@ -14,9 +14,13 @@ async function up({ context: queryInterface }: {context: QueryInterface }) {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: "users",
+        model: "merchants",
         key: "id",
       },
+    },
+    phone_number: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     link_id: {
       type: DataTypes.UUID,
@@ -26,10 +30,7 @@ async function up({ context: queryInterface }: {context: QueryInterface }) {
         key: "id",
       },
     },
-    phone_number: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+
     amount: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
@@ -39,11 +40,18 @@ async function up({ context: queryInterface }: {context: QueryInterface }) {
       allowNull: false,
       defaultValue: "",
     },
+
+    checkout_request_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
     status: {
       type: DataTypes.ENUM(...Object.values(PaymentStatus)),
       allowNull: false,
       defaultValue: PaymentStatus.Pending,
     },
+  
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
