@@ -58,6 +58,31 @@ const MpesaPaymentSTKSuccessSchema = z.object({
   },
 });
 
+const mpesaSTKQueryResultSchema = z.object({
+  data: z.object({
+    ResponseCode: z.number(),
+    ResponseDescription: z.string(),
+    MerchantRequestID: z.string(),
+    CheckoutRequestID: z.string(),
+    ResultCode: z.string(),
+    ResultDesc: z.string(),
+  }),
+});
+
+const mpesaSTKQueryRequest = z.object({
+  BusinessShortCode: z.number(),
+  Password: z.string(),
+  Timestamp: z.string(),
+  CheckoutRequestID: z.string(),
+});
+
+const mpesaSTKPushResponseSchema = z.object({
+  data: z.object({
+    MerchantRequestID: z.string(),
+    CheckoutRequestID: z.string(),
+    ResponseCode: z.number(),
+  }),
+});
 const TokenResponseSchema = z.object({
   access_token: z.string(),
   expires_in: z.number(),
@@ -84,3 +109,6 @@ export type MpesaSTKFailed = z.infer<typeof MpesaPaymentSTKFailedSchema>;
 export type MpesaSTKSuccess = z.infer<typeof MpesaPaymentSTKSuccessSchema>;
 export type PaymentLink = z.infer<typeof paymentLinkSchema>;
 export type PaymentSTK = z.infer<typeof paymentSTKSchema>;
+export type PaymentSTKQueryRequest = z.infer<typeof mpesaSTKQueryRequest>
+export type PaymentSTKQueryResponse = z.infer<typeof mpesaSTKQueryResultSchema>
+export type PaymentSTKResponse = z.infer<typeof mpesaSTKPushResponseSchema>
