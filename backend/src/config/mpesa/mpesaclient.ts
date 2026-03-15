@@ -107,7 +107,7 @@ class MpesaClient {
     return this.token;
   }
 
-  public async request<T, D>(method: string, url: string, data?: D) {
+  public async request<T, D>(method: string, url: string, data?: D):Promise<T> {
     const token = await this.getAccessToken();
     return this.api.request({
       method,

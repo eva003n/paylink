@@ -1,12 +1,24 @@
-import { NODE_ENV, MPESA_EXPRESS_PASSKEY, MPESA_EXPRESS_SANDBOX_PASSKEY, MPESA_EXPRESS_CALLBACK_URL, MPESA_EXPRESS_SANDBOX_CALLBACK_URL } from "../../config/env";
+import {
+  NODE_ENV,
+  MPESA_EXPRESS_PASSKEY,
+  MPESA_EXPRESS_SANDBOX_PASSKEY,
+  MPESA_EXPRESS_CALLBACK_URL,
+  MPESA_EXPRESS_SANDBOX_CALLBACK_URL,
+  MPESA_SANDBOX_SHORTCODE,
+  MPESA_SANDBOX_PARTYA,
+} from "../../config/env";
 import { mpesaClient } from "../../config/mpesa/mpesaclient";
 import { getTimeStamp } from "../../utils";
-import { PaymentData } from "./payment.type";
+import { PaymentData, PaymentQuery } from "./payment.type";
 import logger from "../../logger/logger.winston";
+import { PaymentSTKQueryRequest, PaymentSTKQueryResponse, PaymentSTKResponse } from "../../api/middlewares/validators";
+import { Payment, PaymentStatus } from "../../models";
+import { enqueueSTKPoll } from "../../queues/payment.queue";
+import { Json } from "sequelize/types/utils";
 
 export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
-
-  const shortCode = paymentData.shortCode;
+  const shortCode =
+    NODE_ENV === "production" ? paymentData.shortCode : MPESA_SANDBOX_SHORTCODE;
   const passkey =
     NODE_ENV === "production"
       ? MPESA_EXPRESS_PASSKEY
@@ -23,8 +35,11 @@ export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
     Password: base64String,
     Timestamp: timeStamp,
     TransactionType: "CustomerBuyGoodsOnline",
-    Amount: Math.floor(paymentData.amount), // amount to be paid by customer
-    PartyA: paymentData.phoneNumber, // customers phone number
+    Amount: Math.round(paymentData.amount), // amount to be paid by customer
+    PartyA:
+      NODE_ENV === "production"
+        ? paymentData.phoneNumber
+        : MPESA_SANDBOX_PARTYA, // customers phone number
     PartyB: shortCode,
     PhoneNumber: paymentData.phoneNumber, // to receive ussd prompt
     CallbackUrl:
@@ -36,18 +51,78 @@ export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
   };
 
   try {
-      await mpesaClient.request(
-        "POST",
-        "/stkpush/v1/processrequest",
-        JSON.stringify(payload),
-      );
-    
-  } catch (error) {
-    logger.error(`Error:${error.message}, Mpesa Stk push to PhoneNumber: ${paymentData.phoneNumber}`)
-  }
+    const response = await mpesaClient.request<PaymentSTKResponse, any>(
+      "POST",
+      "/stkpush/v1/processrequest",
+      JSON.stringify(payload),
+    );
+    if (response.data.ResponseCode == 0) {
+      logger.info(`STP push to PhoneNumber:${paymentData.phoneNumber} successfull`);
 
+      // if request suecessfull add  checkoutrequestid and add to queue for STK query
+      const transaction = await Payment.findByPk(paymentData.transactionId);
+      transaction?.set("checkout_request_id", response.data.CheckoutRequestID);
+      await transaction?.save();
+
+      const job = await enqueueSTKPoll({
+        transactionId: paymentData.transactionId,
+        shortCode: paymentData.shortCode,
+        checkoutRequestId: transaction?.checkout_request_id as string,
+      });
+
+      logger.info(
+        `Payment checkout query enqueued: CheckoutRequestID: ${response.data.CheckoutRequestID}`,
+      );
+    }else {
+      logger.error(`STP push to PhoneNumber:${paymentData.phoneNumber} failed`)
+    } 
+
+  } catch (error) {
+    logger.error(
+      `Error:${error.message}, Mpesa Stk push to PhoneNumber: ${paymentData.phoneNumber}`,
+    );
+  }
 };
 
-export const handlePaymentConfirmation = async() => {
-  
-}
+export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
+  const shortCode =
+    (NODE_ENV === "production" ? paymentQuery.shortCode : parseInt(MPESA_SANDBOX_SHORTCODE as string)) as number;
+  const passkey =
+    (NODE_ENV === "production"
+      ? MPESA_EXPRESS_PASSKEY
+      : MPESA_EXPRESS_SANDBOX_PASSKEY) as string;
+  const timeStamp = getTimeStamp();
+
+  const base64String = Buffer.from(
+    `${shortCode}:${passkey}:${timeStamp}`,
+  ).toString("base64");
+  const payload = JSON.stringify({
+    BusinessShortCode: shortCode,
+    Password: base64String,
+    Timestamp: timeStamp,
+    CheckoutRequestID: paymentQuery.checkoutRequestId,
+  })
+
+  try {
+  const response = await mpesaClient.request<PaymentSTKQueryResponse, string>("POST", "/stkpushquery/v1/query", payload);
+  const transaction = await Payment.findByPk(paymentQuery.transactionId)
+
+  if(response.data.ResponseCode == 0) {
+    transaction?.set("status", PaymentStatus.Successful)
+
+    // generate payment receipt pdf
+
+    // send reciept via email
+  }else {
+    transaction?.set("status", PaymentStatus.Failed);
+  }
+
+  await transaction?.save()
+
+
+  } catch (error) {
+    logger.error(`Error while making stk query request:${error.message}`)
+    
+  }
+};
+export const handlePaymentConfirmation = async () => {};
