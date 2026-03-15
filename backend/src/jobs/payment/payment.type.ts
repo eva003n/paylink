@@ -10,4 +10,5 @@ export type PaymentQuery = {
   transactionId: string;
   shortCode: number,
   checkoutRequestId: string,
+  attempts: number
 };

@@ -64,7 +64,7 @@ const mpesaSTKQueryResultSchema = z.object({
     ResponseDescription: z.string(),
     MerchantRequestID: z.string(),
     CheckoutRequestID: z.string(),
-    ResultCode: z.string(),
+    ResultCode: z.number(),
     ResultDesc: z.string(),
   }),
 });

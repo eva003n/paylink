@@ -61,6 +61,11 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/links", linkRouter)
 app.use("/api/v1/payments", paymentRouter);
 
+// bullmq ui endpoint
+import { bullBoardRouter } from "../queues";
+app.use("/admin/queues", bullBoardRouter)
+
+
 import notFoundRouter from "./routes/404.routes";
 // error handling middleware
 import errorHandlerMiddleware from "./middlewares/error.middleware";

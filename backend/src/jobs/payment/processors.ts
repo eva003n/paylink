@@ -11,10 +11,10 @@ import { mpesaClient } from "../../config/mpesa/mpesaclient";
 import { getTimeStamp } from "../../utils";
 import { PaymentData, PaymentQuery } from "./payment.type";
 import logger from "../../logger/logger.winston";
-import { PaymentSTKQueryRequest, PaymentSTKQueryResponse, PaymentSTKResponse } from "../../api/middlewares/validators";
+import {PaymentSTKQueryResponse, PaymentSTKResponse } from "../../api/middlewares/validators";
 import { Payment, PaymentStatus } from "../../models";
-import { enqueueSTKPoll } from "../../queues/payment.queue";
-import { Json } from "sequelize/types/utils";
+import { enqueueSTKPoll } from "../../queues";
+import { MAX_POLL_ATTEMPTS } from "../../constants";
 
 export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
   const shortCode =
@@ -64,10 +64,11 @@ export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
       transaction?.set("checkout_request_id", response.data.CheckoutRequestID);
       await transaction?.save();
 
-      const job = await enqueueSTKPoll({
+    await enqueueSTKPoll({
         transactionId: paymentData.transactionId,
         shortCode: paymentData.shortCode,
         checkoutRequestId: transaction?.checkout_request_id as string,
+        attempts: 0
       });
 
       logger.info(
@@ -106,19 +107,36 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
   try {
   const response = await mpesaClient.request<PaymentSTKQueryResponse, string>("POST", "/stkpushquery/v1/query", payload);
   const transaction = await Payment.findByPk(paymentQuery.transactionId)
-
-  if(response.data.ResponseCode == 0) {
+const code = response.data.ResultCode
+  if(code == 0) {
     transaction?.set("status", PaymentStatus.Successful)
 
     // generate payment receipt pdf
 
-    // send reciept via email
-  }else {
+    // send receipt via email
+  }
+  
+  // if user hasn't acted re-queue based on the maximum pools
+  if (code > 0) {
+    logger.info(
+      `Payment query with CheckoutID: ${paymentQuery.checkoutRequestId} requeued for STK quering`,
+    );
+
+    // inly queue when the max poll attempts is not reached
+    if (paymentQuery.attempts >= MAX_POLL_ATTEMPTS) {
+      paymentQuery.attempts++;
+      // re-queue
+      await enqueueSTKPoll(paymentQuery);
+    }
+
+    // after all attempts the transaction is marked as failed
     transaction?.set("status", PaymentStatus.Failed);
   }
-
+// update transaction status
   await transaction?.save()
-
+    logger.info(
+      `Transaction ID: ${transaction?.id} Status: ${transaction?.status}`,
+    );
 
   } catch (error) {
     logger.error(`Error while making stk query request:${error.message}`)

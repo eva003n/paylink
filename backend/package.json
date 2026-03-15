@@ -19,6 +19,8 @@
   "license": "ISC",
   "packageManager": "pnpm@10.24.0",
   "dependencies": {
+    "@bull-board/api": "^6.20.5",
+    "@bull-board/express": "^6.20.5",
     "@sindresorhus/base62": "^1.0.0",
     "axios": "^1.13.6",
     "bcryptjs": "^3.0.3",

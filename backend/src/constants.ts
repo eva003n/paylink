@@ -10,3 +10,5 @@ export const JOB_NAMES = {
     CONFIRMPAYMENT: "stk.payment",
     PAYMENTEXPIRED: "payment.expired" 
 }
+
+export const MAX_POLL_ATTEMPTS = 12;
