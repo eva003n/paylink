@@ -18,6 +18,11 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
         key: "id",
       },
     },
+    token: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "",
+    },
     url: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -44,7 +49,7 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
     expiresAt: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      defaultValue: new Date(Date.now() + 24 * 60 * 60 * 1000), // 7 days
     },
     createdAt: {
       type: DataTypes.DATE,

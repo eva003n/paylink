@@ -14,7 +14,7 @@ async function up({ context: queryInterface }: {context: QueryInterface }) {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: "merchants",
+        model: "users",
         key: "id",
       },
     },

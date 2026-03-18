@@ -13,6 +13,7 @@ export class Link extends Model {
   declare merchant_id: string;
   declare amount: number;
   declare shortCode: number;
+  declare token: string;
   declare url: string;
   declare status: LinkStatus;
   declare expiresAt: Date;
@@ -35,6 +36,11 @@ export default Link.init({
         model: "users",
         key: "id"
     }
+  },
+  token: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: ""
   },
   url: {
     type: DataTypes.STRING,
@@ -64,7 +70,7 @@ export default Link.init({
   expiresAt: {
     type: DataTypes.DATE,
     allowNull: false,
-    defaultValue: new Date(Date.now() + (7 * 24 * 60 * 60 * 1000)) // 7 days
+    defaultValue: new Date(Date.now() + (24 * 60 * 60 * 1000)) // 7 days
   }
 },
  {

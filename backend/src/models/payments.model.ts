@@ -32,7 +32,7 @@ Payment.init(
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: "merchants",
+        model: "users",
         key: "id",
       },
     },
