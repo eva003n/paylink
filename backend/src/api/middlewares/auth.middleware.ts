@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import asyncHandler from "../../utils/asynchandler";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { ACCESS_TOKEN_SECRET } from "../../config/env";
+import { ACCESS_TOKEN_SECRET, NODE_ENV } from "../../config/env";
 import ApiError from "../../utils/ApiError";
 import { jwtSchema } from "./validators";
 
@@ -10,7 +10,7 @@ const protectRoute = asyncHandler(async (req, res, next) => {
   const accessToken = req.signedCookies.AccessToken;
   // no token in cookie
   if (!accessToken) {
-    return next(ApiError.badRequest(400, req.originalUrl));
+    return next(ApiError.badRequest(400, req.originalUrl, NODE_ENV === "development"? "No access token": "Bad request"));
   }
 
   // verify jwt token.
@@ -22,7 +22,13 @@ const protectRoute = asyncHandler(async (req, res, next) => {
   // sanitize the decoded token to make sure we work with expected properties
   const { error } = jwtSchema.safeParse(decodedToken);
   if (error) {
-    return next(ApiError.badRequest(400, req.originalUrl));
+    return next(
+      ApiError.badRequest(
+        400,
+        req.originalUrl,
+        NODE_ENV === "development" ? "Invalid JWT token" : "Bad request",
+      ),
+    );
   }
 
   const user = {

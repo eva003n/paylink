@@ -26,7 +26,7 @@ const errorHandlerMiddleware = (
       );
   } else {
     logger.error(err.message);
-    console.dir(err);
+    // console.dir(err);
     return res
       .type("application/problem+json")
       .status(500)

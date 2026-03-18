@@ -6,9 +6,11 @@ import { formatError } from "../../utils/index";
 
 const validate = <T>(schema: z.ZodType<T>) =>
   asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+
     const { error } = schema.safeParse(
       Object.assign({}, req.body, req.params, req.query),
     );
+
     if (error)
       return next(
         ApiError.badRequest(
