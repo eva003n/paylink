@@ -1,11 +1,15 @@
-
-import { handleMpesaSTKPush } from "../../jobs/payment/processors";
 import { Link, Payment } from "../../models/index";
 import base62 from "@sindresorhus/base62";
 
-// import { enqueueSTKPush } from "../../queues/index";
+import { enqueueSTKPush } from "../../queues/index";
 
-export const initiateSTKPush = async ({token, phoneNumber}: {token: string, phoneNumber: string}) => {
+export const initiateSTKPush = async ({
+  token,
+  phoneNumber,
+}: {
+  token: string;
+  phoneNumber: string;
+}) => {
   const linkId = base62.decodeString(token);
 
   // check link info
@@ -23,23 +27,16 @@ export const initiateSTKPush = async ({token, phoneNumber}: {token: string, phon
     amount: 0,
     phone_number: phoneNumber,
     checkout_request_id: "",
-    merchant_id: link.merchant_id
+    merchant_id: link.merchant_id,
   });
 
-  const job = {
-    id: "",
-    data : {
-      transactionId: ""
-    }
-  }
+  const job = await enqueueSTKPush({
+    phoneNumber,
+    transactionId: transaction.id,
+    amount: Math.round(Number(link.amount)),
+    shortCode: link.shortCode,
+  });
 
-  // const job = await enqueueSTKPush({'
-  //   phoneNumber,
-  //   transactionId: transaction.id,
-  //   amount: Math.round(Number(link.amount)),
-  //   shortCode: link.shortCode
-  // });
-await handleMpesaSTKPush({transactionId: transaction.id, phoneNumber, shortCode: link.shortCode, amount: link.amount})
   return { link, invalid: false, job };
 };
 export const validateMpesaPayment = async () => {};

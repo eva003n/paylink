@@ -20,6 +20,7 @@ export const generatePaymentLink = async (linkData: PaymentLink) => {
   const baseUrl = FRONTEND_BASE_URI;
   const url = `${baseUrl}/payments/payment-link?token=${base62String}`;
   link.set("url", `${url}`);
+  link.set("token", `${base62String}`);
 
   await link.save();
   return { merchant, link };
