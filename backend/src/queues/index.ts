@@ -5,7 +5,7 @@ import { enqueueSTKPush, enqueueSTKPoll } from "./payment.queue";
 import { ExpressAdapter } from "@bull-board/express";
 import { createBullBoard } from "@bull-board/api";
 import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
-import { privateRoute, protectRoute } from "../api/middlewares/auth.middleware";
+// import { privateRoute, protectRoute } from "../api/middlewares/auth.middleware";
 import { NODE_ENV } from "../config/env";
 
 
@@ -17,10 +17,10 @@ import { NODE_ENV } from "../config/env";
 const serverAdapter = new ExpressAdapter();
 // get router
 const bullBoardRouter = serverAdapter.getRouter()
-
+serverAdapter.setBasePath("/admin/queues")
 // pauthentication and authorization(Only admin can access routes)
-bullBoardRouter.use(protectRoute)
-bullBoardRouter.use(privateRoute)
+// bullBoardRouter.use(protectRoute)
+// bullBoardRouter.use(privateRoute)
  
 const readOnly = NODE_ENV === "production"
 createBullBoard({
@@ -41,5 +41,6 @@ export {
     enqueueSTKPush,
     enqueueSTKPoll,
     bullBoardRouter,
+    serverAdapter,
 
 }

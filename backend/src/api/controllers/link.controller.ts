@@ -8,6 +8,7 @@ import { generatePaymentLink } from "../services/link.service";
 export const createPaymentLink = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { invoiceNo, expiresAt, shortCode, amount }: PaymentLink = req.body;
+    console.log(req.body)
     const merchant_id = req.user.id;
     const { merchant, link } = await generatePaymentLink({
       invoiceNo,

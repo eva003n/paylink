@@ -9,14 +9,13 @@ const validate = <T>(schema: z.ZodType<T>) =>
     const { error } = schema.safeParse(
       Object.assign({}, req.body, req.params, req.query),
     );
-
     if (error)
       return next(
         ApiError.badRequest(
           400,
           req.originalUrl,
           "Bad request",
-          formatError(error.issues),
+        formatError(error.issues)
         ),
       );
 

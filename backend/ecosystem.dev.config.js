@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: "paylink-api",
-      script: "./dist/index.js",
-      instances: "max",
+      script: "./dist/api/index.js",
+      instances: "-1",
       exec_mode: "cluster",
       autorestart: true,
       kill_timeout: 3000,

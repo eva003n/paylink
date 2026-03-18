@@ -47,9 +47,9 @@ app.use(
 );
 //parse urlencoded request body with simple structures
 app.use(express.urlencoded({ extended: false }));
-// authentication middleware that parses auth header and cookies to auth object
-// app.use(clerkMiddleware({clerkClient: clerkAuthClient}))
-// http request logging middleware
+
+import { getAbsolutePath } from "../utils";
+app.use(express.static(getAbsolutePath("../../public", __dirname)))
 app.use(morganMiddleware);
 
 /* ---- API endpoints ---- */
@@ -62,8 +62,8 @@ app.use("/api/v1/links", linkRouter)
 app.use("/api/v1/payments", paymentRouter);
 
 // bullmq ui endpoint
-import { bullBoardRouter } from "../queues";
-app.use("/admin/queues", bullBoardRouter)
+import { serverAdapter } from "../queues";
+app.use("/admin/queues", serverAdapter.getRouter())
 
 
 import notFoundRouter from "./routes/404.routes";
