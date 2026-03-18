@@ -11,7 +11,10 @@ export const initiateMpesaSTKPush = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id: token, phoneNumber }: PaymentSTK = req.body;
 
-    const { link, invalid, job } = await initiateSTKPush(token, phoneNumber);
+    const { link, invalid, job } = await initiateSTKPush({
+      token,
+      phoneNumber,
+    });
 
     if (!link)
       return next(

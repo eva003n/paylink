@@ -1,14 +1,20 @@
 import { Job, Worker } from "bullmq";
 import { getSharedConnection } from "../config/bullmq";
-
-const connection = getSharedConnection();
-import logger from "../logger/logger.winston";
-import { JOB_NAMES } from "../constants";
+import { JOB_NAMES, QUEUE_NAMES } from "../constants";
 import { handleMpesaSTKPush } from "../jobs/payment/processors";
 import { PaymentData } from "../jobs/payment/payment.type";
+import logger from "../logger/logger.winston";
+import { connectDb, sequelize } from "../config/db/postgres";
+
+// connect redis
+const connection = getSharedConnection();
+// connect postgres
+(async() => {
+  await connectDb()
+})()
 
 const paymentWorker = new Worker(
-  "paymentQueue",
+  QUEUE_NAMES.PAYMENT,
   async (job: Job<PaymentData>) => {
     switch(job.name) {
         case JOB_NAMES.STKPUSH : return handleMpesaSTKPush(job.data)
@@ -31,6 +37,7 @@ const paymentWorker = new Worker(
 const shutDown = async () => {
   logger.info(`Gracefully shuting down payment worker`);
   await paymentWorker.close();
+  await sequelize.close()
   process.exit(0);
 };
 
