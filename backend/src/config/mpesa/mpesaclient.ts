@@ -1,13 +1,13 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
 import {
   NODE_ENV,
-  MPESA_API_URL,
+  PROD_MPESA_LIVE_API_URL,
   MPESA_SANDBOX_API_URL,
-  CONSUMER_KEY,
+  PROD_CONSUMER_KEY,
   SANDBOX_CONSUMER_KEY,
-  CONSUMER_SECRET,
+  PROD_CONSUMER_SECRET,
   SANDBOX_CONSUMER_SECRET,
-  MPESA_AUTH_URL,
+  PROD_MPESA_AUTH_URL,
   MPESA_SANDBOX_AUTH_URL,
 } from "../env";
 import ServiceError from "../../utils/ServiceError";
@@ -29,16 +29,16 @@ class MpesaClient {
 
   constructor() {
     this.audience = (
-      NODE_ENV === "production" ? MPESA_API_URL : MPESA_SANDBOX_API_URL
+      NODE_ENV === "production" ? PROD_MPESA_LIVE_API_URL : MPESA_SANDBOX_API_URL
     ) as string;
     this.consumerKey = (
-      NODE_ENV === "production" ? CONSUMER_KEY : SANDBOX_CONSUMER_KEY
+      NODE_ENV === "production" ? PROD_CONSUMER_KEY : SANDBOX_CONSUMER_KEY
     ) as string;
     this.consumerSecret = (
-      NODE_ENV === "production" ? CONSUMER_SECRET : SANDBOX_CONSUMER_SECRET
+      NODE_ENV === "production" ? PROD_CONSUMER_SECRET : SANDBOX_CONSUMER_SECRET
     ) as string;
     this.authUrl = (
-      NODE_ENV === "production" ? MPESA_AUTH_URL : MPESA_SANDBOX_AUTH_URL
+      NODE_ENV === "production" ? PROD_MPESA_AUTH_URL : MPESA_SANDBOX_AUTH_URL
     ) as string;
     this.token = null;
     this.tokenExpiry = 0;
@@ -52,8 +52,10 @@ class MpesaClient {
     });
 
     this.api.interceptors.request.use(
-       (config) => {
-        logger.info(`Mpesa request: url:${config.url} token expiry: ${this.tokenExpiry}`);
+      (config) => {
+        logger.info(
+          `Mpesa request: url:${config.url} token expiry: ${this.tokenExpiry}`,
+        );
         // configure outh header
         // config.headers.Authorization = `Bearer ${this.token}`;
         return config;
@@ -62,16 +64,25 @@ class MpesaClient {
     );
 
     this.api.interceptors.response.use(
-      (response) => response,
-      (error: AxiosError<{ errorMessage: string }>) => {
-        if (error.status && error.response?.status === 400) {
+      function onFullFilled(response) {      
+        return response;
+      },
+      function onRejected(
+        error: AxiosError<{ errorMessage: string }>,
+      ) {
+        if (error.response?.status === 400) {
           const mpesaError = new ServiceError(
-            error.response.data.errorMessage,
+            error.response.data?.errorMessage,
             error.config?.url as string,
           );
-
           logger.error(`Mpesa service error: ${mpesaError.message}`);
+          return Promise.reject(mpesaError);
         }
+          logger.error(
+            `Mpesa service error: ${error.response?.data?.errorMessage}`,
+          );
+
+        return Promise.reject(error);
       },
     );
   }
@@ -107,9 +118,13 @@ class MpesaClient {
     return this.token;
   }
 
-  public async request<T, D>(method: string, url: string, data?: D):Promise<T> {
+  public async request<T, D>(
+    method: string,
+    url: string,
+    data?: D,
+  ): Promise<T> {
     const token = await this.getAccessToken();
-    return this.api.request({
+    const response = await this.api.request({
       method,
       url,
       data,
@@ -117,6 +132,7 @@ class MpesaClient {
         Authorization: `Bearer ${token}`,
       },
     });
+    return response.data;
   }
 }
 
