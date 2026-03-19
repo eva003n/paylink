@@ -36,7 +36,7 @@ export const initiateMpesaSTKPush = asyncHandler(
             jobid: job?.id,
             transactionId: job?.data.transactionId
           },
-          "Mpesa USSD prompt sent to phone number",
+          `Mpesa USSD prompt sent to phone number: ${phoneNumber}`,
         ),
       );
   },
