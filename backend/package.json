@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -b",
     "start": "tsc -b && pm2 start ecosystem.config.js & pm2 logs",
-    "start-dev": "tsc -b && pm2 start ecosystem.dev.config.js & pm2 logs",
+    "start-dev": "tsc -b && pm2 start ecosystem.dev.config.js --node-args=-r node_modules/dotenv-flow/config.js && pm2 logs",
     "restart": "pm2 restart ecosystem.config.js",
     "stop": "pm2 stop ecosystem.config.js",
     "reload": "pm2 reload ecosystem.config.js",
@@ -52,7 +52,7 @@
     "@types/morgan": "^1.9.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^25.3.3",
-    "dotenv": "^17.3.1",
+    "dotenv-flow": "^4.1.0",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
