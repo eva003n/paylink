@@ -9,7 +9,6 @@ import { getAbsolutePath } from "../utils/index";
 // config({
 //   path: getAbsolutePath(`../../.env.${process.env.NODE_ENV || "development"}`),
 // });
-console.log(`${getAbsolutePath("../../.env", __dirname)}`);
 config({
   files: [
     `${getAbsolutePath("../../.env", __dirname)}`, // The base environment file (loaded first)
