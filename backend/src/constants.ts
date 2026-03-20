@@ -12,4 +12,18 @@ export const JOB_NAMES = {
     PDF_RECEIPT: "pdf.receipt"
 }
 
+export const MONTHS_FULL = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 export const MAX_POLL_ATTEMPTS = 12;
