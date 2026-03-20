@@ -6,6 +6,7 @@ import {
 
 import { validate } from "../middlewares/validator.middleware";
 import { paymentSTKSchema } from "../middlewares/validators";
+import { protectRoute } from "../middlewares/auth.middleware";
 
 
 const router = Router();
@@ -19,7 +20,8 @@ router
 
 /* -------- Protected routes ------- */
 
-// router.use(requireAuth)
+router.use(protectRoute)
+
 
 
 export default router;

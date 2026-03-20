@@ -5,10 +5,11 @@ export  const QUEUE_NAMES = {
 } 
 
 export const JOB_NAMES = {
-    STKPUSH: "stk.push",
-    STKPOLL: "stk.poll",
+    STK_PUSH: "stk.push",
+    STK_POLL: "stk.poll",
     CONFIRMPAYMENT: "stk.payment",
-    PAYMENTEXPIRED: "payment.expired" 
+    PAYMENT_EXPIRED: "payment.expired",
+    PDF_RECEIPT: "pdf.receipt"
 }
 
 export const MAX_POLL_ATTEMPTS = 12;

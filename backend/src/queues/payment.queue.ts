@@ -20,10 +20,10 @@ const connection = getSharedConnection()
  });
 
  export const enqueueSTKPush = (paymentData: PaymentData) => {
-  return paymentQueue.add(JOB_NAMES.STKPUSH, paymentData, {jobId: paymentData.transactionId})
+  return paymentQueue.add(JOB_NAMES.STK_PUSH, paymentData, {jobId: paymentData.transactionId})
  }
  export const enqueueSTKPoll = (paymentQuery: PaymentQuery) => {
-  return paymentQueue.add(JOB_NAMES.STKPOLL, paymentQuery, {jobId: paymentQuery.transactionId})
+  return paymentQueue.add(JOB_NAMES.STK_POLL, paymentQuery, {jobId: paymentQuery.transactionId})
  }
  export const enqueueSTKPayment = (paymentData: MpesaSTKSuccess | MpesaSTKFailed) => {
 

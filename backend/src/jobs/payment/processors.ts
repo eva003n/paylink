@@ -99,7 +99,7 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
   const timeStamp = getTimeStamp();
 
   const base64String = Buffer.from(
-    `${shortCode}:${passkey}:${timeStamp}`,
+    `${shortCode}${passkey}${timeStamp}`,
   ).toString("base64");
   const payload = JSON.stringify({
     BusinessShortCode: shortCode,
@@ -114,6 +114,7 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
 const code = response.ResultCode
   if(code == 0) {
     transaction?.set("status", PaymentStatus.Successful)
+
 
     // generate payment receipt pdf
 
@@ -141,10 +142,8 @@ const code = response.ResultCode
     logger.info(
       `Transaction ID: ${transaction?.id} Status: ${transaction?.status}`,
     );
-
   } catch (error) {
     logger.error(`Error while making stk query request:${error.message}`)
-    
   }
 };
 export const handlePaymentConfirmation = async () => {};

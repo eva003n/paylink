@@ -7,6 +7,7 @@ import ApiResponse from "../../utils/ApiResponse";
 import { initiateSTKPush } from "../services/payment.service";
 import ApiError from "../../utils/ApiError";
 
+
 export const initiateMpesaSTKPush = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id: token, phoneNumber }: PaymentSTK = req.body;
@@ -41,6 +42,8 @@ export const initiateMpesaSTKPush = asyncHandler(
       );
   },
 );
+
+
 
 export const confirmPayment = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
