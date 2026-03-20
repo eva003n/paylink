@@ -7,8 +7,16 @@ export type PaymentData = {
 }
 
 export type PaymentQuery = {
-  transactionId: string;
+  transactionId: string,
   shortCode: number,
   checkoutRequestId: string,
   attempts: number
 };
+
+export type MpesaPayment = {
+  refNo: string
+  amount: number
+  phoneNumber: string,
+  date: string,
+  transactionId: string
+}
