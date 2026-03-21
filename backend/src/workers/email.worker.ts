@@ -1,10 +1,20 @@
-import { Worker } from "bullmq";
+import { Worker, Job } from "bullmq";
 import { getSharedConnection } from "../config/bullmq";
 import logger from "../logger/logger.winston";
+import { JOB_NAMES } from "../constants";
+import { handleEmail } from "../jobs/email/processor";
+import { EmailData } from "../jobs/email/email.types";
 
 
-const worker = new Worker("emailQueue", async() => {
+const worker = new Worker("emailQueue", async(job: Job<EmailData>) => {
 
+switch (job.name) {
+  case JOB_NAMES.RECEIPT_EMAIL:
+    return await handleEmail(job.data);
+
+  default:
+    throw new Error(`Unknown job in email worker: ${job.name}`);
+}
 }, {
     connection: getSharedConnection().options,
     concurrency: 5,
