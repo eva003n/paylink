@@ -1,6 +1,8 @@
 import { Queue } from "bullmq";
 import { getSharedConnection } from "../config/bullmq";
-import { QUEUE_NAMES } from "../constants";
+import { JOB_NAMES, QUEUE_NAMES } from "../constants";
+import {randomUUID} from "crypto"
+import { EmailData } from "../jobs/email/email.types";
 
 const connection = getSharedConnection()
 
@@ -17,4 +19,10 @@ const emailQueue = new Queue(QUEUE_NAMES.EMAIL, {
   },
 });
 
+export const enqueueReceiptEmail = async(receiver: EmailData) => {
+  await emailQueue.add(JOB_NAMES.RECEIPT_EMAIL, receiver, {
+    jobId: randomUUID()
+  })
+
+}
 export { emailQueue };

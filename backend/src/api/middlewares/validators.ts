@@ -98,7 +98,8 @@ export const paymentLinkSchema = z.object({
 });
 
 export const paymentSTKSchema = z.object({
-  id: z.string(),
+token: z.string(),
+  email: z.email(),
   phoneNumber: z.string().min(12).max(12),
 });
 export type SignUpAuth = z.infer<typeof signUpSchema>;
