@@ -10,11 +10,12 @@ import ApiError from "../../utils/ApiError";
 
 export const initiateMpesaSTKPush = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { id: token, phoneNumber }: PaymentSTK = req.body;
+    const { token, phoneNumber, email }: PaymentSTK = req.body;
 
     const { link, invalid, job } = await initiateSTKPush({
       token,
       phoneNumber,
+      email
     });
 
     if (!link)
@@ -26,7 +27,6 @@ export const initiateMpesaSTKPush = asyncHandler(
       return next(
         ApiError.badRequest(400, req.originalUrl, "Link has already expired"),
       );
-
       
     res
       .status(200)

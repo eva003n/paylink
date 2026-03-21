@@ -12,6 +12,7 @@ export class Payment extends Model {
   declare link_id: string;
   declare merchant_id: string;
   declare phone_number: string;
+  declare email: string;
   declare mpesa_ref: string;
   declare checkout_request_id: string;
   declare amount: number;
@@ -37,6 +38,10 @@ Payment.init(
       },
     },
     phone_number: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
       type: DataTypes.STRING,
       allowNull: false,
     },

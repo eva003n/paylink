@@ -1,8 +1,7 @@
-import { Job, Worker } from "bullmq";
+import { Worker } from "bullmq";
 import { getSharedConnection } from "../config/bullmq";
 import { JOB_NAMES, QUEUE_NAMES } from "../constants";
-import { handleMpesaSTKPush } from "../jobs/payment/processors";
-import { PaymentData } from "../jobs/payment/payment.type";
+import { handleMpesaSTKPoll, handleMpesaSTKPush } from "../jobs/payment/processors";
 import logger from "../logger/logger.winston";
 import { connectDb, sequelize } from "../config/db/postgres";
 
@@ -15,11 +14,12 @@ const connection = getSharedConnection();
 
 const paymentWorker = new Worker(
   QUEUE_NAMES.PAYMENT,
-  async (job: Job<PaymentData>) => {
+  async (job) => {
     switch(job.name) {
-        case JOB_NAMES.STKPUSH : return handleMpesaSTKPush(job.data)
+        case JOB_NAMES.STK_PUSH : return await handleMpesaSTKPush(job.data)
+        case JOB_NAMES.STK_POLL: return await handleMpesaSTKPoll(job.data)
         default:
-             throw new Error(`Unknown payment job: ${job.name}`)
+             throw new Error(`Unknown job in payment worker: ${job.name}`)
     }
     
   },

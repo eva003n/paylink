@@ -2,14 +2,13 @@ import { Link, Payment } from "../../models/index";
 import base62 from "@sindresorhus/base62";
 
 import { enqueueSTKPush } from "../../queues/index";
+import { PaymentSTK } from "../middlewares/validators";
 
 export const initiateSTKPush = async ({
   token,
   phoneNumber,
-}: {
-  token: string;
-  phoneNumber: string;
-}) => {
+  email
+}: PaymentSTK) => {
   const linkId = base62.decodeString(token);
 
   // check link info
@@ -26,6 +25,7 @@ export const initiateSTKPush = async ({
     link_id: link.id,
     amount: 0,
     phone_number: phoneNumber,
+    email: email,
     checkout_request_id: "",
     merchant_id: link.merchant_id,
   });
