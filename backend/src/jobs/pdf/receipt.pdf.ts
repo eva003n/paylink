@@ -2,18 +2,8 @@ import PDFDocument from "pdfkit";
 import { createWriteStream } from "fs";
 import { getAbsolutePath } from "../../utils";
 import { MONTHS_FULL } from "../../constants";
+import { ReceiptContent } from "./receipt.type";
 
-type ReceiptContent = {
-  name: string;
-  businessName: string;
-  amount: number;
-  phoneNumber: string;
-  date?: string;
-  reference: string;
-  paymentType: string;
-  account: string;
-  paybill: string;
-};
 
 function getSuperScript(date: number) {
   const secondDigit = date.toString().split("")[1];
@@ -38,7 +28,7 @@ function generateDate() {
 
   return dateString;
 }
-export const generateReceipt = (data: ReceiptContent) => {
+export const generatePDFReceipt = (data: ReceiptContent) => {
   const receiptDocument = new PDFDocument({
     info: {
       Title: "Mpesa payment receipt",
@@ -95,10 +85,10 @@ export const generateReceipt = (data: ReceiptContent) => {
   addRow("Total Amount Paid: ", `KES ${data.amount}`);
   addRow("Phone Number: ", data.phoneNumber);
   addRow("Date: ", data.date || generateDate());
-  addRow("Paid To: ", data.businessName);
+  addRow("Paid To: ", data.businessName || "Paylink");
   addRow("Transaction No: ", data.reference);
   addRow("Payment Type: ", data.paymentType);
-  addRow("Paybill Number: ", data.paybill);
+  addRow("Paybill Number: ", data.paybill.toString());
   addRow("Account No: ", data.account);
 
   // footer

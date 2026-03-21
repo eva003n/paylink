@@ -1,10 +1,11 @@
 import { Queue } from "bullmq";
 import { getSharedConnection } from "../config/bullmq";
-import { QUEUE_NAMES } from "../constants";
+import { JOB_NAMES, QUEUE_NAMES } from "../constants";
+import { ReceiptContent } from "../jobs/pdf/receipt.type";
 
 const connection = getSharedConnection()
 
-const pdfQueue = new Queue(QUEUE_NAMES.PDF, {
+export const pdfQueue = new Queue(QUEUE_NAMES.PDF, {
   connection: connection.options,
   defaultJobOptions: {
     removeOnComplete: true,
@@ -17,4 +18,9 @@ const pdfQueue = new Queue(QUEUE_NAMES.PDF, {
   }
 });
 
-export { pdfQueue };
+export const enqueuePaymentReceipt = async(payment: ReceiptContent) => {
+  return await pdfQueue.add(JOB_NAMES.PDF_RECEIPT, payment, {
+    jobId: payment.reference
+  })
+
+} 

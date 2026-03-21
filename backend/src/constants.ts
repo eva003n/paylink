@@ -9,7 +9,8 @@ export const JOB_NAMES = {
     STK_POLL: "stk.poll",
     CONFIRMPAYMENT: "stk.payment",
     PAYMENT_EXPIRED: "payment.expired",
-    PDF_RECEIPT: "pdf.receipt"
+    PDF_RECEIPT: "pdf.receipt",
+    RECEIPT_EMAIL: "email.receipt"
 }
 
 export const MONTHS_FULL = [
