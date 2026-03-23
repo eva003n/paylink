@@ -9,12 +9,8 @@ module.exports = {
       kill_timeout: 3000,
       env_development: {
         //.env
-        PORT: process.env.PORT,
-        NODE_ENV: process.env.NODE_ENV,
-
-        //.env.develoment or .env.production
-        PM2_PUBLIC_KEY: process.env.PM2_PUBLIC_KEY,
-        PM2_SECRET_KEY: process.env.PM2_SECRET_KEY,
+        PORT: 8000,
+        NODE_ENV: "development"
       },
     },
     {
@@ -24,7 +20,7 @@ module.exports = {
       exec_mode: "fork",
       autorestart: true,
       env_development: {
-        NODE_ENV: process.env.NODE_ENV,
+        NODE_ENV: "development",
       },
     },
     {
@@ -48,5 +44,5 @@ module.exports = {
         NODE_ENV: "development",
       },
     },
-  ]
+  ],
 };
