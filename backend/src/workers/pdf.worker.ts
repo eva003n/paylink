@@ -1,12 +1,12 @@
 import { Job, Worker } from "bullmq";
 import { getSharedConnection } from "../config/bullmq";
 import logger from "../logger/logger.winston";
-import { JOB_NAMES } from "../constants";
+import { JOB_NAMES, QUEUE_NAMES } from "../constants";
 import { handleReceiptGeneration } from "../jobs/pdf/processors";
 import { ReceiptContent } from "../jobs/pdf/receipt.type";
 
 const worker = new Worker(
-  "pdfQueue",
+  QUEUE_NAMES.PDF,
   async (job: Job<ReceiptContent>) => {
     switch (job.name) {
       case JOB_NAMES.PDF_RECEIPT:
