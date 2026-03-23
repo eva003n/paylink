@@ -81,7 +81,7 @@ Payment.init(
     indexes: [
       {
         unique: true,
-        fields: ["payment_ref", "mpesa_ref"],
+        fields: ["checkout_request_id", "mpesa_ref"],
       },
     ],
   },

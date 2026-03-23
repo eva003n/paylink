@@ -1,8 +1,10 @@
 import { Link, Payment } from "../../models/index";
 import base62 from "@sindresorhus/base62";
 
-import { enqueueSTKPush } from "../../queues/index";
-import { PaymentSTK } from "../middlewares/validators";
+import {  enqueueSTKPush } from "../../queues/index";
+import {PaymentSTK } from "../middlewares/validators";
+import { enqueueSTKPaymentConfirmation } from "../../queues/payment.queue";
+import { PaymentConfirmation } from "../../jobs/payment/payment.type";
 
 export const initiateSTKPush = async ({
   token,
@@ -23,7 +25,7 @@ export const initiateSTKPush = async ({
   // create transaction
   const transaction = await Payment.create({
     link_id: link.id,
-    amount: 0,
+    amount: link.amount,
     phone_number: phoneNumber,
     email: email,
     checkout_request_id: "",
@@ -41,4 +43,6 @@ export const initiateSTKPush = async ({
 };
 export const validateMpesaPayment = async () => {};
 
-export const confirmMpesaPayment = async () => {};
+export const confirmMpesaPayment = async (payment: PaymentConfirmation) => {
+    await enqueueSTKPaymentConfirmation(payment)
+};

@@ -9,18 +9,16 @@ import {
 } from "../../config/env";
 import { mpesaClient } from "../../config/mpesa/mpesaclient";
 import { getTimeStamp } from "../../utils";
-import { PaymentData, PaymentQuery } from "./payment.type";
+import { PaymentConfirmation, PaymentData, PaymentQuery } from "./payment.type";
 import logger from "../../logger/logger.winston";
 import {
   PaymentSTKQueryResponse,
   PaymentSTKResponse,
 } from "../../api/middlewares/validators";
-import { Payment, PaymentStatus } from "../../models";
+import { Link, Payment, PaymentStatus } from "../../models";
 import { enqueueSTKPoll } from "../../queues";
 import { MAX_POLL_ATTEMPTS } from "../../constants";
-import {  enqueuePaymentReceipt } from "../../queues/pdf.queue";
-
-console.log(getTimeStamp());
+import { enqueuePaymentReceipt } from "../../queues/pdf.queue";
 
 export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
   const shortCode =
@@ -75,16 +73,16 @@ export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
       transaction?.set("checkout_request_id", response.CheckoutRequestID);
       await transaction?.save();
 
-      await enqueueSTKPoll({
-        transactionId: paymentData.transactionId,
-        shortCode: paymentData.shortCode,
-        checkoutRequestId: transaction?.checkout_request_id as string,
-        attempts: 0,
-      });
+      // await enqueueSTKPoll({
+      //   transactionId: paymentData.transactionId,
+      //   shortCode: paymentData.shortCode,
+      //   checkoutRequestId: transaction?.checkout_request_id as string,
+      //   attempts: 0,
+      // });
 
-      logger.info(
-        `Payment checkout query enqueued: CheckoutRequestID: ${response.CheckoutRequestID}`,
-      );
+      // logger.info(
+      //   `Payment checkout query enqueued: CheckoutRequestID: ${response.CheckoutRequestID}`,
+      // );
     } else {
       logger.error(`STP push to PhoneNumber:${paymentData.phoneNumber} failed`);
     }
@@ -127,6 +125,9 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
     const transaction = await Payment.findByPk(paymentQuery.transactionId);
     const code = response.ResultCode;
     if (transaction && code == 0) {
+      logger.info(
+        `Mpesa express query successfulL CheckoutID: ${response.CheckoutRequestID} `,
+      );
       transaction.set("status", PaymentStatus.Successful);
 
       // generate payment receipt pdf
@@ -136,7 +137,7 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
         phoneNumber: transaction.phone_number,
         reference: transaction.mpesa_ref,
         amount: transaction.amount,
-        paymentType: "",
+        paymentType: "CustomerPayBillOnline",
         account: transaction.phone_number,
         paybill: shortCode,
       });
@@ -167,4 +168,42 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
     logger.error(`Error while making stk query request:${error.message}`);
   }
 };
-export const handlePaymentConfirmation = async () => {};
+
+export const handlePaymentConfirmation = async (
+  payment: PaymentConfirmation,
+) => {
+  try {
+    const transaction = await Payment.findOne({
+      where: { checkout_request_id: payment.checkoutRequestId },
+    });
+
+    if (!transaction) {
+      return logger.error(
+        `Payment with CheckoutRequestId: ${payment.checkoutRequestId} doesnt exists `,
+      );
+    }
+
+    transaction.set("mpesa_ref", payment.mpesaReference);
+    await transaction.save();
+
+    const link = await Link.findByPk(transaction.link_id);
+    if (!link) {
+      return logger.error(
+        `Link with ID: ${transaction.link_id} doesn't exists `,
+      );
+    }
+    // query payment status
+    const job = await enqueueSTKPoll({
+      transactionId: transaction.id,
+      shortCode: link.shortCode,
+      checkoutRequestId: transaction.checkout_request_id,
+      attempts: 0,
+    });
+
+    return logger.info(`Enqueued payment ID: ${job.id} for status querying`);
+  } catch (error) {
+    return logger.error(
+      `Error confirming payment CheckoutRequestId: ${payment.checkoutRequestId}`,
+    );
+  }
+};

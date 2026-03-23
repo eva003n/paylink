@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   confirmPayment,
   initiateMpesaSTKPush,
+  queryPayment,
 } from "../controllers/payment.controller";
 
 import { validate } from "../middlewares/validator.middleware";
@@ -18,10 +19,10 @@ router
   .route("/mpesa/stk-push")
   .post(validate(paymentSTKSchema), initiateMpesaSTKPush);
 
+
 /* -------- Protected routes ------- */
 
 router.use(protectRoute)
-
-
+  router.route("/query").post(queryPayment)
 
 export default router;

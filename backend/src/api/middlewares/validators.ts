@@ -27,35 +27,23 @@ const MpesaPaymentSTKFailedSchema = z.object({
   },
 });
 
+export const itemSchema = z.object({
+  Name: z.string(),
+  Value: z.union([z.string(), z.number()]),
+});
+
 const MpesaPaymentSTKSuccessSchema = z.object({
-  Body: {
-    stkCallback: {
+  Body: z.object({
+    stkCallback: z.object({
       MerchantRequestID: z.string(),
       CheckoutRequestID: z.string(),
       ResultCode: z.number(),
       ResultDesc: z.string(),
-      CallbackMetadata: {
-        Item: [
-          {
-            Name: z.literal("Amount"),
-            Value: z.number(),
-          },
-          {
-            Name: z.literal("MpesaReceiptNumber"),
-            Value: z.string(),
-          },
-          {
-            Name: z.literal("TransactionDate"),
-            Value: z.number(),
-          },
-          {
-            Name: z.literal("PhoneNumber"),
-            Value: z.number(),
-          },
-        ],
-      },
-    },
-  },
+      CallbackMetadata: z.object({
+        Item: z.array(itemSchema),
+      }),
+    }),
+  }),
 });
 
 const mpesaSTKQueryResultSchema = z.object({
@@ -113,3 +101,4 @@ export type PaymentSTK = z.infer<typeof paymentSTKSchema>;
 export type PaymentSTKQueryRequest = z.infer<typeof mpesaSTKQueryRequest>
 export type PaymentSTKQueryResponse = z.infer<typeof mpesaSTKQueryResultSchema>
 export type PaymentSTKResponse = z.infer<typeof mpesaSTKPushResponseSchema>
+// export type PaymentItem = z.infer<typeof itemSchema>

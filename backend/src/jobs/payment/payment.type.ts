@@ -20,3 +20,8 @@ export type MpesaPayment = {
   date: string,
   transactionId: string
 }
+
+export type PaymentConfirmation = {
+  mpesaReference: string,
+  checkoutRequestId: string
+};
