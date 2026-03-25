@@ -1,4 +1,5 @@
-export const template = `
+export const template = (username: string) => {
+  return `
    <!-- Main Container -->
     <table
       width="600"
@@ -18,7 +19,7 @@ export const template = `
       <tr>
         <td style="padding: 30px">
           <h2 style="margin-top: 0; color: #333">Payment Confirmed ✅</h2>
-          <p style="color: #555; line-height: 1.6">Hi {{customer_name}},</p>
+          <p style="color: #555; line-height: 1.6">Hi ${username},</p>
           <p style="color: #555; line-height: 1.6">
             Your payment has been successfully processed. Please find your
             receipt attached as a PDF below.
@@ -49,3 +50,4 @@ export const template = `
       </tr>
     </table>
 `;
+}
