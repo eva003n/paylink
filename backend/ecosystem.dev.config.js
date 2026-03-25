@@ -26,7 +26,7 @@ module.exports = {
     {
       name: "email-worker",
       script: "./dist/workers/email.worker.js",
-      instances: 2, // control concurrency
+      instances: 1, // control concurrency
       exec_mode: "fork",
       autorestart: true,
       env_development: {
