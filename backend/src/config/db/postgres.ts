@@ -1,4 +1,4 @@
-import { Sequelize } from "Sequelize";
+import { Sequelize } from "sequelize";
 import logger from "../../logger/logger.winston";
 import { POSTGRES_URL } from "../env";
 
