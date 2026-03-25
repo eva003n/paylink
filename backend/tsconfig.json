@@ -10,8 +10,7 @@
     "moduleDetection": "force",
     "isolatedModules": true,
     // "verbatimModuleSyntax": true,
-    "typeRoots": ["types" ],
-    // "types": ["node", "express"],
+    "typeRoots": ["types"],
 
     // module
     "rootDir": "src",

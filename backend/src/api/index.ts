@@ -1,5 +1,5 @@
 import { server } from "./app";
-import { connectDb, sequelize } from "../config/db/postgres";
+import { sequelize, connectDb } from "../config/db/postgres";
 import { PORT } from "../config/env";
 import { connectRedis } from "../config/redis";
 import logger from "../logger/logger.winston";

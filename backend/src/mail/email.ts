@@ -34,7 +34,7 @@ export const sendMail = async (receiver: string) => {
     from: "paylink@ethereal.email",
     to: receiver,
     subject: "Payment Confirmation – Receipt Attached",
-    html: template,
+    html: template(receiver.split("@")[0]),
     attachments: [
       {
         filename: "receipt.pdf",
