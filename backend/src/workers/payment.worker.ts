@@ -18,7 +18,7 @@ const paymentWorker = new Worker(
     switch(job.name) {
         case JOB_NAMES.STK_PUSH : return await handleMpesaSTKPush(job.data)
         case JOB_NAMES.STK_POLL: return await handleMpesaSTKPoll(job.data)
-        case JOB_NAMES.CONFIRM_PAYMENT: await handlePaymentConfirmation(job.data)
+        case JOB_NAMES.CONFIRM_PAYMENT: return await handlePaymentConfirmation(job.data)
         default:
              throw new Error(`Unknown job in payment worker: ${job.name}`)
     }
@@ -26,14 +26,33 @@ const paymentWorker = new Worker(
   },
   {
     connection: connection.options,
-    concurrency: 5, // process upto 5 jobs simultaneously
+    concurrency: 1, // process upto 5 jobs simultaneously
     limiter: {
-      max: 100, // jobs per duration
-      duration: 60000, // per 60 seconds
+      max: 1, // jobs per duration
+      duration: 12000, // 5 jobs within 12 seconds
     },
   },
 );
 
+
+paymentWorker.on("active", (job) => {
+  logger.info(`Worker picked up job: ${job.id} with name: ${job.name}`);
+});
+
+paymentWorker.on("completed", (job) => {
+  logger.info(`Job completed: ${job.id} with name: ${job.name}`);
+});
+
+paymentWorker.on("failed", (job, error) => {
+  logger.error(`Job failed: ${job?.id} with name: ${job?.name}`, {
+    message: error.message,
+    stack: error.stack,
+  });
+});
+
+paymentWorker.on("error", (error) => {
+  logger.error(`Worker error:`, { message: error.message, stack: error.stack });
+});
 // gracefull shutdown of workers(process in flight jobs before exiting)
 const shutDown = async () => {
   logger.info(`Gracefully shuting down payment worker`);

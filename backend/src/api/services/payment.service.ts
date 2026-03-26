@@ -5,6 +5,7 @@ import {  enqueueSTKPush } from "../../queues/index";
 import {PaymentSTK } from "../middlewares/validators";
 import { enqueueSTKPaymentConfirmation } from "../../queues/payment.queue";
 import { PaymentConfirmation } from "../../jobs/payment/payment.type";
+import logger from "../../logger/logger.winston";
 
 export const initiateSTKPush = async ({
   token,
@@ -38,6 +39,8 @@ export const initiateSTKPush = async ({
     amount: Math.round(Number(link.amount)),
     shortCode: link.shortCode,
   });
+
+  logger.info(`Enqueued STK push for Phone: ${phoneNumber}`)
 
   return { link, invalid: false, job };
 };

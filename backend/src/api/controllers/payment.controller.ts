@@ -73,6 +73,13 @@ export const confirmPayment = asyncHandler(
         mpesaReference: paymentItems.MpesaReceiptNumber,
         checkoutRequestId: payment.Body.stkCallback.CheckoutRequestID,
       });
+    }else {
+      // when user takes too log to act or cancels payment
+      await confirmMpesaPayment({
+        mpesaReference: "",
+        checkoutRequestId: payment.Body.stkCallback.CheckoutRequestID
+      })
+
     }
 
   },

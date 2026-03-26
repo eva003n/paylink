@@ -18,11 +18,11 @@ const connection = getSharedConnection()
    }
  });
 
- export const enqueueSTKPush = (paymentData: PaymentData) => {
-  return paymentQueue.add(JOB_NAMES.STK_PUSH, paymentData, {jobId: paymentData.transactionId})
+ export const enqueueSTKPush = async (paymentData: PaymentData) => {
+  return await paymentQueue.add(JOB_NAMES.STK_PUSH, paymentData, {jobId: paymentData.transactionId})
  }
- export const enqueueSTKPoll = (paymentQuery: PaymentQuery) => {
-  return paymentQueue.add(JOB_NAMES.STK_POLL, paymentQuery, {jobId: paymentQuery.transactionId})
+ export const enqueueSTKPoll = async(paymentQuery: PaymentQuery) => {
+  return await paymentQueue.add(JOB_NAMES.STK_POLL, paymentQuery, {jobId: paymentQuery.checkoutRequestId})
  }
  export const enqueueSTKPaymentConfirmation = async(paymentData: PaymentConfirmation) => {
    return await paymentQueue.add(JOB_NAMES.CONFIRM_PAYMENT, paymentData, {

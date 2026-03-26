@@ -68,20 +68,24 @@ class MpesaClient {
         return response;
       },
       function onRejected(
-        error: AxiosError<{ errorMessage: string }>,
+        error: AxiosError<any>,
       ) {
-        if (error.response?.status === 400) {
+        if (error.response && error.response.status >= 400) {
+          const {data, status} = error.response
+          console.dir(data)
+
+           const message =
+      data?.errorMessage ||
+      data?.ResponseDescription ||
+      data?.error_description ||
+      "Unknown M-Pesa error";
           const mpesaError = new ServiceError(
-            error.response.data?.errorMessage,
+            message,
             error.config?.url as string,
           );
-          logger.error(`Mpesa service error: ${mpesaError.message}`);
+          logger.error(`Mpesa service error: status: ${status} message: ${message}`);
           return Promise.reject(mpesaError);
         }
-          logger.error(
-            `Mpesa service error: ${error.response?.data?.errorMessage}`,
-          );
-
         return Promise.reject(error);
       },
     );
@@ -115,7 +119,7 @@ class MpesaClient {
     this.token = response.data.access_token;
     this.tokenExpiry = currentTimeSec + response.data.expires_in - 60; // minus 60 so that the request is sent 1 minute before the token expires to avoid token expiring mid-level request
 
-    return this.token;
+    return response.data.access_token;
   }
 
   public async request<T, D>(

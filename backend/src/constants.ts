@@ -27,4 +27,4 @@ export const MONTHS_FULL = [
   "November",
   "December",
 ];
-export const MAX_POLL_ATTEMPTS = 12;
+export const MAX_POLL_ATTEMPTS = 4;
