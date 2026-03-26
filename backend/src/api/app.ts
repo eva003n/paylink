@@ -26,7 +26,7 @@ app.use(
 // rate limit reqyest
 app.use(
   rateLimit({
-    windowMs: 15 * 60 * 1000, // 10min
+    windowMs: 15 * 60 * 1000, // 15min
     limit: 100,
     standardHeaders: "draft-8",
     legacyHeaders: false,
