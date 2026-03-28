@@ -1,7 +1,6 @@
 
 import "./App.css";
-import { Router, Route, BrowserRouter, Routes} from "react-router-dom"
-import { SignIn, SignUp } from "@clerk/clerk-react";
+import {Route, BrowserRouter, Routes} from "react-router-dom"
 import SignUpPage from "./pages/Auth/SignUp";
 import SignInPage from "./pages/Auth/SignIn"
 import Header from "./components/Header";
