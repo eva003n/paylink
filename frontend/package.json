@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "paylink-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,9 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@clerk/clerk-react": "^5.61.3",
     "@fontsource-variable/geist": "^5.2.8",
     "@tailwindcss/vite": "^4.2.1",
+    "@tanstack/react-query": "^5.95.2",
+    "axios": "^1.13.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.577.0",
