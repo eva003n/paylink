@@ -3,14 +3,20 @@ import asyncHandler from "../../utils/asynchandler";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET, NODE_ENV } from "../../config/env";
 import ApiError from "../../utils/ApiError";
-import { jwtSchema } from "./validators";
+import { jwtSchema } from "../../validators/validators";
 
 const protectRoute = asyncHandler(async (req, res, next) => {
   // get access token from cookie header
   const accessToken = req.signedCookies.AccessToken;
   // no token in cookie
   if (!accessToken) {
-    return next(ApiError.badRequest(400, req.originalUrl, NODE_ENV === "development"? "No access token": "Bad request"));
+    return next(
+      ApiError.badRequest(
+        400,
+        req.originalUrl,
+        NODE_ENV === "development" ? "No access token" : "Bad request",
+      ),
+    );
   }
 
   // verify jwt token.

@@ -14,7 +14,7 @@ import logger from "../../logger/logger.winston";
 import {
   PaymentSTKQueryResponse,
   PaymentSTKResponse,
-} from "../../api/middlewares/validators";
+} from "../../validators/validators";
 import { Link, Payment, PaymentStatus } from "../../models";
 import { enqueueSTKPoll } from "../../queues";
 import { enqueuePaymentReceipt } from "../../queues/pdf.queue";
@@ -71,7 +71,6 @@ export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
       const transaction = await Payment.findByPk(paymentData.transactionId);
       transaction?.set("checkout_request_id", response.CheckoutRequestID);
       await transaction?.save();
-
     } else {
       logger.error(`STP push to PhoneNumber:${paymentData.phoneNumber} failed`);
     }
@@ -110,14 +109,16 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
     const response = await mpesaClient.request<PaymentSTKQueryResponse, string>(
       "POST",
       "/stkpushquery/v1/query",
-      JSON.stringify(payload)
+      JSON.stringify(payload),
     );
 
-    console.dir(response)
+    console.dir(response);
     const transaction = await Payment.findByPk(paymentQuery.transactionId);
-    if(!transaction) {
-      logger.error(`Transaction with ID ${paymentQuery.transactionId} doesn't exist`)
-      return
+    if (!transaction) {
+      logger.error(
+        `Transaction with ID ${paymentQuery.transactionId} doesn't exist`,
+      );
+      return;
     }
     const code = response.ResultCode;
     if (code == 0) {
@@ -141,10 +142,8 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
 
     // if user hasn't acted or canceled request
     if (code > 0) {
-     
       // after all attempts the transaction is marked as failed
       transaction.set("status", PaymentStatus.Failed);
-      
     }
     // update transaction status
     await transaction.save();
@@ -165,24 +164,20 @@ export const handlePaymentConfirmation = async (
     });
 
     if (!transaction) {
-       logger.error(
+      logger.error(
         `Payment with CheckoutRequestId: ${payment.checkoutRequestId} doesn'gt exists `,
       );
-      return
+      return;
     }
 
-    
-   const reference = payment.mpesaReference? payment.mpesaReference: "N/A" 
-   transaction.set("mpesa_ref", reference);
+    const reference = payment.mpesaReference ? payment.mpesaReference : "N/A";
+    transaction.set("mpesa_ref", reference);
     await transaction.save();
-   
 
     const link = await Link.findByPk(transaction.link_id);
     if (!link) {
-       logger.error(
-        `Link with ID: ${transaction.link_id} doesn't exists `,
-      );
-      return
+      logger.error(`Link with ID: ${transaction.link_id} doesn't exists `);
+      return;
     }
     // query payment status
     const job = await enqueueSTKPoll({
@@ -192,11 +187,11 @@ export const handlePaymentConfirmation = async (
       attempts: 0,
     });
 
-     logger.info(`Enqueued payment ID: ${job.id} for status querying`);
+    logger.info(`Enqueued payment ID: ${job.id} for status querying`);
   } catch (error) {
-     logger.error(
+    logger.error(
       `Error confirming payment CheckoutRequestId: ${payment.checkoutRequestId} message:${error.message}`,
     );
-    return
+    return;
   }
 };

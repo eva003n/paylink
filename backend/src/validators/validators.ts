@@ -1,10 +1,15 @@
 import z from "zod";
-import { UserRoles } from "../../models/index";
+import { UserRoles } from "../models/index";
 
 export const signUpSchema = z.object({
-  username: z.string().min(4).max(64),
+  username: z.string().min(4).max(64).optional(),
   email: z.email(),
   password: z.string().min(8).max(72),
+});
+
+export const merchantSignUPSchema = signUpSchema.extend({
+  businessName: z.string().min(5).max(100),
+  phoneNumber: z.string().min(12).max(12).optional(),
 });
 export const signInSchema = z.object({
   email: z.email(),
@@ -48,12 +53,12 @@ const MpesaPaymentSTKSuccessSchema = z.object({
 
 const mpesaSTKQueryResultSchema = z.object({
   // data: z.object({
-    ResponseCode: z.number(),
-    ResponseDescription: z.string(),
-    MerchantRequestID: z.string(),
-    CheckoutRequestID: z.string(),
-    ResultCode: z.number(),
-    ResultDesc: z.string(),
+  ResponseCode: z.number(),
+  ResponseDescription: z.string(),
+  MerchantRequestID: z.string(),
+  CheckoutRequestID: z.string(),
+  ResultCode: z.number(),
+  ResultDesc: z.string(),
   // }),
 });
 
@@ -66,9 +71,9 @@ const mpesaSTKQueryRequest = z.object({
 
 const mpesaSTKPushResponseSchema = z.object({
   // data: z.object({
-    MerchantRequestID: z.string(),
-    CheckoutRequestID: z.string(),
-    ResponseCode: z.number(),
+  MerchantRequestID: z.string(),
+  CheckoutRequestID: z.string(),
+  ResponseCode: z.number(),
   // }),
 });
 const TokenResponseSchema = z.object({
@@ -86,11 +91,12 @@ export const paymentLinkSchema = z.object({
 });
 
 export const paymentSTKSchema = z.object({
-token: z.string(),
+  token: z.string(),
   email: z.email(),
   phoneNumber: z.string().min(12).max(12),
 });
 export type SignUpAuth = z.infer<typeof signUpSchema>;
+export type MerchantSignUpAuth = z.infer<typeof merchantSignUPSchema>;
 export type SignInAuth = z.infer<typeof signInSchema>;
 export type Token = z.infer<typeof TokenResponseSchema>;
 export type JWT_Token = z.infer<typeof jwtSchema>;
@@ -98,7 +104,7 @@ export type MpesaSTKFailed = z.infer<typeof MpesaPaymentSTKFailedSchema>;
 export type MpesaSTKSuccess = z.infer<typeof MpesaPaymentSTKSuccessSchema>;
 export type PaymentLink = z.infer<typeof paymentLinkSchema>;
 export type PaymentSTK = z.infer<typeof paymentSTKSchema>;
-export type PaymentSTKQueryRequest = z.infer<typeof mpesaSTKQueryRequest>
-export type PaymentSTKQueryResponse = z.infer<typeof mpesaSTKQueryResultSchema>
-export type PaymentSTKResponse = z.infer<typeof mpesaSTKPushResponseSchema>
+export type PaymentSTKQueryRequest = z.infer<typeof mpesaSTKQueryRequest>;
+export type PaymentSTKQueryResponse = z.infer<typeof mpesaSTKQueryResultSchema>;
+export type PaymentSTKResponse = z.infer<typeof mpesaSTKPushResponseSchema>;
 // export type PaymentItem = z.infer<typeof itemSchema>

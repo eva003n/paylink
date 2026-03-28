@@ -1,10 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import asyncHandler from "../../utils/asynchandler";
 
-import { MpesaSTKSuccess, PaymentSTK } from "../middlewares/validators";
+import { MpesaSTKSuccess, PaymentSTK } from "../../validators/validators";
 import ApiResponse from "../../utils/ApiResponse";
 
-import { confirmMpesaPayment, initiateSTKPush } from "../services/payment.service";
+import {
+  confirmMpesaPayment,
+  initiateSTKPush,
+} from "../services/payment.service";
 import ApiError from "../../utils/ApiError";
 import { handleMpesaSTKPoll } from "../../jobs/payment/processors";
 
@@ -49,11 +52,11 @@ export const queryPayment = asyncHandler(
 
 export const confirmPayment = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const payment: MpesaSTKSuccess = req.body 
+    const payment: MpesaSTKSuccess = req.body;
 
-    const code = payment.Body.stkCallback.ResultCode
+    const code = payment.Body.stkCallback.ResultCode;
     // when payment is a success
-    if(code == 0) {
+    if (code == 0) {
       let items = payment.Body.stkCallback.CallbackMetadata.Item;
       // traverse the array each time add the propety to the dynamic object
       type PaymentItems = {
@@ -73,14 +76,12 @@ export const confirmPayment = asyncHandler(
         mpesaReference: paymentItems.MpesaReceiptNumber,
         checkoutRequestId: payment.Body.stkCallback.CheckoutRequestID,
       });
-    }else {
+    } else {
       // when user takes too log to act or cancels payment
       await confirmMpesaPayment({
         mpesaReference: "",
-        checkoutRequestId: payment.Body.stkCallback.CheckoutRequestID
-      })
-
+        checkoutRequestId: payment.Body.stkCallback.CheckoutRequestID,
+      });
     }
-
   },
 );

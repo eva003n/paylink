@@ -1,8 +1,8 @@
 import { Link, Payment } from "../../models/index";
 import base62 from "@sindresorhus/base62";
 
-import {  enqueueSTKPush } from "../../queues/index";
-import {PaymentSTK } from "../middlewares/validators";
+import { enqueueSTKPush } from "../../queues/index";
+import { PaymentSTK } from "../../validators/validators";
 import { enqueueSTKPaymentConfirmation } from "../../queues/payment.queue";
 import { PaymentConfirmation } from "../../jobs/payment/payment.type";
 import logger from "../../logger/logger.winston";
@@ -10,7 +10,7 @@ import logger from "../../logger/logger.winston";
 export const initiateSTKPush = async ({
   token,
   phoneNumber,
-  email
+  email,
 }: PaymentSTK) => {
   const linkId = base62.decodeString(token);
 
@@ -40,12 +40,12 @@ export const initiateSTKPush = async ({
     shortCode: link.shortCode,
   });
 
-  logger.info(`Enqueued STK push for Phone: ${phoneNumber}`)
+  logger.info(`Enqueued STK push for Phone: ${phoneNumber}`);
 
   return { link, invalid: false, job };
 };
 export const validateMpesaPayment = async () => {};
 
 export const confirmMpesaPayment = async (payment: PaymentConfirmation) => {
-    await enqueueSTKPaymentConfirmation(payment)
+  await enqueueSTKPaymentConfirmation(payment);
 };

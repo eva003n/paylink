@@ -6,9 +6,8 @@ import {
 } from "../controllers/payment.controller";
 
 import { validate } from "../middlewares/validator.middleware";
-import { paymentSTKSchema } from "../middlewares/validators";
+import { paymentSTKSchema } from "../../validators/validators";
 import { protectRoute } from "../middlewares/auth.middleware";
-
 
 const router = Router();
 
@@ -19,10 +18,9 @@ router
   .route("/mpesa/stk-push")
   .post(validate(paymentSTKSchema), initiateMpesaSTKPush);
 
-
 /* -------- Protected routes ------- */
 
-router.use(protectRoute)
-  router.route("/query").post(queryPayment)
+router.use(protectRoute);
+router.route("/query").post(queryPayment);
 
 export default router;

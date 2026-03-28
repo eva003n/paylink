@@ -1,7 +1,7 @@
 import base62 from "@sindresorhus/base62";
 import { FRONTEND_BASE_URI } from "../../config/env";
 import { User, Link } from "../../models";
-import { PaymentLink } from "../middlewares/validators";
+import { PaymentLink } from "../../validators/validators";
 
 export const generatePaymentLink = async (linkData: PaymentLink) => {
   const merchant = await User.findByPk(linkData.merchant_id);

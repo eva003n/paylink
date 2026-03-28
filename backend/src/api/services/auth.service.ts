@@ -1,5 +1,5 @@
 import { compare } from "bcryptjs";
-import { SignInAuth, SignUpAuth } from "../middlewares/validators";
+import { SignInAuth, SignUpAuth } from "../../validators/validators";
 import { User, UserRoles } from "../../models/index";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../../config/env";

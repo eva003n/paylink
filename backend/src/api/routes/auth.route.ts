@@ -6,7 +6,7 @@ import {
   tokenRefresh,
 } from "../controllers/auth.controller";
 import { validate } from "../middlewares/validator.middleware";
-import { signInSchema, signUpSchema } from "../middlewares/validators";
+import { signInSchema, signUpSchema } from "../../validators/validators";
 import { protectRoute } from "../middlewares/auth.middleware";
 
 const router = Router();
