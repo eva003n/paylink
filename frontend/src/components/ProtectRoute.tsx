@@ -1,12 +1,18 @@
-import { useUser } from '@clerk/clerk-react'
-import React from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { Spinner } from './ui'
 
 const ProtectRoute = () => {
-    const {isSignedIn} = useUser()
-  return (
-    {!isSignedIn? <Navigate></Navigate>}
+    const {user, loading} = useAuth();
+if(loading) return (
+      <div className='min-h-screen flex justify-center items-center'>
+    <Spinner size="xl"/>
+
+      </div>
+
   )
+
+  return user? <Outlet/> :<Navigate to="/login" replace/>
 }
 
 export default ProtectRoute
