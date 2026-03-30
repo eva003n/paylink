@@ -6,6 +6,7 @@ import { PaymentSTK } from "../../validators/validators";
 import { enqueueSTKPaymentConfirmation } from "../../queues/payment.queue";
 import { PaymentConfirmation } from "../../jobs/payment/payment.type";
 import logger from "../../logger/logger.winston";
+import { Client } from "../../models/index";
 
 export const initiateSTKPush = async ({
   token,
@@ -17,12 +18,23 @@ export const initiateSTKPush = async ({
   // check link info
   const link = await Link.findByPk(linkId);
 
-  if (!link) return { link, invalid: false, job: null };
+  if (!link) return { link,  invalid: false, job: null };
 
   if (link.status !== "active") {
     return { link, invalid: true, job: null };
   }
 
+  // create client
+  const client = await Client.create({
+    email,
+    phone_number: phoneNumber,
+    merchant_id: link.merchant_id
+  })
+
+  // if(!client)  {
+  //   return { link, invalid: true, job: null };
+
+  // }
   // create transaction
   const transaction = await Payment.create({
     link_id: link.id,
@@ -31,6 +43,7 @@ export const initiateSTKPush = async ({
     email: email,
     checkout_request_id: "",
     merchant_id: link.merchant_id,
+    client_id: client.id
   });
 
   const job = await enqueueSTKPush({
