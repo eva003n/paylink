@@ -2,7 +2,7 @@ import z from "zod";
 import { UserRoles } from "../models/index";
 
 export const signUpSchema = z.object({
-  username: z.string().min(4).max(64).optional(),
+  // username: z.string().min(4).max(64).optional(),
   email: z.email(),
   password: z.string().min(8).max(72),
 });
