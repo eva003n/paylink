@@ -3,18 +3,19 @@ import { sequelize } from "../config/db/postgres";
 import { hash } from "bcryptjs";
 export enum UserRoles {
   MERCHANT = "merchant",
-  ADMIN = "admin",
+  ADMIN = "admin", // for the admin u would create their own table but for simplicity thus combination
 }
-export class User extends Model {
+export class Merchant extends Model {
   declare id: string;
-  declare username: string;
+  declare business_name: string;
   declare email: string;
   declare password: string;
+  declare phone_number: string;
   declare role: UserRoles;
   declare createdAt?: Date;
   declare updatedAt?: Date;
 
-  public static async hashPassword(instance: User) {
+  public static async hashPassword(instance: Merchant) {
     if (instance.changed("password")) {
       instance.password = await hash(instance.password, 12);
     }
@@ -37,7 +38,7 @@ export class User extends Model {
   }
 }
 
-User.init(
+Merchant.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -49,13 +50,18 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    username: {
+    business_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    phone_number: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: ""
     },
     role: {
       type: DataTypes.ENUM(...Object.values(UserRoles)),
@@ -64,18 +70,18 @@ User.init(
     },
   },
   {
-    tableName: "users",
+    tableName: "merchants",
     sequelize,
 
     indexes: [
       {
         unique: true,
-        fields: ["email", "refresh_token"],
+        fields: ["email", "business-name"],
       },
     ],
   },
 );
 
 // hash password for new users and updating users
-User.beforeCreate(User.hashPassword);
-User.beforeUpdate(User.hashPassword);
+Merchant.beforeCreate(Merchant.hashPassword);
+Merchant.beforeUpdate(Merchant.hashPassword);

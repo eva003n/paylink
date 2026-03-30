@@ -11,6 +11,7 @@ export class Payment extends Model {
   declare id: string;
   declare link_id: string;
   declare merchant_id: string;
+  declare client_id: string;
   declare phone_number: string;
   declare email: string;
   declare mpesa_ref: string;
@@ -33,7 +34,15 @@ Payment.init(
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: "users",
+        model: "merchants",
+        key: "id",
+      },
+    },
+    client_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: "clients",
         key: "id",
       },
     },

@@ -3,7 +3,7 @@ import { QueryInterface } from "sequelize";
 import { UserRoles } from "../models/index";
 
 async function up({ context: queryInterface }: { context: QueryInterface }) {
-  queryInterface.createTable("users", {
+  queryInterface.createTable("merchants", {
     id: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -14,7 +14,12 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    username: {
+    phone_number: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "",
+    },
+    business_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -41,7 +46,7 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
 }
 
 async function down({ context: queryInterface }: { context: QueryInterface }) {
-  await queryInterface.dropTable("users");
+  await queryInterface.dropTable("merchants");
 }
 
 export { up, down };

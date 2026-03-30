@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
-import {QueryInterface} from "sequelize"
+import { QueryInterface } from "sequelize";
 import { PaymentStatus } from "../models/index";
 
-async function up({ context: queryInterface }: {context: QueryInterface }) {
+async function up({ context: queryInterface }: { context: QueryInterface }) {
   await queryInterface.createTable("payments", {
     id: {
       type: DataTypes.STRING,
@@ -14,7 +14,15 @@ async function up({ context: queryInterface }: {context: QueryInterface }) {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: "users",
+        model: "merchants",
+        key: "id",
+      },
+    },
+    client_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: "clients",
         key: "id",
       },
     },
@@ -69,8 +77,8 @@ async function up({ context: queryInterface }: {context: QueryInterface }) {
   });
 }
 
- async function down({ context: queryInterface }: {context: QueryInterface }) {
-  await queryInterface.dropTable("payments")
+async function down({ context: queryInterface }: { context: QueryInterface }) {
+  await queryInterface.dropTable("payments");
 }
 
 export { up, down };

@@ -1,15 +1,15 @@
 import { DataTypes } from "sequelize";
 import { QueryInterface } from "sequelize";
-import { LinkStatus } from "../models/index";
 
 async function up({ context: queryInterface }: { context: QueryInterface }) {
-  await queryInterface.createTable("links", {
+  await queryInterface.createTable("clients", {
     id: {
       type: DataTypes.UUID,
       allowNull: false,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
+
     merchant_id: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -18,38 +18,13 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
         key: "id",
       },
     },
-    token: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: "",
-    },
-    url: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: "",
-    },
-
-    shortCode: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    amount: {
-      type: DataTypes.DECIMAL(8, 2),
-      allowNull: false,
-    },
-    invoice_no: {
+    email: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    status: {
-      type: DataTypes.ENUM(...Object.values(LinkStatus)),
+    phone_number: {
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: LinkStatus.ACTIVE,
-    },
-    expiresAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: new Date(Date.now() + 24 * 60 * 60 * 1000), // 7 days
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -65,7 +40,7 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
 }
 
 async function down({ context: queryInterface }: { context: QueryInterface }) {
-  await queryInterface.dropTable("links");
+  await queryInterface.dropTable("clients");
 }
 
 export { up, down };

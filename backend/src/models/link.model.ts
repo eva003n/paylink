@@ -22,63 +22,62 @@ export class Link extends Model {
 }
 
 
-export default Link.init({
-  id: {
-    type: DataTypes.UUID,
-    allowNull: false,
-    defaultValue: DataTypes.UUIDV4,
-    primaryKey: true,
-  },
-  merchant_id: {
-    type: DataTypes.UUID,
-    allowNull: false,
-    references: {
-        model: "users",
-        key: "id"
-    }
-  },
-  token: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    defaultValue: ""
-  },
-  url: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    defaultValue: ""
-    
-  },
+ Link.init(
+   {
+     id: {
+       type: DataTypes.UUID,
+       allowNull: false,
+       defaultValue: DataTypes.UUIDV4,
+       primaryKey: true,
+     },
+     merchant_id: {
+       type: DataTypes.UUID,
+       allowNull: false,
+       references: {
+         model: "merchants",
+         key: "id",
+       },
+     },
+     token: {
+       type: DataTypes.STRING,
+       allowNull: false,
+       defaultValue: "",
+     },
+     url: {
+       type: DataTypes.STRING,
+       allowNull: false,
+       defaultValue: "",
+     },
 
-  shortCode: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  amount: {
-    type: DataTypes.DECIMAL(8, 2),
-    allowNull: false
-
-  },
-  invoice_no: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  status: {
-    type: DataTypes.ENUM(...Object.values(LinkStatus)),
-    allowNull: false,
-    defaultValue: LinkStatus.ACTIVE,
-  }, 
-  expiresAt: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: new Date(Date.now() + (24 * 60 * 60 * 1000)) // 7 days
-  }
-},
- {
-    tableName: "links",
-    sequelize,
-    // indexes: [{
-    //     unique: true,
-    //     // fields: ["invoice_no"]
-    // }]
-    
-});
+     shortCode: {
+       type: DataTypes.INTEGER,
+       allowNull: false,
+     },
+     amount: {
+       type: DataTypes.DECIMAL(8, 2),
+       allowNull: false,
+     },
+     invoice_no: {
+       type: DataTypes.STRING,
+       allowNull: false,
+     },
+     status: {
+       type: DataTypes.ENUM(...Object.values(LinkStatus)),
+       allowNull: false,
+       defaultValue: LinkStatus.ACTIVE,
+     },
+     expiresAt: {
+       type: DataTypes.DATE,
+       allowNull: false,
+       defaultValue: new Date(Date.now() + 24 * 60 * 60 * 1000), // 7 days
+     },
+   },
+   {
+     tableName: "links",
+     sequelize,
+     // indexes: [{
+     //     unique: true,
+     //     // fields: ["invoice_no"]
+     // }]
+   },
+ );
