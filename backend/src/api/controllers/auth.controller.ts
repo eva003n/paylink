@@ -9,14 +9,16 @@ import ApiError from "../../utils/ApiError";
 import ApiResponse from "../../utils/ApiResponse";
 import asyncHandler from "../../utils/asynchandler";
 import { Request, Response, NextFunction } from "express";
+import { MerchantSignUpAuth } from "../../validators/validators";
 
 export const signUp = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { username, email, password } = req.body;
+    const { businessName, email, password, phoneNumber }: MerchantSignUpAuth = req.body;
     const { newuser, created } = await createUser({
-      username,
+      businessName,
       email,
       password,
+      phoneNumber,
     });
 
     console.log(created);
@@ -78,7 +80,13 @@ export const signIn = asyncHandler(
         signed: true,
       })
 
-      .json(new ApiResponse(200, user, "Logged in successfully"));
+      .json(
+        new ApiResponse(
+          200,
+          { user, accessToken, expiresIn: 15 * 60 * 1000 },
+          "Logged in successfully",
+        ),
+      );
   },
 );
 
@@ -133,6 +141,12 @@ export const tokenRefresh = asyncHandler(
         maxAge: 24 * 60 * 60 * 1000, // seconds in i day(When dealing with express this should be in ms while setting raw header it is in secs)
         signed: true,
       })
-      .json(new ApiResponse(200, null, "Refreshed successfully"));
+      .json(
+        new ApiResponse(
+          200,
+          { accessToken: _accessToken, expiresIn: 15 * 60 * 1000 },
+          "Refreshed successfully",
+        ),
+      );
   },
 );

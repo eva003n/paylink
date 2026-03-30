@@ -1,17 +1,18 @@
 import { compare } from "bcryptjs";
-import { SignInAuth, SignUpAuth } from "../../validators/validators";
-import { User, UserRoles } from "../../models/index";
+import { MerchantSignUpAuth, SignInAuth } from "../../validators/validators";
+import { Merchant, UserRoles } from "../../models/index";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../../config/env";
 import { redisClient } from "../../config/redis";
 
-export const createUser = async (authData: SignUpAuth) => {
-  const [newuser, created] = await User.findOrCreate({
+export const createUser = async (authData: MerchantSignUpAuth) => {
+  const [newuser, created] = await Merchant.findOrCreate({
     where: { email: authData.email },
     defaults: {
       email: authData.email,
-      username: authData.username,
+      business_name: authData.businessName,
       password: authData.password,
+      phone_number: authData.phoneNumber
     },
   });
   if (!created) return { newuser, created };
@@ -21,7 +22,7 @@ export const createUser = async (authData: SignUpAuth) => {
 
 export const logInUser = async (authData: SignInAuth) => {
   // check if user exists
-  const user = await User.findOne({ where: { email: authData.email } });
+  const user = await Merchant.findOne({ where: { email: authData.email } });
 
   if (!user) return { user, isValid: true };
 
