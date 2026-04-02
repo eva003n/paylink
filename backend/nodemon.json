@@ -2,5 +2,5 @@
     "watch": ["src"],
     "ext": "ts, env, json, yaml",
     "ignore": ["node_modules"],
-    "exec": "ts-node src/api/index.ts"
+    "exec": "ts-node -r tsconfig-paths/register -P ./tsconfig.app.json src/api/index.ts"
 }
