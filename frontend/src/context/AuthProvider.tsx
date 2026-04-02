@@ -6,7 +6,7 @@ import {
 import React from "react";
 import { AUTH_DATA } from "../constants";
 import { authAPI } from "../services/api";
-import { AuthContext } from "./AuthContext";
+import { AuthContext, type UserType } from "./AuthContext";
 import type {
   MerchantSignUpAuth,
   SignInAuth,
@@ -15,7 +15,7 @@ import type {
 
 
 export const AuthProvider = ({ children }: React.PropsWithChildren) => {
-  const [user, setUser] = useState(() => {
+  const [user, setUser] = useState<UserType | null>(() => {
     try {
       return JSON.parse(AUTH_DATA.PAYLINK_USER);
     } catch {
@@ -28,7 +28,6 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
   useEffect(() => {
     // get token from local storage(only when storing it in local storage)
     const token = localStorage.getItem(AUTH_DATA.PAYLINK_TOKEN);
-
     if (!token) {
       setLoading(false);
       return;
@@ -36,7 +35,7 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
 
     // query user(if exists)
     authAPI
-      .me()
+      .me(user?.id as string)
       .then((res) => setUser(res.data.user))
       .catch(() => {
         // if user doesn't remove auth data from local storage
@@ -65,6 +64,7 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
       JSON.stringify(expiresIn + Date.now() - 60_000),
     );
     setUser(user);
+    return res
   }, []);
   const logOut = useCallback(async () => {
     await authAPI.logout();

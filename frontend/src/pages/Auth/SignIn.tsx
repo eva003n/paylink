@@ -4,7 +4,6 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import {
   signInSchema,
-  type MerchantSignUpAuth,
   type SignInAuth,
 } from "@shared/schemas/validators";
 import AuthShell from "../../components/AuthShell";
@@ -30,8 +29,8 @@ const SignInPage = () => {
     setLoading(true);
     try {
       const res = await logIn(data);
-      toast.success(res.message);
       navigate("/dashboard");
+      toast.success(res.message);
     } catch (error) {
       toast.error("Authentication failed");
       console.log(error);
@@ -46,37 +45,39 @@ const SignInPage = () => {
   return (
     <AuthShell>
       <div className="animate-fade-up">
-     <h2 className="font-display text-2xl font-bold text-white mb-1">Welcome back</h2>
-        <p className="text-stone-400 text-sm mb-8">Sign in to your PesaLink account</p>
+        <h2 className="mb-1 font-display text-2xl font-bold text-white">
+          Welcome back
+        </h2>
+        <p className="mb-8 text-sm text-stone-400">
+          Sign in to your PesaLink account
+        </p>
 
-
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4"
-          autoComplete="off"
-        >
-            <div>
-              <label className={lblClass}>Email</label>
-              <Input
-                type="email"
-                {...register("email", { required: true })}
-                placeholder="you@example.com"
-                className={fieldClass}
-                variant={errors.email && "error"}
-                error={errors.email && errors.email.message}
-              />
-            </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className={lblClass}>Password</label>
+            <label className="mb-1.5 block text-xs font-semibold tracking-wider text-stone-400 uppercase">
+              Email
+            </label>
+            <Input
+              type="email"
+              autoFocus
+              {...register("email", { required: true })}
+              placeholder="you@example.com"
+              error={errors.email && errors.email.message}
+              variant={errors.email && "error"}
+              className="w-full rounded-lg border border-white/20 bg-white/10 px-3.5 py-2.5 text-sm text-white placeholder-stone-500 transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/50 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold tracking-wider text-stone-400 uppercase">
+              Password
+            </label>
             <Input
               type="password"
-              minLength={8}
-              maxLength={72}
               {...register("password", { required: true })}
-              placeholder="Min. 8 characters"
-              className={fieldClass}
+              placeholder="••••••••"
               variant={errors.password && "error"}
               error={errors.password && errors.password.message}
+              className="w-full rounded-lg border border-white/20 bg-white/10 px-3.5 py-2.5 text-sm text-white placeholder-stone-500 transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/50 focus:outline-none"
             />
           </div>
           <Button
@@ -94,7 +95,7 @@ const SignInPage = () => {
             to="/sign-up"
             className="font-semibold text-brand-400 transition-colors hover:text-brand-300"
           >
-            Sign up
+            Create one free
           </Link>
         </p>
       </div>

@@ -64,6 +64,7 @@ const SignUpPage = () => {
             <Input
               minLength={5}
               maxLength={100}
+              autoFocus
               {...register("businessName", { required: true })}
               placeholder="Kamau Graphics"
               className={fieldClass}

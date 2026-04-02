@@ -5,7 +5,7 @@ import type {
 import type { Dispatch, SetStateAction } from "react";
 import { createContext, useContext } from "react";
 
-type UserType = {
+export type UserType = {
   id: string;
 };
 
