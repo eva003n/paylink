@@ -7,7 +7,7 @@ export const Spinner = ({
   size = "md",
   className,
 }: {
-  size: string;
+  size?: string;
   className?: ClassValue[];
 }) => {
   const sizes: { [key: string]: string } = {
@@ -18,7 +18,7 @@ export const Spinner = ({
   };
   return (
     <Loader2
-      className={cn("animate-spin text-green-600", sizes[size], className)}
+      className={cn("animate-spin text-white", sizes[size], className)}
     />
   );
 };
@@ -65,15 +65,12 @@ export const Button = ({children, variant = "primary", size = "md", disabled, lo
     const sizes: {[key: string]: string} = { sm: 'btn-sm', md: 'btn-md', lg: 'btn-lg', xl: 'btn-xl' };
     return (
       <button
-        className={cn(
-          buttonClass({ intent: variant }),
-          sizes[size],
-          className
-        )}
+        className={cn(buttonClass({ intent: variant }), sizes[size], className)}
         disabled={disabled || loading}
         {...props}
       >
-        {children}
+        {loading && <Spinner />}
+        {children && children}
       </button>
     );
 }
