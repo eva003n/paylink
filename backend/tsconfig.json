@@ -1,40 +1,15 @@
 {
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ],
   "compilerOptions": {
-    // base options
-    "target": "es2022",
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "moduleDetection": "force",
-    "isolatedModules": true,
-    // "verbatimModuleSyntax": true,
-    "typeRoots": ["types"],
-
-    // module
-    "rootDir": "src",
-    "outDir": "dist",
-    "moduleResolution": "node",
-    "lib": ["ES2022"],
-
-    // Type checking and strictness
-    "noImplicitAny": true,
-    "allowUnreachableCode": false,
-    "noImplicitOverride": true,
-    "strict": true,
-    "noImplicitReturns": true,
-    "useUnknownInCatchVariables": false,
-    "strictNullChecks": true,
-    "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    "strictFunctionTypes": true,
-    "strictPropertyInitialization": true,
-    "noUncheckedIndexedAccess": false,
-    "noImplicitThis": true,
-    "noUncheckedSideEffectImports": true
-  },
-
-  "include": ["src", "types"],
-  "exclude": ["node_modules"]
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["../shared/*"]
+    }
+  }
 }
