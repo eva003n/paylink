@@ -37,6 +37,8 @@ export const itemSchema = z.object({
   Value: z.union([z.string(), z.number()]),
 });
 
+export const idSchema = z.string("Id cannot be empty")
+
 const MpesaPaymentSTKSuccessSchema = z.object({
   Body: z.object({
     stkCallback: z.object({
@@ -99,6 +101,7 @@ export const paymentSTKSchema = z.object({
 // export type MerchantSignUpAuth = z.infer<typeof merchantSignUPSchema>;
 // export type SignInAuth = z.infer<typeof signInSchema>;
 export type Token = z.infer<typeof TokenResponseSchema>;
+export type Id = z.infer<typeof idSchema>
 export type JWT_Token = z.infer<typeof jwtSchema>;
 export type MpesaSTKFailed = z.infer<typeof MpesaPaymentSTKFailedSchema>;
 export type MpesaSTKSuccess = z.infer<typeof MpesaPaymentSTKSuccessSchema>;
