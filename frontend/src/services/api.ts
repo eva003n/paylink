@@ -48,7 +48,7 @@ if (tokenExpiryMs < nowMs) {
 });
 
 api.interceptors.response.use(
-  (res) => res,
+  (res) => res.data,
   (error: AxiosError) => {
     // unauthorized request
     if (error.response && error.response.status === 401) {
@@ -66,7 +66,7 @@ export const authAPI = {
   register: (data: any) => api.post("/auth/sign-up", data),
   login: (d: any) => api.post("/auth/sign-in", d),
   logout: () => api.delete("/auth/sign-out"),
-  me: () => api.get("/auth/me"),
+  me: (id: string) => api.get(`/users/${id}`),
 };
 
 export const linksAPI = {
