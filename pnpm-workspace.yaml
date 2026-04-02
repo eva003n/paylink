@@ -1,0 +1,5 @@
+#  shared packages
+packages: 
+- "frontend"
+- "backend"
+- "shared"

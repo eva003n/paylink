@@ -2,7 +2,7 @@ import { Link, Payment } from "../../models/index";
 import base62 from "@sindresorhus/base62";
 
 import { enqueueSTKPush } from "../../queues/index";
-import { PaymentSTK } from "@shared/schemas/validators";
+import { PaymentSTK } from "../../schemas/validators";
 import { enqueueSTKPaymentConfirmation } from "../../queues/payment.queue";
 import { PaymentConfirmation } from "../../jobs/payment/payment.type";
 import logger from "../../logger/logger.winston";

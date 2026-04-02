@@ -4,7 +4,7 @@ import asyncHandler from "../../utils/asynchandler";
 import {
   MpesaSTKSuccess,
   PaymentSTK,
-} from "@shared/schemas/validators";
+} from "../../schemas/validators";
 import ApiResponse from "../../utils/ApiResponse";
 
 import {

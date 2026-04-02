@@ -14,7 +14,7 @@ import logger from "../../logger/logger.winston";
 import {
   PaymentSTKQueryResponse,
   PaymentSTKResponse,
-} from "@shared/schemas/validators";
+} from "../../schemas/validators";
 import { Link, Payment, PaymentStatus } from "../../models";
 import { enqueueSTKPoll } from "../../queues";
 import { enqueuePaymentReceipt } from "../../queues/pdf.queue";
