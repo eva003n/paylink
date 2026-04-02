@@ -3,7 +3,7 @@ import asyncHandler from "../../utils/asynchandler";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET, NODE_ENV } from "../../config/env";
 import ApiError from "../../utils/ApiError";
-import { jwtSchema } from "../../validators/validators";
+import { jwtSchema } from "@shared/schemas/validators";
 
 const protectRoute = asyncHandler(async (req, res, next) => {
   // get access token from cookie header
