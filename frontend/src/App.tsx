@@ -26,7 +26,10 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Toaster/>
+        <Toaster
+        position="bottom-center"
+        
+        />
         <BrowserRouter>
           {/* <Header></Header> */}
 
