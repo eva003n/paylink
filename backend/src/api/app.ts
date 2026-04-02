@@ -56,10 +56,12 @@ app.use(morganMiddleware);
 import authRouter from "./routes/auth.route";
 import linkRouter from "./routes/links.route"
 import paymentRouter from "./routes/payments.route";
+import userRouter from "./routes/user.route"
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/links", linkRouter)
 app.use("/api/v1/payments", paymentRouter);
+app.use("/api/v1/users", userRouter);
 
 // bullmq ui endpoint
 import { serverAdapter } from "../queues";
