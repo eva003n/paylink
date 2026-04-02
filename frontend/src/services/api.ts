@@ -1,14 +1,49 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, type responseEncoding } from "axios";
+import { AUTH_DATA } from "../constants";
 
 // create axios instance
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URI || "/api",
+  withCredentials: true,
+  timeout: 20000, // 20 seconds
+});
+const api2 = axios.create({
+  baseURL: import.meta.env.VITE_API_URI || "/api",
+  withCredentials: true,
   timeout: 20000, // 20 seconds
 });
 
 // request and response interceptors
 api.interceptors.request.use((config) => {
   // custom config for the request
+  let token = localStorage.getItem(AUTH_DATA.PAYLINK_TOKEN);
+  let tokenExpiry = localStorage.getItem(AUTH_DATA.PAYLINK_TOKEN_EXPIRY);
+
+  if(token && tokenExpiry) {
+token = JSON.parse(token);
+const tokenExpiryMs = Number(JSON.parse(tokenExpiry));
+
+const nowMs = Date.now();
+
+if (tokenExpiryMs < nowMs) {
+  config.headers.Authorization = `Bearer ${token}`;
+} else {
+  api2.get("/auth/refresh-token").then((res) => {
+    const token = res.data.accessToken;
+    const expiresIn = res.data.expiresIn;
+
+    config.headers.Authorization = `Bearer ${token}`;
+
+    localStorage.setItem(AUTH_DATA.PAYLINK_TOKEN, token || null);
+    localStorage.setItem(
+      AUTH_DATA.PAYLINK_TOKEN_EXPIRY,
+      JSON.stringify(expiresIn + Date.now()),
+    );
+  });
+}
+}
+  
+
   return config;
 });
 
@@ -21,7 +56,7 @@ api.interceptors.response.use(
       window.location.href = "/login";
     }
     // handle unexpected errors
-    return Promise.reject(error);
+    return Promise.reject(error.response?.data);
   },
 );
 
@@ -29,7 +64,8 @@ api.interceptors.response.use(
 
 export const authAPI = {
   register: (data: any) => api.post("/auth/sign-up", data),
-  login: (d: any) => api.post("/auth/login", d),
+  login: (d: any) => api.post("/auth/sign-in", d),
+  logout: () => api.delete("/auth/sign-out"),
   me: () => api.get("/auth/me"),
 };
 
@@ -55,4 +91,3 @@ export const configAPI = {
 };
 
 export default api;
-

@@ -1,7 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -59,6 +56,7 @@
 
 @theme {
   --font-display: "Inter". sans-serif;
+  
   --color-brand-50: oklch(0.984 0.023 161.76);
   --color-brand-100: oklch(0.9648 0.0514 163.66);
   --color-brand-200: oklch(0.9367 0.0972 161.73);
@@ -72,6 +70,9 @@
   --color-brand-950: oklch(0.2616 0.0618 157.4);
 }
 
+/* 
+
+*/
 @layer components {
   /* ── Inputs ──────────────────────────────────────────────────────── */
   .input {

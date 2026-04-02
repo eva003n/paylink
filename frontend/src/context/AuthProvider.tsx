@@ -1,36 +1,18 @@
 import {
-  createContext,
   useEffect,
   useState,
   useCallback,
-  useContext,
 } from "react";
 import React from "react";
 import { AUTH_DATA } from "../constants";
 import { authAPI } from "../services/api";
+import { AuthContext } from "./AuthContext";
 import type {
   MerchantSignUpAuth,
   SignInAuth,
-} from "../../../backend/src/validators/validators";
-type UserType = {
-  id: string;
-};
+} from "@shared/schemas/validators";
 
-const AuthContext = createContext<{
-  user: UserType | null;
-  token?: string | null;
-  loading: boolean;
-  registerUser: (data: MerchantSignUpAuth) => Promise<void>;
-  logIn: (data: SignInAuth) => Promise<void>;
-  logOut: () => Promise<void>;
-}>({
-  user: null,
-  token: null,
-  loading: false,
-  registerUser: async () => {},
-  logIn: async () => {},
-  logOut: async () => {},
-});
+
 
 export const AuthProvider = ({ children }: React.PropsWithChildren) => {
   const [user, setUser] = useState(() => {
@@ -40,6 +22,7 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
       return null;
     }
   });
+  const [loading, setLoading] = useState(false);
 
   // verify token on mount
   useEffect(() => {
@@ -62,7 +45,6 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
       })
       .finally(() => setLoading(false));
   }, []);
-  const [loading, setLoading] = useState(false);
 
   const registerUser = useCallback(async (data: MerchantSignUpAuth) => {
     const res = await authAPI.register(data);
@@ -70,31 +52,36 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
     localStorage.setItem(AUTH_DATA.PAYLINK_TOKEN, token || null);
     localStorage.setItem(AUTH_DATA.PAYLINK_USER, JSON.stringify(user));
     setUser(user);
+    return res.data;
   }, []);
 
   const logIn = useCallback(async (data: SignInAuth) => {
     const res = await authAPI.login(data);
-    const { token, user } = res.data;
+    const { accessToken: token, user, expiresIn } = res.data;
     localStorage.setItem(AUTH_DATA.PAYLINK_TOKEN, token || null);
     localStorage.setItem(AUTH_DATA.PAYLINK_USER, JSON.stringify(user));
+    localStorage.setItem(
+      AUTH_DATA.PAYLINK_TOKEN_EXPIRY,
+      JSON.stringify(expiresIn + Date.now() - 60_000),
+    );
     setUser(user);
   }, []);
   const logOut = useCallback(async () => {
+    await authAPI.logout();
     localStorage.removeItem(AUTH_DATA.PAYLINK_TOKEN);
     localStorage.removeItem(AUTH_DATA.PAYLINK_USER);
+    localStorage.removeItem(AUTH_DATA.PAYLINK_TOKEN_EXPIRY);
+
     setUser(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, registerUser, logIn, logOut }}>
+    <AuthContext.Provider
+      value={{ user, loading, setLoading, registerUser, logIn, logOut }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth cannot be used outside AuthProvider");
-  return context;
-};
 

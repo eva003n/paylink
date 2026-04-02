@@ -12,7 +12,7 @@ if(loading) return (
 
   )
 
-  return user? <Outlet/> :<Navigate to="/login" replace/>
+  return user? <Outlet/> :<Navigate to="/sign-in" replace/>
 }
 
 export default ProtectRoute

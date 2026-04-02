@@ -1,76 +1,132 @@
 import React, { useState } from "react";
 import AuthShell from "../../components/AuthShell";
 import { useAuth } from "../../context/AuthContext";
-import type { MerchantSignUpAuth } from "../../../../backend/src/validators/validators";
-import {useForm, type SubmitHandler} from "react-hook-form"
-import { ArrowRight, Link } from "lucide-react";
-
+import {
+  merchantSignUPSchema,
+  type MerchantSignUpAuth,
+} from "@shared/schemas/validators";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { ArrowRight } from "lucide-react";
+import { Button, Input } from "../../components/ui";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 
 const SignUpPage = () => {
-  const {registerUser} = useAuth()
-  const [form, setForm] = useState<MerchantSignUpAuth>({email: '', password: '', businessName: '', phoneNumber: '' })
-const [loading, setLoading] = useState(false)
-const {register, handleSubmit, formState: {errors}} = useForm<MerchantSignUpAuth>()
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    })
+  const { registerUser, loading, setLoading } = useAuth();
+  const navigate = useNavigate();
 
-  }
-  const onSubmit: SubmitHandler<MerchantSignUpAuth> = async(data) => {
-    e.preventDefault()
-    setLoading(true)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<MerchantSignUpAuth>({
+    // frontend validation using zod schema
+    resolver: zodResolver(merchantSignUPSchema),
+  });
+
+  const onSubmit: SubmitHandler<MerchantSignUpAuth> = async (data) => {
+    setLoading(true);
     try {
-    await registerUser(data)  
-
+      const res = await registerUser(data);
+      toast.success(res.message);
+      navigate("/sign-in");
     } catch (error) {
-      console.error(`Error registering merchant ${error.message}`)
-    }finally {
-    setLoading(false)
-
+      toast.error("Authentication failed")
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
-    
+  };
 
-  }
-
-    const fieldClass = "w-full px-3.5 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all";
-  const lblClass   = "block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-1.5";
+  const fieldClass =
+    "w-full px-3.5 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all";
+  const lblClass =
+    "block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-1.5";
   return (
     <AuthShell>
-       <div className="animate-fade-up">
-        <h2 className="font-display text-2xl font-bold text-white mb-1">Create account</h2>
-        <p className="text-stone-400 text-sm mb-8">Start collecting M-Pesa payments today</p>
+      <div className="animate-fade-up">
+        <h2 className="mb-1 font-display text-2xl font-bold text-white">
+          Create account
+        </h2>
+        <p className="mb-8 text-sm text-stone-400">
+          Start collecting M-Pesa payments today
+        </p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
+          autoComplete="off"
+        >
           <div>
             <label className={lblClass}>Business Name</label>
-            <input required {...register("businessName", {required: true})} placeholder="Kamau Graphics" className={fieldClass} />
-            {true && (<span className="text-rose-600">fdffdfddffffd</span>)}
+            <Input
+              minLength={5}
+              maxLength={100}
+              {...register("businessName", { required: true })}
+              placeholder="Kamau Graphics"
+              className={fieldClass}
+              variant={
+                errors.businessName  && "error"
+              }
+              error={errors.businessName && errors.businessName.message}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={lblClass}>Email</label>
-              <input type="email" required {...register("email")} placeholder="you@example.com" className={fieldClass} />
+              <Input
+                type="email"
+                {...register("email", { required: true })}
+                placeholder="you@example.com"
+                className={fieldClass}
+                variant={errors.email && "error"}
+                error={errors.email && errors.email.message}
+              />
             </div>
             <div>
               <label className={lblClass}>Phone (optional)</label>
-              <input type="tel" {...register("phoneNumber")} placeholder="07XX XXX XXX" className={fieldClass} />
+              <Input
+                type="tel"
+                minLength={12}
+                maxLength={12}
+                {...register("phoneNumber")}
+                placeholder="2547XX XXX XXX"
+                className={fieldClass}
+                variant={errors.phoneNumber && "error"}
+                error={errors.phoneNumber && errors.phoneNumber.message}
+              />
             </div>
           </div>
           <div>
             <label className={lblClass}>Password</label>
-            <input type="password" required minLength={8} {...register("password")}  placeholder="Min. 8 characters" className={fieldClass} />
+            <Input
+              type="password"
+              minLength={8}
+              maxLength={72}
+              {...register("password", { required: true })}
+              placeholder="Min. 8 characters"
+              className={fieldClass}
+              variant={errors.password && "error"}
+              error={errors.password && errors.password.message}
+            />
           </div>
-          {/* <Button type="submit" loading={loading} className="w-full btn-xl mt-2 bg-brand-600 hover:bg-brand-700 text-white shadow-lg shadow-brand-900/30">
-            Create account <ArrowRight className="w-4 h-4" />
-          </Button> */}
+          <Button
+            type="submit"
+            loading={loading}
+            className="btn-xl mt-2 w-full bg-brand-600 text-white shadow-lg shadow-brand-900/30 hover:bg-brand-700"
+          >
+            Create account <ArrowRight className="h-4 w-4" />
+          </Button>
         </form>
 
-        <p className="text-center text-sm text-stone-500 mt-6">
-          Already have an account?{' '}
-          <Link to="/login" className="text-brand-400 hover:text-brand-300 font-semibold transition-colors">
+        <p className="mt-6 text-center text-sm text-stone-500">
+          Already have an account?{" "}
+          <Link
+            to="/sign-in"
+            className="font-semibold text-brand-400 transition-colors hover:text-brand-300"
+          >
             Sign in
           </Link>
         </p>
