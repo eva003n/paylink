@@ -2,7 +2,7 @@ import { Link, Payment } from "../../models/index";
 import base62 from "@sindresorhus/base62";
 
 import { enqueueSTKPush } from "../../queues/index";
-import { PaymentSTK } from "../../validators/validators";
+import { PaymentSTK } from "@shared/schemas/validators";
 import { enqueueSTKPaymentConfirmation } from "../../queues/payment.queue";
 import { PaymentConfirmation } from "../../jobs/payment/payment.type";
 import logger from "../../logger/logger.winston";
@@ -18,7 +18,7 @@ export const initiateSTKPush = async ({
   // check link info
   const link = await Link.findByPk(linkId);
 
-  if (!link) return { link,  invalid: false, job: null };
+  if (!link) return { link, invalid: false, job: null };
 
   if (link.status !== "active") {
     return { link, invalid: true, job: null };
@@ -28,8 +28,8 @@ export const initiateSTKPush = async ({
   const client = await Client.create({
     email,
     phone_number: phoneNumber,
-    merchant_id: link.merchant_id
-  })
+    merchant_id: link.merchant_id,
+  });
 
   // if(!client)  {
   //   return { link, invalid: true, job: null };
@@ -43,7 +43,7 @@ export const initiateSTKPush = async ({
     email: email,
     checkout_request_id: "",
     merchant_id: link.merchant_id,
-    client_id: client.id
+    client_id: client.id,
   });
 
   const job = await enqueueSTKPush({

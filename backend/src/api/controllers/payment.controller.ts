@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import asyncHandler from "../../utils/asynchandler";
 
-import { MpesaSTKSuccess, PaymentSTK } from "../../validators/validators";
+import {
+  MpesaSTKSuccess,
+  PaymentSTK,
+} from "@shared/schemas/validators";
 import ApiResponse from "../../utils/ApiResponse";
 
 import {
@@ -67,10 +70,11 @@ export const confirmPayment = asyncHandler(
         [key: string]: string | number;
       };
 
-      const paymentItems: PaymentItems = items.reduce((acc, item) => {
+
+      const paymentItems: PaymentItems = items.reduce((acc: any, item: any) => {
         acc[item.Name] = item.Value;
         return acc;
-      }, {} as any);
+      }, {} as PaymentItems);
 
       await confirmMpesaPayment({
         mpesaReference: paymentItems.MpesaReceiptNumber,

@@ -1,5 +1,9 @@
 import { compare } from "bcryptjs";
-import { MerchantSignUpAuth, SignInAuth } from "../../validators/validators";
+import {
+  MerchantSignUpAuth,
+  SignInAuth,
+} from "@shared/schemas/validators"
+
 import { Merchant, UserRoles } from "../../models/index";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../../config/env";
@@ -12,7 +16,7 @@ export const createUser = async (authData: MerchantSignUpAuth) => {
       email: authData.email,
       business_name: authData.businessName,
       password: authData.password,
-      phone_number: authData.phoneNumber
+      phone_number: authData.phoneNumber,
     },
   });
   if (!created) return { newuser, created };

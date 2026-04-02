@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import asyncHandler from "../../utils/asynchandler";
 import ApiError from "../../utils/ApiError";
 import ApiResponse from "../../utils/ApiResponse";
-import { PaymentLink } from "../../validators/validators";
+import { PaymentLink } from "@shared/schemas/validators";
 import { generatePaymentLink } from "../services/link.service";
 
 export const createPaymentLink = asyncHandler(

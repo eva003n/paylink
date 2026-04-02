@@ -9,11 +9,12 @@ import ApiError from "../../utils/ApiError";
 import ApiResponse from "../../utils/ApiResponse";
 import asyncHandler from "../../utils/asynchandler";
 import { Request, Response, NextFunction } from "express";
-import { MerchantSignUpAuth } from "../../validators/validators";
+import { MerchantSignUpAuth } from "@shared/schemas/validators";
 
 export const signUp = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { businessName, email, password, phoneNumber }: MerchantSignUpAuth = req.body;
+    const { businessName, email, password, phoneNumber }: MerchantSignUpAuth =
+      req.body;
     const { newuser, created } = await createUser({
       businessName,
       email,
