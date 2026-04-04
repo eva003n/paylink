@@ -10,6 +10,7 @@ export const signUpSchema = z.object({
 });
 
 export const merchantSignUPSchema = signUpSchema.extend({
+  id: z.string().optional(),
   businessName: z
     .string("Invalid business name provided")
     .min(5, "Must be at least 5 characters long")
