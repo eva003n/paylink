@@ -7,7 +7,8 @@ import { jwtSchema } from "../../schemas/validators";
 
 const protectRoute = asyncHandler(async (req, res, next) => {
   // get access token from cookie header
-  const accessToken = req.signedCookies.AccessToken;
+  const accessToken = req.signedCookies.AccessToken || req.headers["authorization"]?.split(" ")[1];
+  console.log(accessToken)
   // no token in cookie
   if (!accessToken) {
     return next(
