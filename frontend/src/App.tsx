@@ -3,8 +3,6 @@ import { Route, BrowserRouter, Routes, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import SignUpPage from "./pages/Auth/SignUp";
 import SignInPage from "./pages/Auth/SignIn";
-import PaymentCheckOut from "./pages/Clients/PaymentCheckOut";
-import CreateLink from "./pages/Merchant/CreateLink";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./context/AuthProvider";
 import PublicRoute from "./components/PublicRoute";
@@ -12,6 +10,8 @@ import ProtectRoute from "./components/ProtectRoute";
 import DashboardPage from "./pages/Dashboard";
 import LinksPage from "./pages/Links";
 import TransactionsPage from "./pages/Transactions";
+import Applayout from "./components/Layout/Applayout";
+import SettingsPage from "./pages/Settings";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,10 +26,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Toaster
-        position="bottom-center"
-        
-        />
+        <Toaster position="bottom-center" />
         <BrowserRouter>
           {/* <Header></Header> */}
 
@@ -39,24 +36,19 @@ const App = () => {
               <Route path="/sign-in" element={<SignInPage />}></Route>
             </Route>
             <Route element={<ProtectRoute />}>
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/links" element={<LinksPage />} />
-              <Route path="/transactions" element={<TransactionsPage />} />
-            </Route>
-            <Route path="payment">
-              <Route path="status"></Route>
-              <Route path="link">
-                <Route path="create" element={<CreateLink />}></Route>
-                <Route path=":id" element={<PaymentCheckOut />}></Route>
+              <Route element={<Applayout />}>
+                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/links" element={<LinksPage />} />
+                <Route path="/transactions" element={<TransactionsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
               </Route>
             </Route>
+         
             {/* Fallback route */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </BrowserRouter>
-
       </AuthProvider>
     </QueryClientProvider>
   );
