@@ -15,7 +15,7 @@ export const Spinner = ({
   className,
 }: {
   size?: string;
-  className?: ClassValue[];
+  className?: ClassValue;
 }) => {
   const sizes: { [key: string]: string } = {
     sm: "w-4 h-4",
@@ -366,7 +366,7 @@ export const PageHeader: FC<PageHeaderProps> = ({
   description,
   action,
 }) => (
-  <div className="mb-8 flex items-start justify-between gap-4">
+  <div className="mb-8 flex items-start flex-col md:flex-row justify-between gap-4">
     <div>
       <h1 className="font-display text-2xl font-bold text-stone-900">
         {title}
