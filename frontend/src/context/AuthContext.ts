@@ -10,7 +10,7 @@ export type UserType = {
 };
 
 export const AuthContext = createContext<{
-  user: UserType | null;
+  user: MerchantSignUpAuth | null;
   token?: string | null;
   tokenExpiry?: number;
   loading: boolean;

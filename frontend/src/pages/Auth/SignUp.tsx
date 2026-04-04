@@ -1,17 +1,16 @@
 import React, { useState } from "react";
-import AuthShell from "../../components/AuthShell";
-import { useAuth } from "../../context/AuthContext";
+import AuthShell from "@/components/shared/AuthShell";
+import { useAuth } from "@/context/AuthContext";
 import {
   merchantSignUPSchema,
   type MerchantSignUpAuth,
 } from "@shared/schemas/validators";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { ArrowRight } from "lucide-react";
-import { Button, Input } from "../../components/ui";
+import { Button, Input } from "@/components/ui";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 
 const SignUpPage = () => {
   const { registerUser, loading, setLoading } = useAuth();
@@ -20,7 +19,7 @@ const SignUpPage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<MerchantSignUpAuth>({
     // frontend validation using zod schema
     resolver: zodResolver(merchantSignUPSchema),
@@ -29,13 +28,14 @@ const SignUpPage = () => {
   const onSubmit: SubmitHandler<MerchantSignUpAuth> = async (data) => {
     setLoading(true);
     try {
-      const res = await registerUser(data);
-      toast.success(res.message);
-      navigate("/sign-in");
+      // const res = await registerUser(data);
+      // toast.success(res.message);
+      // navigate("/sign-in");
     } catch (error) {
-      toast.error("Authentication failed")
+      toast.error("Authentication failed");
       console.log(error);
     } finally {
+      // setTimeout(() => setLoading(false), 1000);
       setLoading(false);
     }
   };
@@ -68,9 +68,7 @@ const SignUpPage = () => {
               {...register("businessName", { required: true })}
               placeholder="Kamau Graphics"
               className={fieldClass}
-              variant={
-                errors.businessName  && "error"
-              }
+              variant={errors.businessName && "error"}
               error={errors.businessName && errors.businessName.message}
             />
           </div>

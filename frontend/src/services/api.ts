@@ -19,30 +19,35 @@ api.interceptors.request.use((config) => {
   let token = localStorage.getItem(AUTH_DATA.PAYLINK_TOKEN);
   let tokenExpiry = localStorage.getItem(AUTH_DATA.PAYLINK_TOKEN_EXPIRY);
 
-  if(token && tokenExpiry) {
-token = JSON.parse(token);
-const tokenExpiryMs = Number(JSON.parse(tokenExpiry));
+  if (token && tokenExpiry) {
+    const tokenExpiryMs = Number(tokenExpiry);
 
-const nowMs = Date.now();
+    const nowMs = Date.now();
 
-if (tokenExpiryMs < nowMs) {
-  config.headers.Authorization = `Bearer ${token}`;
-} else {
-  api2.get("/auth/refresh-token").then((res) => {
-    const token = res.data.accessToken;
-    const expiresIn = res.data.expiresIn;
+    if (tokenExpiryMs < nowMs) {
+      // use another axios instance to avoid infinate loop and too many requests
+      api2.get("/auth/refresh-token").then((res) => {
+        const token = res.data.accessToken;
+        const expiresIn = res.data.expiresIn;
 
-    config.headers.Authorization = `Bearer ${token}`;
+        config.headers.Authorization = `Bearer ${token}`;
 
-    localStorage.setItem(AUTH_DATA.PAYLINK_TOKEN, token || null);
-    localStorage.setItem(
-      AUTH_DATA.PAYLINK_TOKEN_EXPIRY,
-      JSON.stringify(expiresIn + Date.now()),
-    );
-  });
-}
-}
-  
+        setTimeout(() => {
+          localStorage.setItem(
+            AUTH_DATA.PAYLINK_TOKEN,
+            JSON.stringify(token || null),
+          );
+          localStorage.setItem(
+            AUTH_DATA.PAYLINK_TOKEN_EXPIRY,
+            JSON.stringify(expiresIn + Date.now() - 60_000),
+          );
+        }, 0);
+      });
+
+    } else {
+      config.headers.Authorization = `Bearer ${token}`;      
+    }
+  }
 
   return config;
 });
@@ -51,12 +56,22 @@ api.interceptors.response.use(
   (res) => res.data,
   (error: AxiosError) => {
     // unauthorized request
-    if (error.response && error.response.status === 401) {
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      error.config?.url !== "/auth/sign-in"
+    ) {
       // remove the local storage information and redirect user to login(user and token)
-      window.location.href = "/login";
+      // window.location.href = "/sign-in";
+      console.log(error.response.data);
+      localStorage.removeItem(AUTH_DATA.PAYLINK_TOKEN);
+      localStorage.removeItem(AUTH_DATA.PAYLINK_USER);
+      localStorage.removeItem(AUTH_DATA.PAYLINK_TOKEN_EXPIRY);
+
+      window.location.href = "/sign-in";
     }
     // handle unexpected errors
-    return Promise.reject(error.response?.data);
+    return Promise.reject(error);
   },
 );
 
@@ -67,6 +82,7 @@ export const authAPI = {
   login: (d: any) => api.post("/auth/sign-in", d),
   logout: () => api.delete("/auth/sign-out"),
   me: (id: string) => api.get(`/users/${id}`),
+  refreshToken: () => api.get("/auth/refresh-token"),
 };
 
 export const linksAPI = {

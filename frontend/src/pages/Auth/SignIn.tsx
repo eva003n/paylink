@@ -2,13 +2,10 @@ import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  signInSchema,
-  type SignInAuth,
-} from "@shared/schemas/validators";
-import AuthShell from "../../components/AuthShell";
-import { Button, Input } from "../../components/ui";
-import { useAuth } from "../../context/AuthContext";
+import { signInSchema, type SignInAuth } from "@shared/schemas/validators";
+import AuthShell from "@/components/shared/AuthShell";
+import { Button, Input } from "@/components/ui";
+import { useAuth } from "@/context/AuthContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 
@@ -29,12 +26,15 @@ const SignInPage = () => {
     setLoading(true);
     try {
       const res = await logIn(data);
+      console.log(res);
       navigate("/dashboard");
       toast.success(res.message);
     } catch (error) {
       toast.error("Authentication failed");
       console.log(error);
     } finally {
+      // setTimeout(() => setLoading(false), 1000);
+
       setLoading(false);
     }
   };

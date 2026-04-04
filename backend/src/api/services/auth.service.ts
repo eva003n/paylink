@@ -8,6 +8,7 @@ import { Merchant, UserRoles } from "../../models/index";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../../config/env";
 import { redisClient } from "../../config/redis";
+import { UserDTO } from "../dto";
 
 export const createUser = async (authData: MerchantSignUpAuth) => {
   const [newuser, created] = await Merchant.findOrCreate({
@@ -46,7 +47,7 @@ export const logInUser = async (authData: SignInAuth) => {
 */
   await redisClient.set(`refresh-${user.id}`, refreshToken);
 
-  return { user, isValid: isValidPassword, accessToken, refreshToken };
+  return { user: UserDTO.create(user), isValid: isValidPassword, accessToken, refreshToken };
 };
 
 export const logOutUser = async (sessionId: string) => {

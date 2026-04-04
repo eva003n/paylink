@@ -22,7 +22,6 @@ export const signUp = asyncHandler(
       phoneNumber,
     });
 
-    console.log(created);
     if (!created)
       return next(
         ApiError.unAuthorizedRequest(
@@ -54,7 +53,6 @@ export const signIn = asyncHandler(
       );
 
     if (!isValid)
-      setTimeout(() => {
         return next(
           ApiError.unAuthorizedRequest(
             401,
@@ -62,7 +60,6 @@ export const signIn = asyncHandler(
             "Authentication failed",
           ),
         );
-      }, 1000);
     // send jwt token
     res
       .status(200)
@@ -80,7 +77,6 @@ export const signIn = asyncHandler(
         maxAge: 24 * 60 * 60 * 1000, // seconds in i day(When dealing with express this should be in ms while setting raw header it is in secs)
         signed: true,
       })
-
       .json(
         new ApiResponse(
           200,
@@ -104,7 +100,9 @@ export const signOut = asyncHandler(
 );
 export const tokenRefresh = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const oldAccessToken = req.signedCookies.AccessToken;
+    const oldAccessToken =
+      req.signedCookies.AccessToken ||
+      req.headers["authorization"]?.split(" ")[1];
     // make request idempotent, dont refresh if access token has not expired
     if (oldAccessToken) {
       return res
@@ -115,14 +113,14 @@ export const tokenRefresh = asyncHandler(
     const oldRefreshToken = req.signedCookies.RefreshToken;
     // check cookie for old refresh token
     if (!oldRefreshToken) {
-      return next(ApiError.badRequest(400, req.originalUrl));
+      return next(ApiError.unAuthorizedRequest(401, req.originalUrl));
     }
 
     const { exists, _accessToken, _refreshToken } =
       await renewToken(oldRefreshToken);
 
     if (!exists) {
-      return next(ApiError.forbiddenRequest(403, req.originalUrl));
+      return next(ApiError.unAuthorizedRequest(401, req.originalUrl));
     }
 
     // send jwt token

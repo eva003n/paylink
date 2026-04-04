@@ -1,21 +1,15 @@
-import {
-  useEffect,
-  useState,
-  useCallback,
-} from "react";
+import { useEffect, useState, useCallback } from "react";
 import React from "react";
 import { AUTH_DATA } from "../constants";
 import { authAPI } from "../services/api";
-import { AuthContext, type UserType } from "./AuthContext";
+import { AuthContext } from "./AuthContext";
 import type {
   MerchantSignUpAuth,
   SignInAuth,
 } from "@shared/schemas/validators";
 
-
-
 export const AuthProvider = ({ children }: React.PropsWithChildren) => {
-  const [user, setUser] = useState<UserType | null>(() => {
+  const [user, setUser] = useState<MerchantSignUpAuth | null>(() => {
     try {
       return JSON.parse(AUTH_DATA.PAYLINK_USER);
     } catch {
@@ -28,21 +22,52 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
   useEffect(() => {
     // get token from local storage(only when storing it in local storage)
     const token = localStorage.getItem(AUTH_DATA.PAYLINK_TOKEN);
+    const user = localStorage.getItem(AUTH_DATA.PAYLINK_USER);
     if (!token) {
       setLoading(false);
+      console.error("Token does not exist in storage");
+
       return;
     }
+    if (!user) {
+      setLoading(false);
+      console.error("User does not exist in storage");
 
-    // query user(if exists)
-    authAPI
-      .me(user?.id as string)
-      .then((res) => setUser(res.data.user))
-      .catch(() => {
-        // if user doesn't remove auth data from local storage
-        localStorage.removeItem(AUTH_DATA.PAYLINK_TOKEN);
-        localStorage.removeItem(AUTH_DATA.PAYLINK_USER);
-      })
-      .finally(() => setLoading(false));
+      return;
+    }
+    const tokenExpiry = localStorage.getItem(AUTH_DATA.PAYLINK_TOKEN_EXPIRY);
+    if (!tokenExpiry) console.error("Token expiry does not exist in storage");
+    const tokenExpiryMs = Number(tokenExpiry);
+    const _user: MerchantSignUpAuth = JSON.parse(user);
+    const nowMs = Date.now();
+
+      setUser(_user);
+
+    if (tokenExpiryMs < nowMs) {
+      // query user(if exists)
+      authAPI
+        .me(_user?.id as string)
+        // .then((res) => setUser(res.data.user))
+        .catch((error) => {
+          // console.error(error)
+          authAPI
+            .refreshToken()
+            .then((res) => {
+              const { accessToken: token, expiresIn } = res.data;
+
+              localStorage.setItem(AUTH_DATA.PAYLINK_TOKEN, token || null);
+              localStorage.setItem(
+                AUTH_DATA.PAYLINK_TOKEN_EXPIRY,
+                JSON.stringify(expiresIn + Date.now() - 60_000),
+              );
+            })
+            // .catch(() => {
+            //   console.log(error)
+            // });
+          // if user doesn't remove auth data from local storage
+        })
+        .finally(() => setLoading(false));
+    }
   }, []);
 
   const registerUser = useCallback(async (data: MerchantSignUpAuth) => {
@@ -64,7 +89,7 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
       JSON.stringify(expiresIn + Date.now() - 60_000),
     );
     setUser(user);
-    return res
+    return res;
   }, []);
   const logOut = useCallback(async () => {
     await authAPI.logout();
@@ -83,5 +108,3 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
     </AuthContext.Provider>
   );
 };
-
-
