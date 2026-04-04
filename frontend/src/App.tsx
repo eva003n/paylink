@@ -1,4 +1,3 @@
-import "./App.css";
 import { Route, BrowserRouter, Routes, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import SignUpPage from "./pages/Auth/SignUp";
@@ -12,6 +11,7 @@ import LinksPage from "./pages/Links";
 import TransactionsPage from "./pages/Transactions";
 import Applayout from "./components/Layout/Applayout";
 import SettingsPage from "./pages/Settings";
+import CheckoutPage from "./pages/Checkout";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,9 +28,10 @@ const App = () => {
       <AuthProvider>
         <Toaster position="bottom-center" />
         <BrowserRouter>
-          {/* <Header></Header> */}
-
           <Routes>
+            {/* Public route to be accessed by anyone */}
+            <Route path="/pay/:reference" element={<CheckoutPage />}></Route>
+
             <Route element={<PublicRoute />}>
               <Route path="/sign-up" element={<SignUpPage />}></Route>
               <Route path="/sign-in" element={<SignInPage />}></Route>
@@ -44,7 +45,7 @@ const App = () => {
                 <Route path="/settings" element={<SettingsPage />} />
               </Route>
             </Route>
-         
+
             {/* Fallback route */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
