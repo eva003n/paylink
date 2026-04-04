@@ -1,12 +1,18 @@
 {
   "name": "paylink",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Send clients a payment link, trigger M-Pesa STK, and generate instant PDF receipts.",
+  "main": "backend/dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "Node",
+    "Express",
+    "REST API",
+    "Background jobs",
+    "Payments"
+  ],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.32.1",
