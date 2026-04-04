@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { linksAPI, mpesaAPI } from "@/services/api";
 import { Button, Spinner } from "@/components/ui";
@@ -327,7 +327,7 @@ const CheckoutPage = () => {
   );
 
   const {
-    data: linkData,
+    data: linkData ,
     isLoading: linkLoading,
     error: linkError,
   } = useQuery({
@@ -430,7 +430,7 @@ const CheckoutPage = () => {
         className="flex min-h-screen items-center justify-center"
         style={{ backgroundColor: "var(--color-stone-50)" }}
       >
-        <Spinner size="xl" />
+        <Spinner size="xl" className="text-brand-400" />
       </div>
     );
 
@@ -457,6 +457,11 @@ const CheckoutPage = () => {
           <p className="text-sm" style={{ color: "var(--color-stone-500)" }}>
             This payment link doesn't exist or has been removed.
           </p>
+          <Link to="/">
+          <Button className="mt-2">
+            Back to home
+          </Button>
+          </Link>
         </div>
       </div>
     );
