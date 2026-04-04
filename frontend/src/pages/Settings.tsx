@@ -181,7 +181,7 @@ const SettingsPage = () => {
                 key={m}
                 type="button"
                 onClick={() => setF((f) => ({ ...f, env: m }))}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all"
+                className="flex flex-wrap flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all"
                 style={
                   form.env === m
                     ? {
