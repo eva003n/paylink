@@ -26,14 +26,7 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
         key: "id",
       },
     },
-    phone_number: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+
     link_id: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -63,7 +56,7 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
       allowNull: false,
       defaultValue: PaymentStatus.Pending,
     },
-
+    
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

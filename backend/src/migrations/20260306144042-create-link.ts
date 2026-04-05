@@ -37,10 +37,7 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
       type: DataTypes.DECIMAL(8, 2),
       allowNull: false,
     },
-    invoice_no: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+
     status: {
       type: DataTypes.ENUM(...Object.values(LinkStatus)),
       allowNull: false,
@@ -49,7 +46,7 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
     expiresAt: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: new Date(Date.now() + 24 * 60 * 60 * 1000), // 7 days
+      defaultValue: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
     },
     createdAt: {
       type: DataTypes.DATE,

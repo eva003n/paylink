@@ -8,7 +8,6 @@ import { SequelizeStorage, Umzug } from "umzug";
 
 
 
-        console.log(`${getAbsolutePath("../../../", __dirname)}`);
 
 const umzug = new Umzug({
   migrations: {
@@ -51,7 +50,7 @@ export const runMigrations = async () => {
 })()
 
 export const revertLastMigration = async () => {
-  logger.info(`Rerveting migrations in ${NODE_ENV} environment`);
+  logger.info(`Reverting migrations in ${NODE_ENV} environment`);
 
   logger.info(
     `⏳ Reverting last database migration (Database -> ${sequelize.config.database})`,

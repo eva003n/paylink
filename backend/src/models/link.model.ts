@@ -2,14 +2,14 @@ import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../config/db/postgres";
 
 export enum LinkStatus {
-  ACTIVE = "active",
-  EXPIRED = "expired",
-  CANCELLED = "cancelled"
+  ACTIVE = "Active",
+  PAID = "Paid",
+  EXPIRED = "Expired",
+  CANCELLED = "Cancelled"
 }
 
 export class Link extends Model {
   declare id: string;
-  declare invoice_no: string;
   declare merchant_id: string;
   declare amount: number;
   declare shortCode: number;
@@ -57,10 +57,7 @@ export class Link extends Model {
        type: DataTypes.DECIMAL(8, 2),
        allowNull: false,
      },
-     invoice_no: {
-       type: DataTypes.STRING,
-       allowNull: false,
-     },
+
      status: {
        type: DataTypes.ENUM(...Object.values(LinkStatus)),
        allowNull: false,
@@ -69,15 +66,15 @@ export class Link extends Model {
      expiresAt: {
        type: DataTypes.DATE,
        allowNull: false,
-       defaultValue: new Date(Date.now() + 24 * 60 * 60 * 1000), // 7 days
+       defaultValue: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
      },
    },
    {
      tableName: "links",
      sequelize,
-     // indexes: [{
-     //     unique: true,
-     //     // fields: ["invoice_no"]
-     // }]
+     indexes: [{
+         unique: true,
+         fields: ["token", "url"]
+     }]
    },
  );
