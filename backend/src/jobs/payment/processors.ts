@@ -15,7 +15,7 @@ import {
   PaymentSTKQueryResponse,
   PaymentSTKResponse,
 } from "../../schemas/validators";
-import { Link, Payment, PaymentStatus } from "../../models";
+import { Client, Link, Payment, PaymentStatus } from "../../models";
 import { enqueueSTKPoll } from "../../queues";
 import { enqueuePaymentReceipt } from "../../queues/pdf.queue";
 
@@ -120,6 +120,15 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
       );
       return;
     }
+
+      const client = await Client.findByPk(transaction.client_id);
+        if (!client) {
+          logger.error(
+            `Client with ID ${transaction.client_id} doesn't exist`,
+          );
+          return;
+        }
+
     const code = response.ResultCode;
     if (code == 0) {
       logger.info(
@@ -127,15 +136,16 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
       );
       transaction.set("status", PaymentStatus.Successful);
 
+
       // generate payment receipt pdf
       await enqueuePaymentReceipt({
-        name: transaction.email.split("@")[0],
-        email: transaction.email,
-        phoneNumber: transaction.phone_number,
+        name: client.email.split("@")[0],
+        email: client.email,
+        phoneNumber: client.phone_number,
         reference: transaction.mpesa_ref,
         amount: transaction.amount,
         paymentType: "CustomerPayBillOnline",
-        account: transaction.phone_number,
+        account: client.phone_number,
         paybill: shortCode,
       });
     }
