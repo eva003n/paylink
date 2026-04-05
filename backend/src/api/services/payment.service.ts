@@ -1,4 +1,4 @@
-import { Link, Payment } from "../../models/index";
+import { Link, LinkStatus, Payment } from "../../models/index";
 import base62 from "@sindresorhus/base62";
 
 import { enqueueSTKPush } from "../../queues/index";
@@ -20,7 +20,7 @@ export const initiateSTKPush = async ({
 
   if (!link) return { link, invalid: false, job: null };
 
-  if (link.status !== "active") {
+  if (link.status !== LinkStatus.ACTIVE) {
     return { link, invalid: true, job: null };
   }
 
