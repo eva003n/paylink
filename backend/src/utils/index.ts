@@ -1,4 +1,4 @@
-import path from "path"
+import * as path from "path"
 import { ZodIssue } from "zod";
 
 const getAbsolutePath = (pathString: string, dirname?: string) => {
@@ -7,7 +7,7 @@ const getAbsolutePath = (pathString: string, dirname?: string) => {
   return path.resolve(dirname || __dirname, pathString);
 };
 
-const formatError = (errors: ZodIssue[]) => {
+const formatError = (errors : ZodIssue[]) => {
   return errors.map((error: ZodIssue) => ({
     detail: error.message,
     field: error.path,

@@ -100,7 +100,7 @@ export const mpesaAPI = {
   getAll: () => api.get("/payments/mpesa/transactions"),
 };
 
-export const dashboardAPI = { get: () => api.get("/dashboard") };
+export const dashboardAPI = { get: () => api.get("/analytics") };
 export const configAPI = {
   get: () => api.get("/config"),
   save: (d: any) => api.put("/config", d),
