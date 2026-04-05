@@ -6,14 +6,13 @@ import ApiError from "../../utils/ApiError";
 import { jwtSchema } from "../../schemas/validators";
 
 const protectRoute = asyncHandler(async (req, res, next) => {
-  // get access token from cookie header
+  // get access token from cookie header or auth header
   const accessToken = req.signedCookies.AccessToken || req.headers["authorization"]?.split(" ")[1];
-  console.log(accessToken)
   // no token in cookie
-  if (!accessToken) {
+  if (accessToken === "null" || accessToken === "undefined") {
     return next(
-      ApiError.badRequest(
-        400,
+      ApiError.unAuthorizedRequest(
+        401,
         req.originalUrl,
         NODE_ENV === "development" ? "No access token" : "Bad request",
       ),
@@ -30,8 +29,8 @@ const protectRoute = asyncHandler(async (req, res, next) => {
   const { error } = jwtSchema.safeParse(decodedToken);
   if (error) {
     return next(
-      ApiError.badRequest(
-        400,
+      ApiError.unAuthorizedRequest(
+        401,
         req.originalUrl,
         NODE_ENV === "development" ? "Invalid JWT token" : "Bad request",
       ),

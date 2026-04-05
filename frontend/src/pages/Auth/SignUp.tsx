@@ -28,9 +28,9 @@ const SignUpPage = () => {
   const onSubmit: SubmitHandler<MerchantSignUpAuth> = async (data) => {
     setLoading(true);
     try {
-      // const res = await registerUser(data);
-      // toast.success(res.message);
-      // navigate("/sign-in");
+      const res = await registerUser(data);
+      toast.success(res.message);
+      navigate("/sign-in");
     } catch (error) {
       toast.error("Authentication failed");
       console.log(error);
