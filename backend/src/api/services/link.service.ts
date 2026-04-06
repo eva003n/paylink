@@ -1,14 +1,16 @@
 import base62 from "@sindresorhus/base62";
 import { FRONTEND_BASE_URI } from "../../config/env";
-import { Merchant, Link } from "../../models";
-import { PaymentLink } from "@shared/schemas/validators";
+import { Merchant, Link} from "../../models";
+import { FilterOption, PaymentLink } from "@shared/schemas/validators";
+import { Id } from "src/schemas/validators";
+import { LinkStatus} from "@shared/schemas/validators";
+import { LinkDTO } from "../dto";
 
-export const generatePaymentLink = async (linkData: PaymentLink) => {
+export const generatePaymentLink = async (linkData: PaymentLink & { merchant_id: string }) => {
   const merchant = await Merchant.findByPk(linkData.merchant_id);
 
   if (!merchant) return { merchant, link: null };
   const link = await Link.create({
-    invoice_no: linkData.invoiceNo || "",
     shortCode: linkData.shortCode,
     amount: linkData.amount,
     merchant_id: merchant.id,
@@ -24,4 +26,47 @@ export const generatePaymentLink = async (linkData: PaymentLink) => {
 
   await link.save();
   return { merchant, link };
+};
+
+type FilterOptions = {
+
+  status: LinkStatus
+} & FilterOption
+export const getAllLinks = async(id: Id, options: FilterOptions) =>  {
+  return getPaginatedLinks(id, options)
+}
+
+
+const getPaginatedLinks = async (id: Id, filtersOptions: FilterOptions) => {
+  //inplements page by page logic
+  const offset = (filtersOptions.page - 1) * filtersOptions.limit;
+
+  //build an object of dynamic filters
+  const filters = {
+    merchant_id: id,
+    status: filtersOptions.status,
+    
+  };
+
+  //convert resulting array to object for filtering
+  const where = Object.fromEntries(
+    //build an array of key value pairs removing empty values
+    Object.entries(filters).filter(([_, v]) => v?.toString().trim()),
+  );
+  
+
+  const { rows, count } = await Link.findAndCountAll({
+    where,
+    limit: filtersOptions.limit,
+    offset,
+    order: [["createdAt", "DESC"]],
+  
+  });
+
+  return {
+    links: rows.map((link) => LinkDTO.create(link)),
+    currentPage: filtersOptions.page,
+    totalPages: Math.ceil(count / filtersOptions.limit),
+    totalItems: count,
+  };
 };

@@ -1,5 +1,6 @@
-import { Link, LinkStatus, Payment } from "../../models/index";
+import { Link, Payment } from "../../models/index";
 import base62 from "@sindresorhus/base62";
+import { linkStatusSchema } from "@shared/schemas/validators";
 
 import { enqueueSTKPush } from "../../queues/index";
 import { PaymentSTK } from "../../schemas/validators";
@@ -20,7 +21,7 @@ export const initiateSTKPush = async ({
 
   if (!link) return { link, invalid: false, job: null };
 
-  if (link.status !== LinkStatus.ACTIVE) {
+  if (link.status !== linkStatusSchema.enum.Active) {
     return { link, invalid: true, job: null };
   }
 
