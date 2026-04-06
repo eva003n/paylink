@@ -1,12 +1,11 @@
 import { ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { signInSchema, type SignInAuth } from "@shared/schemas/validators";
 import AuthShell from "@/components/shared/AuthShell";
 import { Button, Input } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
-import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 
 const SignInPage = () => {
@@ -16,7 +15,7 @@ const SignInPage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<SignInAuth>({
     // frontend validation using zod schema
     resolver: zodResolver(signInSchema),
@@ -39,9 +38,6 @@ const SignInPage = () => {
     }
   };
 
-  const fieldClass = "";
-  const lblClass =
-    "block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-1.5";
   return (
     <AuthShell>
       <div className="animate-fade-up">
@@ -67,7 +63,7 @@ const SignInPage = () => {
               className="w-full rounded-lg border border-white/20 bg-white/10 px-3.5 py-2.5 text-sm text-white placeholder-stone-500 transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/50 focus:outline-none"
             />
           </div>
-          <div>
+          <div className="text-stone-400">
             <label className="mb-1.5 block text-xs font-semibold tracking-wider text-stone-400 uppercase">
               Password
             </label>

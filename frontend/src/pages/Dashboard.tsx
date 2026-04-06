@@ -5,7 +5,6 @@ import { dashboardAPI } from '@/services/api';
 import { fmtKES, fmtKESShort, fmtPhone, fmtRelative } from '@/utils';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, CheckCircle, Clock, Link2, Plus, TrendingUp, Activity } from 'lucide-react';
-import React  from 'react'
 import  { Link } from 'react-router-dom';
 
 const DashboardPage = () => {
@@ -16,9 +15,9 @@ const DashboardPage = () => {
      refetchInterval: 30000,
    });
 
-   const stats = data?.transactions || {};
+   const stats = data?.stats ;
    const links = data?.links || {};
-   const recent = data?.recent_transactions || [];
+   const recent = data?.recentTransactions || [];
   const hour   = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
@@ -53,27 +52,27 @@ const DashboardPage = () => {
           <>
             <StatCard
               label="Total Collected"
-              value={fmtKESShort(stats.total_collected || 0)}
-              sub={`${stats.completed_count || 0} payments`}
+              value={fmtKESShort(stats?.totalCollectedPay || 0)}
+              sub={`${stats?.totalCompletedPay || 0} payments`}
               icon={TrendingUp}
               accent
             />
             <StatCard
               label="Active Links"
-              value={links.active || 0}
-              sub={`${links.total || 0} total`}
+              value={stats?.activeLinks || 0}
+              sub={`${stats?.totalLinks || 0} total`}
               icon={Link2}
             />
             <StatCard
               label="Paid Links"
-              value={links.paid || 0}
+              value={stats?.paidLinks || 0}
               sub="Completed"
               icon={CheckCircle}
             />
             <StatCard
               label="Pending"
-              value={stats.pending_count || 0}
-              sub={`${stats.failed_count || 0} failed`}
+              value={stats?.pendingPayments || 0}
+              sub={`${stats?.failedPayments || 0} failed`}
               icon={Clock}
             />
           </>
@@ -125,7 +124,7 @@ const DashboardPage = () => {
                     className="flex items-center gap-4 p-4 transition-colors hover:bg-stone-50"
                   >
                     <div
-                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
                       style={{
                         backgroundColor:
                           tx.status === "completed"
@@ -163,7 +162,7 @@ const DashboardPage = () => {
                         {fmtPhone(tx.phone)} · {fmtRelative(tx.created_at)}
                       </p>
                     </div>
-                    <div className="flex-shrink-0 text-right">
+                    <div className="shrink-0 text-right">
                       <p className="font-mono text-sm font-bold text-stone-900">
                         {fmtKES(tx.amount)}
                       </p>

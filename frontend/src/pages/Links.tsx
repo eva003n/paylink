@@ -1,100 +1,109 @@
-import { PageHeader, Button, Card, EmptyState, StatusBadge, Input, Modal, Textarea } from '@/components/ui';
-import { linksAPI } from '@/services/api';
-import { copyToClipboard, fmtKES, cn, fmtRelative, fmtDate } from '@/utils';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, ChevronDown, Copy, ExternalLink, Link2, Plus, Share2, Trash2, X } from 'lucide-react';
-import {useState, type FC} from 'react'
-import toast from 'react-hot-toast';
+import {
+  PageHeader,
+  Button,
+  Card,
+  EmptyState,
+  StatusBadge,
+  Input,
+  Modal,
+} from "@/components/ui";
+import { linksAPI } from "@/services/api";
+import { copyToClipboard, fmtKES, cn, fmtRelative, fmtDate } from "@/utils";
+import type { LinkType } from "@/validators/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  paymentLinkSchema,
+  type PaymentLink,
+  type PaymentLinkInput,
+} from "@shared/schemas/validators";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Check,
+  ChevronDown,
+  Copy,
+  ExternalLink,
+  Link2,
+  Plus,
+  Share2,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useState, type FC } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { _any } from "zod/v4/core";
 
+type CreateModalProps = {
+  open: boolean;
+  onClose: (link: LinkType | null) => void;
+};
 
-type ModelProps = {
-  open: boolean,
-  onClose: any
-}
-
-const CreateModal: FC<ModelProps> = ({ open, onClose }) => {
+const CreateModal: FC<CreateModalProps> = ({ open, onClose }) => {
   const qc = useQueryClient();
-  const [form, setF] = useState({
-    business_name: "",
-    client_name: "",
-    description: "",
-    amount: "",
-    due_date: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<PaymentLinkInput>({
+    resolver: zodResolver(paymentLinkSchema),
   });
-  const [errors, setE] = useState<any>({});
-  const set = (k: any) => (e: any) => {
-    setF((f) => ({ ...f, [k]: e.target.value }));
-    setE((er: any) => ({ ...er, [k]: "" }));
-  };
 
   const mut = useMutation({
-    mutationFn: (d) => linksAPI.create(d),
+    mutationFn: (d: PaymentLinkInput) => linksAPI.create(d),
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ["links"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
       toast.success("Payment link created!");
-      onClose(res.data.link);
+      reset();
+      onClose(res);
     },
-    onError: (err) =>
-      toast.error("Failed to create link"),
+    onError: (err: any) => toast.error(err?.message || "Failed to create link"),
   });
 
-  const submit = (e: any) => {
-    e.preventDefault();
-    const errs: any = {};
-    if (!form.business_name.trim()) errs.business_name = "Required";
-    if (!form.amount || isNaN(Number(form?.amount)) || Number(form?.amount) < 10)
-      errs.amount = "Minimum KES 10";
-    if (Object.keys(errs).length) {
-      setE(errs);
-      return;
-    }
-    // mut.mutate({ ...form, amount: Number(form.amount) });
+  const onSubmit = (data: PaymentLinkInput) => {
+    mut.mutate(data);
   };
 
   return (
     <Modal open={open} onClose={() => onClose(null)} title="New Payment Link">
-      <form onSubmit={submit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <Input
-          label="Business Name"
-          required
-          value={form.business_name}
-          onChange={set("business_name")}
-          placeholder="Kamau Graphics"
-          error={errors.business_name}
+          label="Short code"
+          type="number"
+          {...register("shortCode")}
+          placeholder="XXXXXX"
+          error={errors.shortCode?.message}
         />
-        <Input
+        {/* <Input
           label="Client Name (optional)"
           value={form.client_name}
           onChange={set("client_name")}
           placeholder="Wanjiku Mwangi"
-        />
-        <Textarea
+        /> */}
+        {/* <Textarea
           label="Service Description (optional)"
           value={form.description}
           onChange={set("description")}
           placeholder="e.g. Logo design & brand identity package"
-        />
-        <div className="grid grid-cols-2 gap-3">
+        /> */}
+        <div className="grid gap-3 sm:grid-cols-2">
           <Input
             label="Amount (KES)"
             type="number"
             min="10"
-            value={form.amount}
-            onChange={set("amount")}
+            {...register("amount")}
             placeholder="5000"
             prefix="KES"
-            error={errors.amount}
-            required
+            error={errors.amount?.message}
           />
           <Input
             label="Due Date (optional)"
             type="date"
-            value={form.due_date}
-            onChange={set("due_date")}
+            {...register("expiresAt", { valueAsDate: true })}
           />
         </div>
-        <div className="flex gap-3 pt-1">
+        <div className="flex flex-col gap-3 pt-1 sm:flex-row">
           <Button
             variant="secondary"
             size="lg"
@@ -120,21 +129,22 @@ const CreateModal: FC<ModelProps> = ({ open, onClose }) => {
 };
 
 type ModelCreatedProps = {
-  link: any,
-  onClose: any,
-}
+  link: LinkType | null;
+  onClose: () => void;
+};
 /* ── Link Created Modal ──────────────────────────────────────────────── */
-const CreatedModal = ({ link, onClose }: ModelCreatedProps) => {
+const CreatedModal: FC<ModelCreatedProps> = ({ link, onClose }) => {
+  if (!link) return null;
   const [copied, setCopied] = useState(false);
   const copy = async () => {
-    await copyToClipboard(link.share_url);
+    await copyToClipboard(link.url);
     setCopied(true);
     toast.success("Link copied!");
     setTimeout(() => setCopied(false), 2000);
   };
   const whatsapp = () => {
     const msg = encodeURIComponent(
-      `Hi! Please use this link to complete your payment of ${fmtKES(link.amount)} to ${link.business_name}:\n${link.share_url}`,
+      `Hi! Please use this link to complete your payment of ${fmtKES(link?.amount)}:\n${link.url}`,
     );
     window.open(`https://wa.me/?text=${msg}`, "_blank");
   };
@@ -158,16 +168,16 @@ const CreatedModal = ({ link, onClose }: ModelCreatedProps) => {
             className="font-display text-3xl font-bold"
             style={{ color: "var(--color-brand-700)" }}
           >
-            {fmtKES(link?.amount)}
+            {fmtKES(Number(link?.amount))}
           </p>
-          {link?.client_name && (
+          {/* {link?.client_name && (
             <p
               className="mt-1 text-sm"
               style={{ color: "var(--color-brand-600)" }}
             >
               For {link?.client_name}
             </p>
-          )}
+          )} */}
         </div>
         <div>
           <p className="field-label mb-2">Shareable Link</p>
@@ -180,7 +190,7 @@ const CreatedModal = ({ link, onClose }: ModelCreatedProps) => {
                 color: "var(--color-stone-600)",
               }}
             >
-              {link?.share_url}
+              {link?.url}
             </div>
             <Button variant="primary" size="md" onClick={copy}>
               {copied ? (
@@ -204,7 +214,7 @@ const CreatedModal = ({ link, onClose }: ModelCreatedProps) => {
           <Button
             variant="secondary"
             size="lg"
-            onClick={() => window.open(link.share_url, "_blank")}
+            onClick={() => window.open(link?.url, "_blank")}
             className="w-full"
           >
             <ExternalLink className="h-4 w-4" /> Preview
@@ -225,9 +235,9 @@ const CreatedModal = ({ link, onClose }: ModelCreatedProps) => {
 };
 
 type LinkCardProps = {
-  link: any,
-  onShare: any
-}
+  link: LinkType;
+  onShare: (link: LinkType) => void;
+};
 
 const LinkCard: FC<LinkCardProps> = ({ link, onShare }) => {
   const qc = useQueryClient();
@@ -252,7 +262,7 @@ const LinkCard: FC<LinkCardProps> = ({ link, onShare }) => {
   });
 
   const copy = async () => {
-    await copyToClipboard(link.share_url);
+    await copyToClipboard(link.url);
     setCopied(true);
     toast.success("Link copied!");
     setTimeout(() => setCopied(false), 2000);
@@ -265,18 +275,18 @@ const LinkCard: FC<LinkCardProps> = ({ link, onShare }) => {
           <div className="min-w-0 flex-1">
             <div className="mb-1 flex flex-wrap items-center gap-2">
               <h3 className="truncate font-semibold text-stone-900">
-                {link.business_name}
+                {link?.shortCode}
               </h3>
-              <StatusBadge status={link.status} />
+              <StatusBadge status={link?.status} />
             </div>
-            {link.client_name && (
+            {/* {link.client_name && (
               <p
                 className="text-xs"
                 style={{ color: "var(--color-stone-400)" }}
               >
                 {link?.client_name}
               </p>
-            )}
+            )} */}
           </div>
           <div className="shrink-0 text-right">
             <p className="font-display text-lg font-bold text-stone-900">
@@ -286,22 +296,22 @@ const LinkCard: FC<LinkCardProps> = ({ link, onShare }) => {
               className="font-mono text-xs"
               style={{ color: "var(--color-stone-400)" }}
             >
-              {link?.reference}
+              {link?.mpesaRef}
             </p>
           </div>
         </div>
 
-        {link?.description && (
+        {/* {link?.description && (
           <p
             className="mb-3 line-clamp-1 text-sm"
             style={{ color: "var(--color-stone-500)" }}
           >
             {link?.description}
           </p>
-        )}
+        )} */}
 
         <div className="flex flex-wrap items-center gap-2">
-          {link?.status === "active" && (
+          {link?.status === "Active" && (
             <>
               <Button variant="primary" size="sm" onClick={copy}>
                 {copied ? (
@@ -321,7 +331,7 @@ const LinkCard: FC<LinkCardProps> = ({ link, onShare }) => {
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={() => window.open(link?.share_url, "_blank")}
+                onClick={() => window.open(link?.url, "_blank")}
               >
                 <ExternalLink className="h-3 w-3" />
               </Button>
@@ -352,10 +362,10 @@ const LinkCard: FC<LinkCardProps> = ({ link, onShare }) => {
                   Created
                 </p>
                 <p className="font-medium text-stone-700">
-                  {fmtRelative(link?.created_at)}
+                  {fmtRelative(link?.createdAt)}
                 </p>
               </div>
-              {link?.due_date && (
+              {link?.expiresAt && (
                 <div>
                   <p
                     style={{ color: "var(--color-stone-400)" }}
@@ -364,7 +374,7 @@ const LinkCard: FC<LinkCardProps> = ({ link, onShare }) => {
                     Due Date
                   </p>
                   <p className="font-medium text-stone-700">
-                    {fmtDate(link?.due_date)}
+                    {fmtDate(link?.expiresAt)}
                   </p>
                 </div>
               )}
@@ -387,10 +397,10 @@ const LinkCard: FC<LinkCardProps> = ({ link, onShare }) => {
                 color: "var(--color-stone-500)",
               }}
             >
-              {link?.share_url}
+              {link?.url}
             </div>
             <div className="flex gap-2">
-              {link?.status === "active" && (
+              {link?.status === "Active" && (
                 <Button
                   variant="secondary"
                   size="sm"
@@ -425,26 +435,28 @@ const LinkCard: FC<LinkCardProps> = ({ link, onShare }) => {
 };
 const LinksPage = () => {
   const [showCreate, setShowCreate] = useState(false);
-  const [newLink, setNewLink] = useState(null);
-  const [shareLink, setShareLink] = useState(null);
+  const [newLink, setNewLink] = useState<LinkType | null>(null);
+  const [shareLink, setShareLink] = useState<LinkType | null>(null);
   const [filter, setFilter] = useState("all");
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
 
-    const { data, isLoading } = useQuery({
-      queryKey: ["links"],
-      queryFn: () => linksAPI.getAll().then((r) => r.data.links),
-    });
-
+  const { data, isLoading } = useQuery({
+    queryKey: ["links"],
+    queryFn: () =>
+      linksAPI.getAll({page, limit, status:filter === "all"? undefined: filter}).then((r) =>  r.data.links),
+  });
 
   const filtered = (data || []).filter(
     (l: any) => filter === "all" || l.status === filter,
   );
-  const FILTERS = ["all", "active", "paid", "expired", "cancelled"];
+  const FILTERS = ["all", "Active", "Paid", "Expired", "Cancelled"];
 
-  const handleCreated = (link: any) => {
+  const handleCreated = (link: LinkType | null) => {
     setShowCreate(false);
     if (link) setNewLink(link);
   };
-  
+
   return (
     <section className="animate-fade-up">
       <PageHeader
@@ -542,6 +554,6 @@ const LinksPage = () => {
       )}
     </section>
   );
-}
+};
 
-export default LinksPage
+export default LinksPage;
