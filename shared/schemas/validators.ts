@@ -24,14 +24,26 @@ export const merchantSignUPSchema = signUpSchema.extend({
 });
 export const signInSchema = signUpSchema.extend({});
 
+export const linkStatusSchema = z.enum([
+  "Active",
+   "Paid",
+   "Expired",
+   "Cancelled",
+]);
 export const paymentLinkSchema = z.object({
-  invoiceNo: z.string().optional(),
-  merchant_id: z.string().optional(),
-  // amount: z.string().transform(Number).pipe(z.number()),
-  amount: z.number(),
-  shortCode: z.number(),
+  amount: z.coerce.number(),
+  shortCode: z.coerce.number(),
+  // status: linkStatusSchema,
   expiresAt: z.string().optional(),
 });
+
+export type PaymentLinkInput = z.input<typeof paymentLinkSchema>;
+
+const filterOptionSchema = z.object({
+  page: z.number().min(1, "Page must be at least 1"),
+  limit: z.number().min(10, "Limit must be at least 10"),
+});
+
 
 
 export type SignUpAuth = z.infer<typeof signUpSchema>;
@@ -40,5 +52,7 @@ export type SignInAuth = z.infer<typeof signInSchema>;
 
 
 export type PaymentLink = z.infer<typeof paymentLinkSchema>;
+export type FilterOption = z.infer<typeof filterOptionSchema>
+export type LinkStatus = z.infer<typeof linkStatusSchema>
 
 // export type PaymentItem = z.infer<typeof itemSchema>

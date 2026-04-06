@@ -83,14 +83,14 @@ const TokenResponseSchema = z.object({
   expires_in: z.number(),
 });
 
-export const paymentLinkSchema = z.object({
-  invoiceNo: z.string().optional(),
-  merchant_id: z.string().optional(),
-  // amount: z.string().transform(Number).pipe(z.number()),
-  amount: z.number(),
-  shortCode: z.number(),
-  expiresAt: z.string().optional(),
-});
+// export const paymentLinkSchema = z.object({
+//   invoiceNo: z.string().optional(),
+//   merchant_id: z.string().optional(),
+//   // amount: z.string().transform(Number).pipe(z.number()),
+//   amount: z.number(),
+//   shortCode: z.number(),
+//   expiresAt: z.string().optional(),
+// });
 
 export const paymentSTKSchema = z.object({
   token: z.string(),
@@ -105,7 +105,7 @@ export type Id = z.infer<typeof idSchema>
 export type JWT_Token = z.infer<typeof jwtSchema>;
 export type MpesaSTKFailed = z.infer<typeof MpesaPaymentSTKFailedSchema>;
 export type MpesaSTKSuccess = z.infer<typeof MpesaPaymentSTKSuccessSchema>;
-export type PaymentLink = z.infer<typeof paymentLinkSchema>;
+// export type PaymentLink = z.infer<typeof paymentLinkSchema>;
 export type PaymentSTK = z.infer<typeof paymentSTKSchema>;
 export type PaymentSTKQueryRequest = z.infer<typeof mpesaSTKQueryRequest>;
 export type PaymentSTKQueryResponse = z.infer<typeof mpesaSTKQueryResultSchema>;

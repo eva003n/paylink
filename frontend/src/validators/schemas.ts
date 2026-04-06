@@ -1,19 +1,76 @@
-import z from "zod"
+import {
+  linkStatusSchema,
+  paymentLinkSchema,
+} from "@shared/schemas/validators";
+import z from "zod";
 
-export const apiReponseData = z.object()
+export const apiReponseData = z.object();
 export const apiResponseSuccessSchema = z.object({
-    data: z.object(apiReponseData),
-    message: z.string() 
-})
+  data: z.object(apiReponseData),
+  message: z.string(),
+});
 
 export const analyticsDatsResponse = z.object({
-  stats: z.object({
-    totalCollected: z.number(),
-    activeLinke: z.number(),
-    paidLinke: z.number(),
-    pendingPayments: z.number(),
+  data: z.object({
+    stats: z.object({
+      totalCollectedPay: z.number(),
+      totalCompletedPay: z.number(),
+      activeLinks: z.number(),
+      totalLinks: z.number(),
+      paidLinks: z.number(),
+      pendingPayments: z.number(),
+      failedPayments: z.number(),
+    }),
+    recentTransactions: z.array(z.object()),
+    links: z.object(),
   }),
-  links: z.object({
-    
-  })
 });
+
+export const linksResponseSchema = z.object({
+  data: z.object({
+    links: z.array(
+      paymentLinkSchema.extend({
+        id: z.string(),
+        merchant_id: z.string(),
+        status: linkStatusSchema,
+        url: z.string(),
+        createdAt: z.date(),
+        updatedAt: z.date(),
+        business_name: z.string().optional(),
+        client_name: z.string().optional(),
+        reference: z.string().optional(),
+        description: z.string().optional(),
+        due_date: z.date().optional(),
+        total_transactions: z.number().optional(),
+        paid_count: z.number().optional(),
+        created_at: z.date().optional(),
+      }),
+    ),
+    currentPage: z.number(),
+    totalPages: z.number(),
+    totalItems: z.number(),
+  }),
+});
+export const createLinkResponseSchema = z.object({
+  data: paymentLinkSchema.extend({
+    id: z.string(),
+    merchant_id: z.string(),
+    status: linkStatusSchema,
+    url: z.string(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    // business_name: z.string().optional(),
+    // client_name: z.string().optional(),
+    mpesaRef: z.string().optional(),
+    
+    expiresAt: z.date().optional(),
+    total_transactions: z.number().optional(),
+    paid_count: z.number().optional(),
+    created_at: z.date().optional(),
+  }),
+});
+
+export type LinkType = z.infer<typeof createLinkResponseSchema>["data"];
+export type AnalyticsApiResponse = z.infer<typeof analyticsDatsResponse>;
+export type LinksApiResponse = z.infer<typeof linksResponseSchema>;
+// export type LinkType = z.infer<typeof createLinkResponseSchema>
