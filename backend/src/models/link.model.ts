@@ -1,12 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../config/db/postgres";
-
-export enum LinkStatus {
-  ACTIVE = "Active",
-  PAID = "Paid",
-  EXPIRED = "Expired",
-  CANCELLED = "Cancelled"
-}
+import { LinkStatus, linkStatusSchema } from "@shared/schemas/validators";
 
 export class Link extends Model {
   declare id: string;
@@ -59,9 +53,9 @@ export class Link extends Model {
      },
 
      status: {
-       type: DataTypes.ENUM(...Object.values(LinkStatus)),
+       type: DataTypes.ENUM(...Object.values(linkStatusSchema.enum)),
        allowNull: false,
-       defaultValue: LinkStatus.ACTIVE,
+       defaultValue: linkStatusSchema.enum.Active,
      },
      expiresAt: {
        type: DataTypes.DATE,

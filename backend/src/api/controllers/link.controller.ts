@@ -3,15 +3,15 @@ import asyncHandler from "../../utils/asynchandler";
 import ApiError from "../../utils/ApiError";
 import ApiResponse from "../../utils/ApiResponse";
 import { PaymentLink } from "@shared/schemas/validators";
-import { generatePaymentLink } from "../services/link.service";
+import { generatePaymentLink, getAllLinks } from "../services/link.service";
+import { LinkStatus } from "@shared/schemas/validators";
+
 
 export const createPaymentLink = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { invoiceNo, expiresAt, shortCode, amount }: PaymentLink = req.body;
-    console.log(req.body);
+    const { expiresAt, shortCode, amount }: PaymentLink = req.body;
     const merchant_id = req.user.id;
     const { merchant, link } = await generatePaymentLink({
-      invoiceNo,
       expiresAt,
       shortCode,
       amount,
@@ -26,5 +26,22 @@ export const createPaymentLink = asyncHandler(
     return res
       .status(201)
       .json(new ApiResponse(201, link, "Link generated successfully"));
+  },
+);
+
+export const getLinks = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+   
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const status = req.query.status as LinkStatus;
+
+    const links = await getAllLinks(req.user.id, { page, limit, status });
+
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, links , "Links fetched successfully"),
+      );
   },
 );
