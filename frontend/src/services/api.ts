@@ -1,5 +1,11 @@
-import axios, { AxiosError, type responseEncoding } from "axios";
+import axios, { AxiosError } from "axios";
 import { AUTH_DATA } from "../constants";
+import type {
+  AnalyticsApiResponse,
+  LinksApiResponse,
+  LinkType,
+} from "@/validators/schemas";
+import type { FilterOption, LinkStatus, PaymentLink, PaymentLinkInput } from "@shared/schemas/validators";
 
 // create axios instance
 const api = axios.create({
@@ -43,9 +49,8 @@ api.interceptors.request.use((config) => {
           );
         }, 0);
       });
-
     } else {
-      config.headers.Authorization = `Bearer ${token}`;      
+      config.headers.Authorization = `Bearer ${token}`;
     }
   }
 
@@ -86,9 +91,15 @@ export const authAPI = {
 };
 
 export const linksAPI = {
-  getAll: () => api.get("/links"),
-  getByRef: (ref: string) => api.get(`/links/p/${ref}`),
-  create: (d: any) => api.post("/links", d),
+  getAll: (options: FilterOption & {status: any}) => api.get<{}, LinksApiResponse>("/links", {
+    params: {
+      page: options.page,
+      limit: options.limit,
+      status: options.status
+    }
+  }),
+  getByRef: (ref: string) => api.get(`/links/${ref}`),
+  create: (d: PaymentLinkInput) => api.post<{}, LinkType, PaymentLinkInput>("/links", d),
   update: (id: string, d: any) => api.patch(`/links/${id}`, d),
   remove: (id: string) => api.delete(`/links/${id}`),
 };
@@ -100,7 +111,9 @@ export const mpesaAPI = {
   getAll: () => api.get("/payments/mpesa/transactions"),
 };
 
-export const dashboardAPI = { get: () => api.get("/analytics") };
+export const dashboardAPI = {
+  get: () => api.get<{}, AnalyticsApiResponse>("/analytics"),
+};
 export const configAPI = {
   get: () => api.get("/config"),
   save: (d: any) => api.put("/config", d),
