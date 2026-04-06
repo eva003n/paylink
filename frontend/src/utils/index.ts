@@ -1,21 +1,22 @@
 import clsx, { type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import {format, formatDistanceToNow} from "date-fns"
+import { format, formatDistanceToNow } from "date-fns";
 
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
 export const fmtKES = (n: number) =>
   `KES ${Number(n).toLocaleString("en-KE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-export const fmtKESShort = (n: string) =>
+export const fmtKESShort = (n: number) =>
   `KES ${Number(n).toLocaleString("en-KE", { maximumFractionDigits: 0 })}`;
 
-export const fmtDate = (d: string) => (d ? format(new Date(d), "d MMM yyyy") : "—");
+export const fmtDate = (d: string | Date) =>
+  d ? format(new Date(d), "d MMM yyyy") : "—";
 
 export const fmtDateTime = (d: string) =>
   d ? format(new Date(d), "d MMM yyyy, h:mm a") : "—";
 
-export const fmtRelative = (d: string) =>
+export const fmtRelative = (d: Date) =>
   d ? formatDistanceToNow(new Date(d), { addSuffix: true }) : "—";
 
 export const fmtPhone = (p: string) => {
@@ -40,7 +41,6 @@ export const copyToClipboard = async (text: string) => {
     return true;
   }
 };
-
 
 export const generateReceiptPDF = (transaction: any, paymentLink: any) =>
   import("jspdf").then(({ jsPDF }) => {

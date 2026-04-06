@@ -30,7 +30,6 @@ export const Spinner = ({
   );
 };
 
-
 type ButtonProps = {
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: string;
@@ -67,7 +66,7 @@ export const Button: FC<ButtonProps> = ({
     </button>
   );
 };
-Button.displayName = "Button"
+Button.displayName = "Button";
 
 type InputProps = {
   label?: string;
@@ -89,11 +88,19 @@ export const Input: FC<InputProps> = ({
     <div className="flex flex-col gap-1.5">
       {label && <label className="field-label">{label}</label>}
       <input
-        className={cn("input", className, error && "input-error")}
+        className={cn("input relative", className, error && "input-error")}
         {...props}
       />
+      {/* {props.type === "password" ? (
+        
+        <EyeIcon className="h-4 w-4 absolute right-2 top-1.5px" onClick={() => handleClick("eyeopen")}/>
+      ) : (
+        <EyeClosed className="h-4 w-4"  onClick={() => handleClick("eyeclosed")} />
+      )} */}
       {error && <span className="text-error">{error}</span>}
-      {hint && !error && <p className="text-xs text-stone-400 mt-0.5">{hint}</p>}
+      {hint && !error && (
+        <p className="mt-0.5 text-xs text-stone-400">{hint}</p>
+      )}
     </div>
   );
 };
@@ -159,13 +166,13 @@ export const Select: FC<SelectProps> = ({
 Select.displayName = "Select";
 
 export type BadgeStatus =
-  | "active"
-  | "paid"
-  | "expired"
-  | "cancelled"
-  | "pending"
-  | "completed"
-  | "failed";
+  | "Active"
+  | "Paid"
+  | "Expired"
+  | "Cancelled"
+  | "Pending"
+  | "Completed"
+  | "Failed";
 
 type StatusBadgeProps = {
   status: BadgeStatus;
@@ -173,22 +180,22 @@ type StatusBadgeProps = {
 
 export const StatusBadge: FC<StatusBadgeProps> = ({ status }) => {
   const map: Record<BadgeStatus, string> = {
-    active: "pill-active",
-    paid: "pill-paid",
-    expired: "pill-expired",
-    cancelled: "pill-cancelled",
-    pending: "pill-pending",
-    completed: "pill-completed",
-    failed: "pill-failed",
+    Active: "pill-active",
+    Paid: "pill-paid",
+    Expired: "pill-expired",
+    Cancelled: "pill-cancelled",
+    Pending: "pill-pending",
+    Completed: "pill-completed",
+    Failed: "pill-failed",
   };
   const dots: Record<BadgeStatus, string> = {
-    active: "bg-blue-500",
-    paid: "bg-brand-500",
-    expired: "bg-stone-400",
-    cancelled: "bg-stone-400",
-    pending: "bg-amber-500",
-    completed: "bg-brand-500",
-    failed: "bg-red-500",
+    Active: "bg-blue-500",
+    Paid: "bg-brand-500",
+    Expired: "bg-stone-400",
+    Cancelled: "bg-stone-400",
+    Pending: "bg-amber-500",
+    Completed: "bg-brand-500",
+    Failed: "bg-red-500",
   };
   return (
     <span className={cn("pill", map[status] || "pill-expired")}>
@@ -237,14 +244,14 @@ export const Modal: FC<ModalProps> = ({
     xl: "max-w-3xl",
   };
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
       <div
-        className="animate-fade-in absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 animate-fade-in bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
       <div
         className={cn(
-          "animate-slide-in relative w-full rounded-2xl bg-white shadow-2xl",
+          "relative w-full animate-slide-in rounded-2xl bg-white shadow-2xl",
           sizes[size],
         )}
       >
@@ -366,7 +373,7 @@ export const PageHeader: FC<PageHeaderProps> = ({
   description,
   action,
 }) => (
-  <div className="mb-8 flex items-start flex-col md:flex-row justify-between gap-4">
+  <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row">
     <div>
       <h1 className="font-display text-2xl font-bold text-stone-900">
         {title}
