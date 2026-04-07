@@ -1,7 +1,9 @@
 import { Router } from "express";
 import notFound from "../controllers/notfound.controller";
 
-const router = Router();
+
+const router: Router = Router();
+
 
 router.all("/{*splat}", notFound);
 export default router;

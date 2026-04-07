@@ -12,7 +12,7 @@ import {
   updateMerchantConfig,
 } from "../controllers/config.controller";
 
-const router = Router();
+const router: Router = Router();
 
 router.use(protectRoute);
 

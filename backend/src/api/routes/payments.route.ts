@@ -11,7 +11,9 @@ import { paymentSTKSchema } from "src/schemas/validators";
 
 import { protectRoute } from "../middlewares/auth.middleware";
 
-const router = Router();
+
+const router: Router = Router();
+
 
 /* ----- public routes ----- */
 /*  Handle C2B transactions */

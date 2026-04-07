@@ -12,7 +12,10 @@ import {
 } from "@shared/schemas/validators";
 import { protectRoute } from "../middlewares/auth.middleware";
 
-const router = Router();
+
+const router: Router = Router();
+
+
 
 router.route("/sign-up").post(validate(merchantSignUPSchema), signUp);
 router.route("/sign-in").post(validate(signInSchema), signIn);
