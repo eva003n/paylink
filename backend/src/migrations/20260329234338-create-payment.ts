@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import { QueryInterface } from "sequelize";
-import { PaymentStatus } from "../models/index";
+import { paymentStatusSchema } from "@shared/schemas/validators";
 
 async function up({ context: queryInterface }: { context: QueryInterface }) {
   await queryInterface.createTable("payments", {
@@ -52,11 +52,11 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
     },
 
     status: {
-      type: DataTypes.ENUM(...Object.values(PaymentStatus)),
+      type: DataTypes.ENUM(...Object.values(paymentStatusSchema.enum)),
       allowNull: false,
-      defaultValue: PaymentStatus.Pending,
+      defaultValue: paymentStatusSchema.enum.Pending,
     },
-    
+
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

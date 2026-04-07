@@ -1,11 +1,8 @@
+import { PaymentStatus, paymentStatusSchema } from "@shared/schemas/validators";
 import { sequelize } from "../config/db/postgres";
 import { DataTypes, Model } from "sequelize";
 
-export enum PaymentStatus {
-  Pending = "Pending",
-  Successful = "Completed",
-  Failed = "Failed",
-}
+
 
 export class Payment extends Model {
   declare id: string;
@@ -71,9 +68,9 @@ Payment.init(
     },
 
     status: {
-      type: DataTypes.ENUM(...Object.values(PaymentStatus)),
+      type: DataTypes.ENUM(...Object.values(paymentStatusSchema.enum)),
       allowNull: false,
-      defaultValue: PaymentStatus.Pending,
+      defaultValue: paymentStatusSchema.enum.Pending,
     },
   },
   {

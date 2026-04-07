@@ -1,13 +1,19 @@
-import { Link, Payment } from "../../models/index";
+import { Link, Merchant, Payment } from "../../models/index";
 import base62 from "@sindresorhus/base62";
-import { linkStatusSchema } from "@shared/schemas/validators";
+import {
+  linkStatusSchema,
+  FilterOption,
+  PaymentStatus,
+} from "@shared/schemas/validators";
+import { sequelize } from "../../config/db/postgres";
 
 import { enqueueSTKPush } from "../../queues/index";
-import { PaymentSTK } from "src/schemas/validators";
+import { Id, PaymentSTK } from "src/schemas/validators";
 import { enqueueSTKPaymentConfirmation } from "../../queues/payment.queue";
 import { PaymentConfirmation } from "../../jobs/payment/payment.type";
 import logger from "../../logger/logger.winston";
 import { Client } from "../../models/index";
+import {paymentsDTO } from "../dto";
 
 export const initiateSTKPush = async ({
   token,
@@ -62,4 +68,62 @@ export const validateMpesaPayment = async () => {};
 
 export const confirmMpesaPayment = async (payment: PaymentConfirmation) => {
   await enqueueSTKPaymentConfirmation(payment);
+};
+
+type FilterOptions = {
+  status: PaymentStatus;
+} & FilterOption;
+
+export const findAllTransactions = async (id: Id, options: FilterOptions) => {
+  return getPaginatedPayments(id, options);
+};
+
+const getPaginatedPayments = async (id: Id, filtersOptions: FilterOptions) => {
+  const offset = (filtersOptions.page - 1) * filtersOptions.limit;
+
+  const filters = {
+    merchant_id: id,
+    status: filtersOptions.status,
+  };
+
+  const where = Object.fromEntries(
+    Object.entries(filters).filter(([_, v]) => v?.toString().trim()),
+  );
+
+  const { rows, count } = await Payment.findAndCountAll({
+    where,
+    limit: filtersOptions.limit,
+    offset,
+    order: [["createdAt", "DESC"]],
+    attributes: [
+      "id",
+      "status",
+      "amount",
+      [sequelize.col("mpesa_ref"), "mpesaRef"],
+      [sequelize.col("Merchant.business_name"), "businessName"],
+      [sequelize.col("Client.email"), "clientName"],
+      [sequelize.col("Client.phone_number"), "phoneNumber"],
+      "createdAt",
+      "updatedAt",
+    ],
+    include: [
+      {
+        model: Merchant,
+        attributes: [],
+        required: true,
+      },
+      {
+        model: Client,
+        attributes: [],
+        required: true,
+      },
+    ],
+  });
+
+  return {
+    payments: rows.map((payment) => paymentsDTO.create(payment.dataValues)),
+    currentPage: filtersOptions.page,
+    totalPages: Math.ceil(count / filtersOptions.limit),
+    totalItems: count,
+  };
 };

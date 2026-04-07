@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   confirmPayment,
+  getAllTransactions,
   initiateMpesaSTKPush,
   queryPayment,
 } from "../controllers/payment.controller";
@@ -22,6 +23,7 @@ router
 /* -------- Protected routes ------- */
 
 router.use(protectRoute);
+router.route("/").get(getAllTransactions)
 router.route("/query").post(queryPayment);
 
 export default router;
