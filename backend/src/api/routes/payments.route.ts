@@ -6,7 +6,8 @@ import {
 } from "../controllers/payment.controller";
 
 import { validate } from "../middlewares/validator.middleware";
-import { paymentSTKSchema } from "../../schemas/validators";
+import { paymentSTKSchema } from "src/schemas/validators";
+
 import { protectRoute } from "../middlewares/auth.middleware";
 
 const router = Router();

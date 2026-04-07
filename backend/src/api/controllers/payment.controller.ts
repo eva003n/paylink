@@ -3,7 +3,6 @@ import asyncHandler from "../../utils/asynchandler";
 
 import {
   MpesaSTKSuccess,
-  PaymentSTK,
 } from "../../schemas/validators";
 import ApiResponse from "../../utils/ApiResponse";
 
@@ -13,12 +12,13 @@ import {
 } from "../services/payment.service";
 import ApiError from "../../utils/ApiError";
 import { handleMpesaSTKPoll } from "../../jobs/payment/processors";
+import { PaymentSTK } from "src/schemas/validators";
 
 export const initiateMpesaSTKPush = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { token, phoneNumber, email }: PaymentSTK = req.body;
 
-    const { link, invalid, job } = await initiateSTKPush({
+    const { link, transaction, invalid } = await initiateSTKPush({
       token,
       phoneNumber,
       email,
@@ -37,10 +37,7 @@ export const initiateMpesaSTKPush = asyncHandler(
     res.status(200).json(
       new ApiResponse(
         200,
-        {
-          jobid: job?.id,
-          transactionId: job?.data.transactionId,
-        },
+        transaction,
         `Mpesa USSD prompt sent to phone number: ${phoneNumber}`,
       ),
     );

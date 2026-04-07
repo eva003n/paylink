@@ -3,7 +3,7 @@ import base62 from "@sindresorhus/base62";
 import { linkStatusSchema } from "@shared/schemas/validators";
 
 import { enqueueSTKPush } from "../../queues/index";
-import { PaymentSTK } from "../../schemas/validators";
+import { PaymentSTK } from "src/schemas/validators";
 import { enqueueSTKPaymentConfirmation } from "../../queues/payment.queue";
 import { PaymentConfirmation } from "../../jobs/payment/payment.type";
 import logger from "../../logger/logger.winston";
@@ -19,10 +19,10 @@ export const initiateSTKPush = async ({
   // check link info
   const link = await Link.findByPk(linkId);
 
-  if (!link) return { link, invalid: false, job: null };
+  if (!link) return { link, transaction: null, invalid: false, job: null };
 
   if (link.status !== linkStatusSchema.enum.Active) {
-    return { link, invalid: true, job: null };
+    return { link, transaction: null, invalid: true, job: null };
   }
 
   // create client
@@ -56,7 +56,7 @@ export const initiateSTKPush = async ({
 
   logger.info(`Enqueued STK push for Phone: ${phoneNumber}`);
 
-  return { link, invalid: false, job };
+  return { link, transaction, invalid: false, job };
 };
 export const validateMpesaPayment = async () => {};
 

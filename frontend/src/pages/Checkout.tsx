@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
+import { data, Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { linksAPI, mpesaAPI } from "@/services/api";
-import { Button, Spinner } from "@/components/ui";
+import { Button, Input, Spinner } from "@/components/ui";
 import { fmtKES, fmtDateTime, fmtPhone, generateReceiptPDF, cn } from "@/utils";
 import {
   Shield,
@@ -14,6 +14,13 @@ import {
   Clock,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import {
+  linkStatusSchema,
+} from "@shared/schemas/validators";
+import type { LinkType } from "@/validators/schemas";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import  { paymentSTKSchema, type PaymentSTK } from "@/validators/schemas";
 
 interface StepBarProps {
   step: number;
@@ -52,7 +59,7 @@ interface TxData {
 
 interface PaymentSuccessProps {
   transaction: Transaction;
-  link: Link;
+  link: LinkType;
 }
 
 interface PaymentFailedProps {
@@ -62,7 +69,7 @@ interface PaymentFailedProps {
 
 /* ── Step progress ───────────────────────────────────────────────────── */
 const StepBar: React.FC<StepBarProps> = ({ step }) => {
-  const steps = ["Enter number", "Confirm PIN", "Done"];
+  const steps = ["Enter details", "Done"];
   return (
     <div className="mb-8 flex items-center">
       {steps.map((label, i) => {
@@ -308,9 +315,7 @@ const PaymentFailed: React.FC<PaymentFailedProps> = ({ reason, onRetry }) => (
 const CheckoutPage = () => {
   const { reference } = useParams();
   const [step, setStep] = useState(1);
-  const [phone, setPhone] = useState("");
-  const [phoneErr, setPhoneErr] = useState("");
-  const [submitting, setSub] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [txData, setTxData] = useState<TxData | null>(null);
   const [txResult, setTxResult] = useState<Transaction | null>(null);
   const [countdown, setCountdown] = useState(60);
@@ -318,6 +323,16 @@ const CheckoutPage = () => {
   const pollRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
 
+  const {
+    handleSubmit,
+    register,
+    setValue,
+    getValues,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(paymentSTKSchema),
+  });
   useEffect(
     () => () => {
       if (pollRef.current) clearInterval(pollRef.current);
@@ -327,82 +342,31 @@ const CheckoutPage = () => {
   );
 
   const {
-    data: linkData ,
+    data: linkData,
     isLoading: linkLoading,
     error: linkError,
   } = useQuery({
     queryKey: ["link", reference],
-    queryFn: () => linksAPI.getByRef(reference!).then((r) => r.data.link),
+    queryFn: () => linksAPI.getByRef(reference!).then((r) => r),
     retry: 1,
   });
   const link = linkData;
 
-  const startPolling = (checkoutRequestId: string, linkId: string) => {
-    let secs = 60;
-    setCountdown(secs);
-
-    timerRef.current = setInterval(() => {
-      secs--;
-      setCountdown(secs);
-      if (secs <= 0) {
-        if (timerRef.current) clearInterval(timerRef.current);
-        if (pollRef.current) clearInterval(pollRef.current);
-        setFailRsn("Payment timed out — the M-Pesa prompt expired.");
-        setStep(4);
-      }
-    }, 1000);
-
-    pollRef.current = setInterval(async () => {
-      try {
-        const res = await mpesaAPI.query({
-          checkout_request_id: checkoutRequestId,
-          payment_link_id: linkId,
-        });
-        const { transaction, result } = res.data;
-        const status = transaction?.status || "";
-        const code = String(result?.ResultCode ?? "");
-
-        if (status === "completed" || code === "0") {
-          if (pollRef.current) clearInterval(pollRef.current);
-          if (timerRef.current) clearInterval(timerRef.current);
-          setTxResult(transaction);
-          setStep(3);
-        } else if (
-          status === "failed" ||
-          (code && code !== "1032" && code !== "1037")
-        ) {
-          if (pollRef.current) clearInterval(pollRef.current);
-          if (timerRef.current) clearInterval(timerRef.current);
-          setFailRsn(
-            result?.ResultDesc ||
-              transaction?.result_desc ||
-              "Payment was declined or cancelled.",
-          );
-          setStep(4);
-        }
-      } catch {
-        /* keep polling */
-      }
-    }, 5000);
-  };
-
-  const handlePay = async () => {
-    const digits = phone.replace(/\D/g, "");
-    if (digits.length < 9) {
-      setPhoneErr("Enter a valid 9-digit Safaricom number");
-      return;
-    }
-    setPhoneErr("");
-    setSub(true);
+  const onPay: SubmitHandler<PaymentSTK> = async (data) => {
+    setLoading(true);
     try {
-      const res = await mpesaAPI.stkPush({ payment_link_id: link.id, phone });
+      const res = await mpesaAPI.stkPush({
+        ...data,
+        phoneNumber: `254${data.phoneNumber}`,
+      });
       setTxData(res.data);
-      setStep(2);
-      startPolling(res.data.checkout_request_id, link.id);
+      setStep(1);
+      // startgPolling(res.data.checkout_request_id, link?.id as string);
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to initiate payment");
     } finally {
-      setSub(false);
+      setLoading(false);
+      reset();
     }
   };
 
@@ -423,7 +387,6 @@ const CheckoutPage = () => {
     setCountdown(60);
   };
 
-  /* ── Loading ────────────────────────────────────────────────────── */
   if (linkLoading)
     return (
       <div
@@ -434,7 +397,7 @@ const CheckoutPage = () => {
       </div>
     );
 
-  /* ── Not found ──────────────────────────────────────────────────── */
+  /* Not found */
   if (linkError || !link)
     return (
       <div
@@ -458,42 +421,40 @@ const CheckoutPage = () => {
             This payment link doesn't exist or has been removed.
           </p>
           <Link to="/">
-          <Button className="mt-2">
-            Back to home
-          </Button>
+            <Button className="mt-2">Back to home</Button>
           </Link>
         </div>
       </div>
     );
 
-  /* ── Link not active ────────────────────────────────────────────── */
-  if (link.status !== "active" && step < 3)
-    return (
-      <div
-        className="flex min-h-screen items-center justify-center p-6"
-        style={{ backgroundColor: "var(--color-stone-50)" }}
-      >
-        <div className="max-w-sm text-center">
-          <div
-            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl"
-            style={{ backgroundColor: "var(--color-amber-50)" }}
-          >
-            <AlertTriangle
-              className="h-8 w-8"
-              style={{ color: "var(--color-amber-500)" }}
-            />
-          </div>
-          <h2 className="mb-2 font-display text-xl font-bold text-stone-900 capitalize">
-            Link {link.status}
-          </h2>
-          <p className="text-sm" style={{ color: "var(--color-stone-500)" }}>
-            {link.status === "paid"
-              ? "This payment has already been completed."
-              : "This payment link is no longer accepting payments."}
-          </p>
-        </div>
-      </div>
-    );
+  /* Link not active */
+  // if (link.status !== linkStatusSchema.enum.Active && step < 3)
+  //   return (
+  //     <div
+  //       className="flex min-h-screen items-center justify-center p-6"
+  //       style={{ backgroundColor: "var(--color-stone-50)" }}
+  //     >
+  //       <div className="max-w-sm text-center">
+  //         <div
+  //           className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl"
+  //           style={{ backgroundColor: "var(--color-amber-50)" }}
+  //         >
+  //           <AlertTriangle
+  //             className="h-8 w-8"
+  //             style={{ color: "var(--color-amber-500)" }}
+  //           />
+  //         </div>
+  //         <h2 className="mb-2 font-display text-xl font-bold text-stone-900 capitalize">
+  //           Link {link.status}
+  //         </h2>
+  //         <p className="text-sm" style={{ color: "var(--color-stone-500)" }}>
+  //           {link.status === linkStatusSchema.enum.Paid
+  //             ? "This payment has already been completed."
+  //             : "This payment link is no longer accepting payments."}
+  //         </p>
+  //       </div>
+  //     </div>
+  //   );
 
   return (
     <div
@@ -525,30 +486,14 @@ const CheckoutPage = () => {
             </span>
           </div>
           <h1 className="mb-1 font-display text-4xl font-bold text-white">
-            {fmtKES(link.amount)}
+            {fmtKES(Number(link?.amount))}
           </h1>
           <p
             className="font-semibold"
             style={{ color: "var(--color-stone-300)" }}
           >
-            {link.business_name}
+            {link.businessName}
           </p>
-          {link.description && (
-            <p
-              className="mt-1 text-sm"
-              style={{ color: "var(--color-stone-500)" }}
-            >
-              {link.description}
-            </p>
-          )}
-          {link.client_name && (
-            <p
-              className="mt-0.5 text-sm"
-              style={{ color: "var(--color-stone-500)" }}
-            >
-              For {link.client_name}
-            </p>
-          )}
         </div>
 
         {/* Main card */}
@@ -568,7 +513,10 @@ const CheckoutPage = () => {
                 You'll receive a prompt to enter your M-Pesa PIN.
               </p>
 
-              <div className="mb-6 flex flex-col gap-1.5">
+              <form
+                onSubmit={handleSubmit(onPay)}
+                className="mb-6 flex flex-col gap-1.5"
+              >
                 <label className="field-label">Safaricom phone number</label>
                 <div className="flex gap-2">
                   <div
@@ -581,52 +529,68 @@ const CheckoutPage = () => {
                   >
                     🇰🇪 +254
                   </div>
-                  <input
+                  <Input
                     type="tel"
-                    className={cn("input flex-1", phoneErr && "input-error")}
+                    className={cn(
+                      "input flex-1",
+                      errors.phoneNumber?.message && "input-error",
+                    )}
                     placeholder="7XX XXX XXX"
+                    minLength={9}
                     maxLength={9}
-                    value={phone}
-                    onChange={(e) => {
-                      setPhone(e.target.value.replace(/\D/g, ""));
-                      setPhoneErr("");
-                    }}
-                    onKeyDown={(e) => e.key === "Enter" && handlePay()}
+                    {...register("phoneNumber")}
+                    // onKeyDown={(e) => e.key === "Enter" && handleSubmit(onPay)}
                     autoFocus
+                    error={errors.phoneNumber && errors.phoneNumber.message}
                   />
                 </div>
-                {phoneErr && (
-                  <p
-                    className="text-xs"
-                    style={{ color: "var(--color-red-500)" }}
-                  >
-                    {phoneErr}
-                  </p>
-                )}
+
                 <p
                   className="text-xs"
                   style={{ color: "var(--color-stone-400)" }}
                 >
                   Enter the last 9 digits of your Safaricom number.
                 </p>
-              </div>
 
-              <Button
-                variant="primary"
-                size="xl"
-                loading={submitting}
-                onClick={handlePay}
-                disabled={phone.length < 9}
-              >
-                Pay {fmtKES(link.amount)}
-              </Button>
+                <Input
+                  label="Email"
+                  type="email"
+                  className={cn(
+                    "input flex-1",
+                    errors.email?.message && "input-error",
+                  )}
+                  placeholder="you@example.com"
+                  {...register("email")}
+                  // onKeyDown={(e) => e.key === "Enter" && handleSubmit(onPay)}
+                  autoFocus
+                  error={errors.email && errors.email.message}
+                />
+                <p
+                  className="text-xs"
+                  style={{ color: "var(--color-stone-400)" }}
+                >
+                  Email will be used so send a payment receipt.
+                </p>
+                <Button
+                  type="submit"
+                  // size="xl"
+                  loading={loading}
+                  onClick={() => {
+                    setValue("token", reference as string);
+                    // setValue("phoneNumber", `254${getValues("phoneNumber")}`);
+                  }}
+                  disabled={getValues("phoneNumber")?.length < 9}
+                >
+                  Pay {fmtKES(Number(link?.amount))}
+                </Button>
+              </form>
             </div>
           )}
 
           {/* Step 2 — STK waiting */}
           {step === 2 && (
             <STKWaiting
-              phone={"254" + phone}
+              phone={"254" + getValues("phoneNumber")}
               countdown={countdown}
               onCancel={handleCancel}
             />
@@ -638,8 +602,8 @@ const CheckoutPage = () => {
               transaction={
                 txResult || {
                   reference: txData!.reference,
-                  amount: link.amount,
-                  phone: "254" + phone,
+                  amount: Number(link?.amount),
+                  phone: "254" + getValues("phoneNumber"),
                   created_at: new Date().toISOString(),
                 }
               }
@@ -663,7 +627,7 @@ const CheckoutPage = () => {
             className="font-semibold"
             style={{ color: "var(--color-stone-400)" }}
           >
-            PesaLink
+            PayLink
           </span>
           {" · "}
           <span style={{ color: "var(--color-stone-500)" }}>
