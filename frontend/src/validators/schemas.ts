@@ -59,9 +59,9 @@ export const createLinkResponseSchema = z.object({
     url: z.string(),
     createdAt: z.date(),
     updatedAt: z.date(),
-    // business_name: z.string().optional(),
+    businessName: z.string(),
     // client_name: z.string().optional(),
-    mpesaRef: z.string().optional(),
+    // mpesaRef: z.string(),
     
     expiresAt: z.date().optional(),
     total_transactions: z.number().optional(),
@@ -69,6 +69,18 @@ export const createLinkResponseSchema = z.object({
     created_at: z.date().optional(),
   }),
 });
+
+export const paymentSTKSchema = z.object({
+  token: z.string(),
+  email: z.email(),
+  phoneNumber: z
+    .string("Invalid phone number provided")
+    .startsWith("7", "Must start with 7")
+    .min(9, "Must be at least 9 characters long")
+    .max(9, "Cannot exceed 9 characters in long"),
+});
+
+export type PaymentSTK = z.infer<typeof paymentSTKSchema>;
 
 export type LinkType = z.infer<typeof createLinkResponseSchema>["data"];
 export type AnalyticsApiResponse = z.infer<typeof analyticsDatsResponse>;

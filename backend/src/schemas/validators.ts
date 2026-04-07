@@ -83,6 +83,18 @@ const TokenResponseSchema = z.object({
   expires_in: z.number(),
 });
 
+export const paymentSTKSchema = z.object({
+  token: z.string(),
+  email: z.email(),
+  phoneNumber: z
+    .string("Invalid phone number provided")
+    .startsWith("2547", "Must start with 2547")
+    .min(12, "Must be at least 12 characters long")
+    .max(12, "Cannot exceed 12 characters in long"),
+});
+
+export type PaymentSTK = z.infer<typeof paymentSTKSchema>;
+
 // export const paymentLinkSchema = z.object({
 //   invoiceNo: z.string().optional(),
 //   merchant_id: z.string().optional(),
@@ -92,11 +104,7 @@ const TokenResponseSchema = z.object({
 //   expiresAt: z.string().optional(),
 // });
 
-export const paymentSTKSchema = z.object({
-  token: z.string(),
-  email: z.email(),
-  phoneNumber: z.string().min(12).max(12),
-});
+
 // export type SignUpAuth = z.infer<typeof signUpSchema>;
 // export type MerchantSignUpAuth = z.infer<typeof merchantSignUPSchema>;
 // export type SignInAuth = z.infer<typeof signInSchema>;
@@ -106,7 +114,6 @@ export type JWT_Token = z.infer<typeof jwtSchema>;
 export type MpesaSTKFailed = z.infer<typeof MpesaPaymentSTKFailedSchema>;
 export type MpesaSTKSuccess = z.infer<typeof MpesaPaymentSTKSuccessSchema>;
 // export type PaymentLink = z.infer<typeof paymentLinkSchema>;
-export type PaymentSTK = z.infer<typeof paymentSTKSchema>;
 export type PaymentSTKQueryRequest = z.infer<typeof mpesaSTKQueryRequest>;
 export type PaymentSTKQueryResponse = z.infer<typeof mpesaSTKQueryResultSchema>;
 export type PaymentSTKResponse = z.infer<typeof mpesaSTKPushResponseSchema>;

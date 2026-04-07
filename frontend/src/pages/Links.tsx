@@ -292,12 +292,12 @@ const LinkCard: FC<LinkCardProps> = ({ link, onShare }) => {
             <p className="font-display text-lg font-bold text-stone-900">
               {fmtKES(link?.amount)}
             </p>
-            <p
+            {/* <p
               className="font-mono text-xs"
               style={{ color: "var(--color-stone-400)" }}
             >
               {link?.mpesaRef}
-            </p>
+            </p> */}
           </div>
         </div>
 
