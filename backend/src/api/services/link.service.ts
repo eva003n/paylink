@@ -85,7 +85,7 @@ const getPaginatedLinks = async (id: Id, filtersOptions: FilterOptions) => {
   });
 
   return {
-    links: rows.map((link) => LinkDTO.create(link)),
+    links: rows.map((link) => LinkDTO.create(link.dataValues)),
     currentPage: filtersOptions.page,
     totalPages: Math.ceil(count / filtersOptions.limit),
     totalItems: count,

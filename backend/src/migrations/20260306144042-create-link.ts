@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import { QueryInterface } from "sequelize";
-import { LinkStatus } from "../models/index";
+import { linkStatusSchema } from "@shared/schemas/validators";
 
 async function up({ context: queryInterface }: { context: QueryInterface }) {
   await queryInterface.createTable("links", {
@@ -39,9 +39,9 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
     },
 
     status: {
-      type: DataTypes.ENUM(...Object.values(LinkStatus)),
+      type: DataTypes.ENUM(...Object.values(linkStatusSchema.enum)),
       allowNull: false,
-      defaultValue: LinkStatus.ACTIVE,
+      defaultValue: linkStatusSchema.enum.Active,
     },
     expiresAt: {
       type: DataTypes.DATE,
