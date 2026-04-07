@@ -7,6 +7,11 @@ import {Client} from "./client.model"
 Merchant.hasMany(Payment, {
     foreignKey: "merchant_id"
 })
+
+Merchant.hasMany(Link, {
+  foreignKey: "merchant_id",
+  // as: "merchant",
+});
 Payment.belongsTo(Merchant, {
   foreignKey: "merchant_id",
 });
@@ -17,6 +22,12 @@ Client.hasMany(Payment, {
 Payment.belongsTo(Client, {
   foreignKey: "client_id",
 });
+
+Link.belongsTo(Merchant, {
+  foreignKey: "merchant_id",
+  // as: "merchant",
+});
+
 export {
     Merchant,
     UserRoles,
