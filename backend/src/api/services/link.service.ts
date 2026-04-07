@@ -1,12 +1,15 @@
 import base62 from "@sindresorhus/base62";
 import { FRONTEND_BASE_URI } from "../../config/env";
-import { Merchant, Link} from "../../models";
+import { Merchant, Link } from "../../models";
 import { FilterOption, PaymentLink } from "@shared/schemas/validators";
 import { Id } from "src/schemas/validators";
-import { LinkStatus} from "@shared/schemas/validators";
+import { LinkStatus } from "@shared/schemas/validators";
 import { LinkDTO } from "../dto";
+import { sequelize } from "src/config/db/postgres";
 
-export const generatePaymentLink = async (linkData: PaymentLink & { merchant_id: string }) => {
+export const generatePaymentLink = async (
+  linkData: PaymentLink & { merchant_id: string },
+) => {
   const merchant = await Merchant.findByPk(linkData.merchant_id);
 
   if (!merchant) return { merchant, link: null };
@@ -29,13 +32,34 @@ export const generatePaymentLink = async (linkData: PaymentLink & { merchant_id:
 };
 
 type FilterOptions = {
+  status: LinkStatus;
+} & FilterOption;
+export const getAllLinks = async (id: Id, options: FilterOptions) => {
+  return getPaginatedLinks(id, options);
+};
 
-  status: LinkStatus
-} & FilterOption
-export const getAllLinks = async(id: Id, options: FilterOptions) =>  {
-  return getPaginatedLinks(id, options)
-}
+export const findLink = async (token: Id) => {
+  const linkId = base62.decodeString(token);
 
+  const link = await Link.findByPk(linkId, {
+    attributes: [
+      "id",
+      "amount",
+      "status",
+      "shortCode",
+      [sequelize.col("Merchant.business_name"), "businessName"], // rename column
+    ],
+    include: {
+      model: Merchant,
+      as: "Merchant",
+      attributes: [],// do not include any attributes i merchat
+
+      required: true, // perform inner join
+    },
+  });
+
+  return link;
+};
 
 const getPaginatedLinks = async (id: Id, filtersOptions: FilterOptions) => {
   //inplements page by page logic
@@ -45,7 +69,6 @@ const getPaginatedLinks = async (id: Id, filtersOptions: FilterOptions) => {
   const filters = {
     merchant_id: id,
     status: filtersOptions.status,
-    
   };
 
   //convert resulting array to object for filtering
@@ -53,14 +76,12 @@ const getPaginatedLinks = async (id: Id, filtersOptions: FilterOptions) => {
     //build an array of key value pairs removing empty values
     Object.entries(filters).filter(([_, v]) => v?.toString().trim()),
   );
-  
 
   const { rows, count } = await Link.findAndCountAll({
     where,
     limit: filtersOptions.limit,
     offset,
     order: [["createdAt", "DESC"]],
-  
   });
 
   return {

@@ -3,9 +3,13 @@ import asyncHandler from "../../utils/asynchandler";
 import ApiError from "../../utils/ApiError";
 import ApiResponse from "../../utils/ApiResponse";
 import { PaymentLink } from "@shared/schemas/validators";
-import { generatePaymentLink, getAllLinks } from "../services/link.service";
+import {
+  findLink,
+  generatePaymentLink,
+  getAllLinks,
+} from "../services/link.service";
 import { LinkStatus } from "@shared/schemas/validators";
-
+import { Id } from "src/schemas/validators";
 
 export const createPaymentLink = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -29,9 +33,22 @@ export const createPaymentLink = asyncHandler(
   },
 );
 
+export const getLink = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const token = req.params.token as Id || req.query.token as Id;
+
+    const link = await findLink(token);
+
+    if (!link)
+      return next(
+        ApiError.notFound(404, req.originalUrl, "Link does not exist"),
+      );
+
+      res.status(200).json(new ApiResponse(200, link, "Link fetched successfully"))
+  },
+);
 export const getLinks = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-   
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const status = req.query.status as LinkStatus;
@@ -40,8 +57,6 @@ export const getLinks = asyncHandler(
 
     res
       .status(200)
-      .json(
-        new ApiResponse(200, links , "Links fetched successfully"),
-      );
+      .json(new ApiResponse(200, links, "Links fetched successfully"));
   },
 );
