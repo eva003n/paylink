@@ -2,7 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { signInSchema, type SignInAuth } from "@shared/schemas/validators";
+import { signInSchema, type SignInAuth } from "@paylink/shared";
 import AuthShell from "@/components/shared/AuthShell";
 import { Button, Input } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
@@ -25,7 +25,6 @@ const SignInPage = () => {
     setLoading(true);
     try {
       const res = await logIn(data);
-      console.log(res);
       navigate("/dashboard");
       toast.success(res.message);
     } catch (error) {

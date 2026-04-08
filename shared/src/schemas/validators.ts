@@ -30,6 +30,12 @@ export const linkStatusSchema = z.enum([
    "Expired",
    "Cancelled",
 ]);
+
+export const paymentStatusSchema = z.enum([
+  "Pending",
+  "Completed",
+  "Failed",
+]);
 export const paymentLinkSchema = z.object({
   amount: z.coerce.number(),
   shortCode: z.coerce.number(),
@@ -37,13 +43,46 @@ export const paymentLinkSchema = z.object({
   expiresAt: z.string().optional(),
 });
 
-export type PaymentLinkInput = z.input<typeof paymentLinkSchema>;
+export const configEnvSchema = z.enum(["Sandbox", "Production"]);
+
+export const merchantConfigSchema = z.object({
+  env: configEnvSchema,
+  consumerKey: z.string().min(1, "Consumer key is required"),
+  consumerSecret: z.string().min(1, "Consumer secret is required"),
+  shortCode: z.string().min(1, "Short code is required"),
+  passKey: z.string().min(1, "Pass key is required"),
+  callbackUrl: z.string().url("Invalid callback URL"),
+});
+
+export const merchantConfigUpdateSchema = merchantConfigSchema
+  .partial()
+  .refine((data) => Object.keys(data).length > 0, {
+    message: "At least one configuration field is required",
+  });
+
+export const transactionSchema = z.object({
+  id: z.string(),
+  status: paymentStatusSchema,
+  businessName: z.string(),
+  clientName: z.string(),
+  phoneNumber: z.string(),
+  amount: z.string(),
+  mpesaRef: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
 
 const filterOptionSchema = z.object({
   page: z.number().min(1, "Page must be at least 1"),
   limit: z.number().min(10, "Limit must be at least 10"),
 });
 
+
+export type TX = z.infer<typeof transactionSchema>;
+export type PaymentLinkInput = z.input<typeof paymentLinkSchema>;
+export type MerchantConfigInput = z.infer<typeof merchantConfigSchema>;
+export type MerchantConfigUpdateInput = z.infer<typeof merchantConfigUpdateSchema>;
 
 
 export type SignUpAuth = z.infer<typeof signUpSchema>;
@@ -54,5 +93,5 @@ export type SignInAuth = z.infer<typeof signInSchema>;
 export type PaymentLink = z.infer<typeof paymentLinkSchema>;
 export type FilterOption = z.infer<typeof filterOptionSchema>
 export type LinkStatus = z.infer<typeof linkStatusSchema>
-
-// export type PaymentItem = z.infer<typeof itemSchema>
+export type PaymentStatus = z.infer<typeof paymentStatusSchema>
+export type ConfigEnv = z.infer<typeof configEnvSchema>

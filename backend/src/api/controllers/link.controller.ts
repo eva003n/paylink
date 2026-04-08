@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from "express";
-import asyncHandler from "../../utils/asynchandler";
-import ApiError from "../../utils/ApiError";
-import ApiResponse from "../../utils/ApiResponse";
-import { PaymentLink } from "@shared/schemas/validators";
+import asyncHandler from "../utils/asynchandler";
+import ApiError from "../utils/ApiError";
+import ApiResponse from "../utils/ApiResponse";
+import { PaymentLink } from "@paylink/shared";
 import {
   findLink,
   generatePaymentLink,
   getAllLinks,
 } from "../services/link.service";
-import { LinkStatus } from "@shared/schemas/validators";
-import { Id } from "src/schemas/validators";
+import { LinkStatus } from "@paylink/shared";
+import { Id } from "../../schemas/validators";
 
 export const createPaymentLink = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -35,7 +35,7 @@ export const createPaymentLink = asyncHandler(
 
 export const getLink = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.params.token as Id || req.query.token as Id;
+    const token = (req.params.token as Id) || (req.query.token as Id);
 
     const link = await findLink(token);
 
@@ -44,7 +44,9 @@ export const getLink = asyncHandler(
         ApiError.notFound(404, req.originalUrl, "Link does not exist"),
       );
 
-      res.status(200).json(new ApiResponse(200, link, "Link fetched successfully"))
+    res
+      .status(200)
+      .json(new ApiResponse(200, link, "Link fetched successfully"));
   },
 );
 export const getLinks = asyncHandler(

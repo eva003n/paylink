@@ -2,14 +2,12 @@
   "files": [],
   "references": [
     {
-      "path": "./tsconfig.app.json"
+      "path": "./tsconfig.app.json",
+    },
+     {
+      "path": "../shared"
+
     }
   ],
-  "compilerOptions": {
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
-    "paths": {
-      "@shared/*": ["../shared/*"]
-    }
-  }
+
 }

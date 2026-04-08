@@ -1,10 +1,6 @@
-import type {
-  MerchantSignUpAuth,
-  SignInAuth,
-} from "@shared/schemas/validators";
+import type { MerchantSignUpAuth, SignInAuth } from "@paylink/shared";
 import type { Dispatch, SetStateAction } from "react";
 import { createContext, useContext } from "react";
-
 export type UserType = {
   id: string;
 };

@@ -8,7 +8,7 @@ import {
   PageHeader,
   Button,
   Modal,
-  type BadgeStatus,
+  // type BadgeStatus,
 } from "@/components/ui";
 import {
   fmtKES,
@@ -25,26 +25,12 @@ import {
   Receipt,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { paymentStatusSchema, type TX } from "@paylink/shared";
 
 type TransactionStatus = "completed" | "failed" | "pending";
 
-interface Transaction {
-  id: string;
-  reference?: string;
-  mpesa_receipt?: string;
-  phone?: string;
-  business_name?: string;
-  client_name?: string;
-  description?: string;
-  checkout_request_id?: string;
-  created_at: string;
-  completed_at?: string;
-  status: BadgeStatus ;
-  amount?: number;
-}
-
 interface TxDetailProps {
-  tx: Transaction | null;
+  tx: TX | null;
   open: boolean;
   onClose: () => void;
 }
@@ -55,9 +41,8 @@ const TxDetail = ({ tx, open, onClose }: TxDetailProps) => {
     setDl(true);
     try {
       await generateReceiptPDF(tx, {
-        business_name: tx?.business_name,
-        client_name: tx?.client_name,
-        description: tx?.description,
+        business_name: tx?.businessName,
+        client_name: tx?.clientName,
       });
       toast.success("Receipt downloaded!");
     } catch {
@@ -107,20 +92,18 @@ const TxDetail = ({ tx, open, onClose }: TxDetailProps) => {
             className="mt-2 font-display text-3xl font-bold"
             style={{ color: statusBg.text }}
           >
-            {fmtKES(tx.amount as number )}
+            {fmtKES(Number(tx.amount))}
           </p>
         </div>
         <div className="divide-y divide-stone-100">
           {[
-            ["Transaction ID", tx.reference],
-            ["M-Pesa Receipt", tx.mpesa_receipt || "—"],
-            ["Phone", fmtPhone(tx.phone as string)],
-            ["Business", tx.business_name || "—"],
-            ["Service", tx.description || "—"],
-            ["Client", tx.client_name || "—"],
-            ["Checkout ID", tx.checkout_request_id || "—"],
-            ["Initiated", fmtDateTime(tx.created_at)],
-            ["Completed", tx.completed_at ? fmtDateTime(tx.completed_at) : "—"],
+            ["Transaction ID", tx.id],
+            ["M-Pesa Receipt", tx.mpesaRef || "—"],
+            ["Phone", fmtPhone(tx.phoneNumber as string)],
+            ["Business", tx.businessName || "—"],
+            ["Client", tx.clientName || "—"],
+            ["Initiated", fmtDateTime(tx.createdAt)],
+            ["Completed", tx.updatedAt ? fmtDateTime(tx.updatedAt) : "—"],
           ].map(([label, val]) => (
             <div
               key={label}
@@ -138,7 +121,7 @@ const TxDetail = ({ tx, open, onClose }: TxDetailProps) => {
             </div>
           ))}
         </div>
-        {tx.status === "completed" && (
+        {tx.status === paymentStatusSchema.enum.Completed && (
           <Button
             variant="primary"
             size="lg"
@@ -156,11 +139,11 @@ const TxDetail = ({ tx, open, onClose }: TxDetailProps) => {
 
 const TransactionsPage = () => {
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<Transaction | null>(null);
+  const [selected, setSelected] = useState<TX | null>(null);
 
-  const { data, isLoading } = useQuery<Transaction[]>({
+  const { data, isLoading } = useQuery({
     queryKey: ["transactions"],
-    queryFn: () => mpesaAPI.getAll().then((r) => r.data.transactions),
+    queryFn: () => mpesaAPI.getAll().then((r) => r.data.payments),
     refetchInterval: 15000,
   });
 
@@ -168,11 +151,11 @@ const TransactionsPage = () => {
     if (!search) return true;
     const q = search.toLowerCase();
     return (
-      tx.reference?.toLowerCase().includes(q) ||
-      tx.mpesa_receipt?.toLowerCase().includes(q) ||
-      tx.phone?.includes(q) ||
-      tx.client_name?.toLowerCase().includes(q) ||
-      tx.business_name?.toLowerCase().includes(q)
+      // tx.id?.toLowerCase().includes(q) ||
+      tx.mpesaRef?.toLowerCase().includes(q) ||
+      tx.phoneNumber?.includes(q) ||
+      tx.clientName?.toLowerCase().includes(q) ||
+      tx.businessName?.toLowerCase().includes(q)
     );
   });
 
@@ -240,11 +223,11 @@ const TransactionsPage = () => {
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
                   style={{
                     backgroundColor:
-                      tx.status === "completed"
+                      tx.status === paymentStatusSchema.enum.Completed
                         ? "var(--color-brand-50)"
-                        : tx.status === "failed"
+                        : tx.status === paymentStatusSchema.enum.Failed
                           ? "var(--color-red-50)"
-                          : tx.status === "pending"
+                          : tx.status === paymentStatusSchema.enum.Pending
                             ? "var(--color-amber-50)"
                             : "var(--color-stone-100)",
                   }}
@@ -253,11 +236,11 @@ const TransactionsPage = () => {
                     className="h-4 w-4"
                     style={{
                       color:
-                        tx.status === "completed"
+                        tx.status === paymentStatusSchema.enum.Completed
                           ? "var(--color-brand-600)"
-                          : tx.status === "failed"
+                          : tx.status === paymentStatusSchema.enum.Failed
                             ? "var(--color-red-500)"
-                            : tx.status === "pending"
+                            : tx.status === paymentStatusSchema.enum.Pending
                               ? "var(--color-amber-500)"
                               : "var(--color-stone-400)",
                     }}
@@ -266,7 +249,7 @@ const TransactionsPage = () => {
                 <div className="min-w-0 flex-1">
                   <div className="mb-0.5 flex items-center gap-2">
                     <p className="truncate text-sm font-semibold text-stone-900">
-                      {tx.client_name || tx.business_name || "Payment"}
+                      {tx.clientName || tx.businessName || "Payment"}
                     </p>
                     <StatusBadge status={tx.status} />
                   </div>
@@ -274,27 +257,27 @@ const TransactionsPage = () => {
                     className="font-mono text-xs"
                     style={{ color: "var(--color-stone-400)" }}
                   >
-                    {fmtPhone(tx.phone as string)} · {fmtRelative(tx.created_at)}
+                    {fmtPhone(tx.phoneNumber)} · {fmtRelative(tx.createdAt)}
                   </p>
-                  {tx.mpesa_receipt && (
+                  {tx.mpesaRef && (
                     <p
                       className="mt-0.5 font-mono text-xs"
                       style={{ color: "var(--color-brand-600)" }}
                     >
-                      ✓ {tx.mpesa_receipt}
+                      ✓ {tx.mpesaRef}
                     </p>
                   )}
                 </div>
                 <div className="shrink-0 text-right">
                   <p className="font-mono text-sm font-bold text-stone-900">
-                    {fmtKES(tx.amount as number )}
+                    {fmtKES(Number(tx.amount))}
                   </p>
-                  <p
+                  {/* <p
                     className="mt-0.5 text-xs"
                     style={{ color: "var(--color-stone-400)" }}
                   >
                     {tx.reference}
-                  </p>
+                  </p> */}
                 </div>
                 <ChevronRight
                   className="ml-1 h-4 w-4 shrink-0 transition-colors"

@@ -1,28 +1,34 @@
 import { Worker } from "bullmq";
-import { getSharedConnection } from "../config/bullmq";
-import { JOB_NAMES, QUEUE_NAMES } from "../constants";
-import { handleMpesaSTKPoll, handleMpesaSTKPush, handlePaymentConfirmation } from "../jobs/payment/processors";
-import logger from "../logger/logger.winston";
-import { connectDb, sequelize } from "../config/db/postgres";
+import { getSharedConnection } from "../api/config/bullmq";
+import { JOB_NAMES, QUEUE_NAMES } from "../api/constants";
+import {
+  handleMpesaSTKPoll,
+  handleMpesaSTKPush,
+  handlePaymentConfirmation,
+} from "../jobs/payment/processors";
+import logger from "../api/logger/logger.winston";
+import { connectDb, sequelize } from "../api/config/db/postgres";
 
 // connect redis
 const connection = getSharedConnection();
 // connect postgres
-(async() => {
-  await connectDb()
-})()
+(async () => {
+  await connectDb();
+})();
 
 const paymentWorker = new Worker(
   QUEUE_NAMES.PAYMENT,
   async (job) => {
-    switch(job.name) {
-        case JOB_NAMES.STK_PUSH : return await handleMpesaSTKPush(job.data)
-        case JOB_NAMES.STK_POLL: return await handleMpesaSTKPoll(job.data)
-        case JOB_NAMES.CONFIRM_PAYMENT: return await handlePaymentConfirmation(job.data)
-        default:
-             throw new Error(`Unknown job in payment worker: ${job.name}`)
+    switch (job.name) {
+      case JOB_NAMES.STK_PUSH:
+        return await handleMpesaSTKPush(job.data);
+      case JOB_NAMES.STK_POLL:
+        return await handleMpesaSTKPoll(job.data);
+      case JOB_NAMES.CONFIRM_PAYMENT:
+        return await handlePaymentConfirmation(job.data);
+      default:
+        throw new Error(`Unknown job in payment worker: ${job.name}`);
     }
-    
   },
   {
     connection: connection.options,
@@ -33,7 +39,6 @@ const paymentWorker = new Worker(
     },
   },
 );
-
 
 paymentWorker.on("active", (job) => {
   logger.info(`Worker picked up job: ${job.id} with name: ${job.name}`);
@@ -57,7 +62,7 @@ paymentWorker.on("error", (error) => {
 const shutDown = async () => {
   logger.info(`Gracefully shuting down payment worker`);
   await paymentWorker.close();
-  await sequelize.close()
+  await sequelize.close();
   process.exit(0);
 };
 

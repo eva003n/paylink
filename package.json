@@ -1,9 +1,14 @@
 {
   "name": "paylink",
+  "private": true,
   "version": "1.0.0",
   "description": "Send clients a payment link, trigger M-Pesa STK, and generate instant PDF receipts.",
-  "main": "backend/dist/index.js",
   "scripts": {
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:shared": "pnpm --filter @paylink/shared dev ",
+    "build:shared": "pnpm --filter @paylink/shared build",
+    "build": "pnpm build:shared && pnpm --filter backend build && pnpm --filter frontend build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

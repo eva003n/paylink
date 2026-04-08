@@ -1,5 +1,5 @@
-import { Merchant } from "src/models";
-import { Id } from "src/schemas/validators";
+import { Merchant } from "../models";
+import { Id } from "../../schemas/validators";
 import { UserDTO } from "../dto";
 
 export const fetchUser = async(id: Id) => {

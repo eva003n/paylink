@@ -1,6 +1,11 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./node_modules/.cache/tsconfig.tsbuildinfo",
+
     // base options
     "target": "es2022",
     "module": "commonjs",
@@ -10,11 +15,9 @@
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": true,
-    // "verbatimModuleSyntax": true,
     "typeRoots": ["types"],
 
-    // "moduleResolution": "node10",
-    "rootDir": "..",
+    "rootDir": "src",
     "outDir": "dist",
     "lib": ["ES2022"],
 
@@ -27,7 +30,6 @@
     "useUnknownInCatchVariables": false,
     "strictNullChecks": true,
     "noUnusedLocals": true,
-    // "noUnusedParameters": true,
     "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
     "noUncheckedIndexedAccess": false,
@@ -35,6 +37,6 @@
     "noUncheckedSideEffectImports": true
   },
 
-  "include": ["src", "types", "../shared/**/*"],
-  "exclude": ["node_modules"]
+  "include": ["src", "types",],
+  "exclude": ["node_modules", "dist"]
 }

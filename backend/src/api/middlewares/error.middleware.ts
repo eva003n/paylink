@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { MulterError } from "multer";
-import ApiError from "../../utils/ApiError";
-import logger from "../../logger/logger.winston";
+import ApiError from "../utils/ApiError";
+import logger from "../logger/logger.winston";
 
 const errorHandlerMiddleware = (
   err: any,

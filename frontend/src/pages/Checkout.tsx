@@ -14,13 +14,11 @@ import {
   Clock,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import {
-  linkStatusSchema,
-} from "@shared/schemas/validators";
+import { linkStatusSchema, type TX } from "@paylink/shared";
 import type { LinkType } from "@/validators/schemas";
-import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import  { paymentSTKSchema, type PaymentSTK } from "@/validators/schemas";
+import { paymentSTKSchema, type PaymentSTK } from "@/validators/schemas";
+import { useForm, type SubmitHandler } from "react-hook-form";
 
 interface StepBarProps {
   step: number;
@@ -58,7 +56,7 @@ interface TxData {
 }
 
 interface PaymentSuccessProps {
-  transaction: Transaction;
+  transaction: TX;
   link: LinkType;
 }
 
@@ -250,13 +248,13 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
           Receipt Summary
         </p>
         {[
-          ["Amount Paid", fmtKES(transaction.amount)],
-          ["Transaction ID", transaction.reference],
-          ["M-Pesa Receipt", transaction.mpesa_receipt || "—"],
-          ["Phone", fmtPhone(transaction.phone)],
+          ["Amount Paid", fmtKES(Number(transaction.amount))],
+          ["Transaction ID", transaction.id],
+          ["M-Pesa Receipt", transaction.mpesaRef || "—"],
+          ["Phone", fmtPhone(transaction.phoneNumber)],
           [
             "Date",
-            fmtDateTime(transaction.completed_at || transaction.created_at),
+            fmtDateTime(transaction.createdAt || transaction.updatedAt),
           ],
         ].map(([label, val]) => (
           <div
@@ -316,8 +314,8 @@ const CheckoutPage = () => {
   const { reference } = useParams();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [txData, setTxData] = useState<TxData | null>(null);
-  const [txResult, setTxResult] = useState<Transaction | null>(null);
+  const [txData, setTxData] = useState<TX | null>(null);
+  const [txResult, setTxResult] = useState<TX | null>(null);
   const [countdown, setCountdown] = useState(60);
   const [failReason, setFailRsn] = useState("");
   const pollRef = useRef<number | null>(null);
@@ -599,14 +597,7 @@ const CheckoutPage = () => {
           {/* Step 3 — Success */}
           {step === 3 && (
             <PaymentSuccess
-              transaction={
-                txResult || {
-                  reference: txData!.reference,
-                  amount: Number(link?.amount),
-                  phone: "254" + getValues("phoneNumber"),
-                  created_at: new Date().toISOString(),
-                }
-              }
+              transaction={txResult as TX }
               link={link}
             />
           )}

@@ -1,19 +1,19 @@
-import { Link, Merchant, Payment } from "../../models/index";
+import { Link, Merchant, Payment } from "../models/index";
 import base62 from "@sindresorhus/base62";
 import {
   linkStatusSchema,
   FilterOption,
   PaymentStatus,
-} from "@shared/schemas/validators";
-import { sequelize } from "../../config/db/postgres";
+} from "@paylink/shared";
+import { sequelize } from "../config/db/postgres";
 
-import { enqueueSTKPush } from "../../queues/index";
-import { Id, PaymentSTK } from "src/schemas/validators";
-import { enqueueSTKPaymentConfirmation } from "../../queues/payment.queue";
-import { PaymentConfirmation } from "../../jobs/payment/payment.type";
-import logger from "../../logger/logger.winston";
-import { Client } from "../../models/index";
-import {paymentsDTO } from "../dto";
+import { enqueueSTKPush } from "../queues/index";
+import { Id, PaymentSTK } from "../../schemas/validators";
+import { enqueueSTKPaymentConfirmation } from "../queues/payment.queue";
+import { PaymentConfirmation } from "../../schemas/validators";
+import logger from "../logger/logger.winston";
+import { Client } from "../models/index";
+import { paymentsDTO } from "../dto";
 
 export const initiateSTKPush = async ({
   token,

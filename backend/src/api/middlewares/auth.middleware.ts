@@ -1,13 +1,15 @@
 import { Request, Response, NextFunction } from "express";
-import asyncHandler from "../../utils/asynchandler";
+import asyncHandler from "../utils/asynchandler";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { ACCESS_TOKEN_SECRET, NODE_ENV } from "../../config/env";
-import ApiError from "../../utils/ApiError";
+import { ACCESS_TOKEN_SECRET, NODE_ENV } from "../config/env";
+import ApiError from "../utils/ApiError";
 import { jwtSchema } from "../../schemas/validators";
 
 const protectRoute = asyncHandler(async (req, res, next) => {
   // get access token from cookie header or auth header
-  const accessToken = req.signedCookies.AccessToken || req.headers["authorization"]?.split(" ")[1];
+  const accessToken =
+    req.signedCookies.AccessToken ||
+    req.headers["authorization"]?.split(" ")[1];
   // no token in cookie
   if (accessToken === "null" || accessToken === "undefined") {
     return next(

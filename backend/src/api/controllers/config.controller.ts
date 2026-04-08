@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import asyncHandler from "../../utils/asynchandler";
-import ApiError from "../../utils/ApiError";
-import ApiResponse from "../../utils/ApiResponse";
+import asyncHandler from "../utils/asynchandler";
+import ApiError from "../utils/ApiError";
+import ApiResponse from "../utils/ApiResponse";
 import {
   createConfig,
   deleteConfig,
@@ -11,7 +11,7 @@ import {
 import {
   MerchantConfigInput,
   MerchantConfigUpdateInput,
-} from "@shared/schemas/validators";
+} from "@paylink/shared";
 
 export const getMerchantConfig = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {

@@ -1,7 +1,9 @@
 import {
   linkStatusSchema,
+  merchantConfigSchema,
   paymentLinkSchema,
-} from "@shared/schemas/validators";
+  transactionSchema,
+} from "@paylink/shared";
 import z from "zod";
 
 export const apiReponseData = z.object();
@@ -21,7 +23,7 @@ export const analyticsDatsResponse = z.object({
       pendingPayments: z.number(),
       failedPayments: z.number(),
     }),
-    recentTransactions: z.array(z.object()),
+    recentTransactions: z.array(transactionSchema),
     links: z.object(),
   }),
 });
@@ -51,6 +53,14 @@ export const linksResponseSchema = z.object({
     totalItems: z.number(),
   }),
 });
+export const paymentsResponseSchema = z.object({
+  data: z.object({
+    payments: z.array(transactionSchema),
+    currentPage: z.number(),
+    totalPages: z.number(),
+    totalItems: z.number(),
+  }),
+});
 export const createLinkResponseSchema = z.object({
   data: paymentLinkSchema.extend({
     id: z.string(),
@@ -62,7 +72,7 @@ export const createLinkResponseSchema = z.object({
     businessName: z.string(),
     // client_name: z.string().optional(),
     // mpesaRef: z.string(),
-    
+
     expiresAt: z.date().optional(),
     total_transactions: z.number().optional(),
     paid_count: z.number().optional(),
@@ -80,9 +90,17 @@ export const paymentSTKSchema = z.object({
     .max(9, "Cannot exceed 9 characters in long"),
 });
 
+const configResponseSchema = z.object({
+  data: merchantConfigSchema.extend({
+    createdAt: z.date(),
+    updatedAt: z.date(),
+  }),
+});
 export type PaymentSTK = z.infer<typeof paymentSTKSchema>;
 
 export type LinkType = z.infer<typeof createLinkResponseSchema>["data"];
 export type AnalyticsApiResponse = z.infer<typeof analyticsDatsResponse>;
 export type LinksApiResponse = z.infer<typeof linksResponseSchema>;
+export type PaymentApiResponse = z.infer<typeof paymentsResponseSchema>;
+export type ConfigApiSchema = z.infer<typeof configResponseSchema>;
 // export type LinkType = z.infer<typeof createLinkResponseSchema>

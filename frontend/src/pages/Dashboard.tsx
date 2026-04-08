@@ -1,25 +1,41 @@
-import Skeleton from '@/components/shared/Skeleton';
-import { Button, Card, EmptyState, StatCard, StatusBadge } from '@/components/ui';
-import { useAuth } from '@/context/AuthContext';
-import { dashboardAPI } from '@/services/api';
-import { fmtKES, fmtKESShort, fmtPhone, fmtRelative } from '@/utils';
-import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, CheckCircle, Clock, Link2, Plus, TrendingUp, Activity } from 'lucide-react';
-import  { Link } from 'react-router-dom';
+import Skeleton from "@/components/shared/Skeleton";
+import {
+  Button,
+  Card,
+  EmptyState,
+  StatCard,
+  StatusBadge,
+} from "@/components/ui";
+import { useAuth } from "@/context/AuthContext";
+import { dashboardAPI } from "@/services/api";
+import { fmtKES, fmtKESShort, fmtPhone, fmtRelative } from "@/utils";
+import { paymentStatusSchema, type TX } from "@paylink/shared";
+import { useQuery } from "@tanstack/react-query";
+import {
+  ArrowRight,
+  CheckCircle,
+  Clock,
+  Link2,
+  Plus,
+  TrendingUp,
+  Activity,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 
 const DashboardPage = () => {
-  const {user} = useAuth()
-   const { data, isLoading } = useQuery({
-     queryKey: ["dashboard"],
-     queryFn: () => dashboardAPI.get().then((r) => r.data),
-     refetchInterval: 30000,
-   });
+  const { user } = useAuth();
+  const { data, isLoading } = useQuery({
+    queryKey: ["dashboard"],
+    queryFn: () => dashboardAPI.get().then((r) => r.data),
+    refetchInterval: 30000,
+  });
 
-   const stats = data?.stats ;
-   const links = data?.links || {};
-   const recent = data?.recentTransactions || [];
-  const hour   = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const stats = data?.stats;
+  const links = data?.links || {};
+  const recent = data?.recentTransactions || [];
+  const hour = new Date().getHours();
+  const greeting =
+    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
     <section className="animate-fade-up">
@@ -118,7 +134,7 @@ const DashboardPage = () => {
               />
             ) : (
               <div className="divide-y divide-stone-100">
-                {recent.map((tx: any) => (
+                {recent.map((tx: TX) => (
                   <div
                     key={tx.id}
                     className="flex items-center gap-4 p-4 transition-colors hover:bg-stone-50"
@@ -127,14 +143,14 @@ const DashboardPage = () => {
                       className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
                       style={{
                         backgroundColor:
-                          tx.status === "completed"
+                          tx.status === paymentStatusSchema.enum.Completed
                             ? "var(--color-brand-50)"
-                            : tx.status === "failed"
+                            : tx.status === paymentStatusSchema.enum.Failed
                               ? "var(--color-red-50)"
                               : "var(--color-amber-50)",
                       }}
                     >
-                      {tx.status === "completed" ? (
+                      {tx.status === paymentStatusSchema.enum.Completed ? (
                         <CheckCircle
                           className="h-4 w-4"
                           style={{ color: "var(--color-brand-600)" }}
@@ -144,7 +160,7 @@ const DashboardPage = () => {
                           className="h-4 w-4"
                           style={{
                             color:
-                              tx.status === "failed"
+                              tx.status === paymentStatusSchema.enum.Failed
                                 ? "var(--color-red-500)"
                                 : "var(--color-amber-500)",
                           }}
@@ -153,18 +169,18 @@ const DashboardPage = () => {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold text-stone-900">
-                        {tx.client_name || tx.business_name || "Payment"}
+                        {tx.clientName || tx.businessName || "Payment"}
                       </p>
                       <p
                         className="font-mono text-xs"
                         style={{ color: "var(--color-stone-400)" }}
                       >
-                        {fmtPhone(tx.phone)} · {fmtRelative(tx.created_at)}
+                        {fmtPhone(tx.phoneNumber)} · {fmtRelative(tx.createdAt)}
                       </p>
                     </div>
                     <div className="shrink-0 text-right">
                       <p className="font-mono text-sm font-bold text-stone-900">
-                        {fmtKES(tx.amount)}
+                        {fmtKES(Number(tx.amount))}
                       </p>
                       <StatusBadge status={tx.status} />
                     </div>
@@ -304,6 +320,6 @@ const DashboardPage = () => {
       </div>
     </section>
   );
-}
+};
 
-export default DashboardPage
+export default DashboardPage;

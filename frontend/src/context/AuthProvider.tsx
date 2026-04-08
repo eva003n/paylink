@@ -3,10 +3,7 @@ import React from "react";
 import { AUTH_DATA } from "../constants";
 import { authAPI } from "../services/api";
 import { AuthContext } from "./AuthContext";
-import type {
-  MerchantSignUpAuth,
-  SignInAuth,
-} from "@shared/schemas/validators";
+import type { MerchantSignUpAuth, SignInAuth } from "@paylink/shared";
 
 export const AuthProvider = ({ children }: React.PropsWithChildren) => {
   const [user, setUser] = useState<MerchantSignUpAuth | null>(() => {
@@ -41,7 +38,7 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
     const _user: MerchantSignUpAuth = JSON.parse(user);
     const nowMs = Date.now();
 
-      setUser(_user);
+    setUser(_user);
 
     if (tokenExpiryMs < nowMs) {
       // query user(if exists)
@@ -50,20 +47,18 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
         // .then((res) => setUser(res.data.user))
         .catch((error) => {
           // console.error(error)
-          authAPI
-            .refreshToken()
-            .then((res) => {
-              const { accessToken: token, expiresIn } = res.data;
+          authAPI.refreshToken().then((res) => {
+            const { accessToken: token, expiresIn } = res.data;
 
-              localStorage.setItem(AUTH_DATA.PAYLINK_TOKEN, token || null);
-              localStorage.setItem(
-                AUTH_DATA.PAYLINK_TOKEN_EXPIRY,
-                JSON.stringify(expiresIn + Date.now() - 60_000),
-              );
-            })
-            // .catch(() => {
-            //   console.log(error)
-            // });
+            localStorage.setItem(AUTH_DATA.PAYLINK_TOKEN, token || null);
+            localStorage.setItem(
+              AUTH_DATA.PAYLINK_TOKEN_EXPIRY,
+              JSON.stringify(expiresIn + Date.now() - 60_000),
+            );
+          });
+          // .catch(() => {
+          //   console.log(error)
+          // });
           // if user doesn't remove auth data from local storage
         })
         .finally(() => setLoading(false));

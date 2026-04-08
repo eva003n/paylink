@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { paymentLinkSchema } from "@shared/schemas/validators";
+import { paymentLinkSchema } from "@paylink/shared";
 import { validate } from "../middlewares/validator.middleware";
 import { createPaymentLink, getLink, getLinks } from "../controllers/link.controller";
 import { protectRoute } from "../middlewares/auth.middleware";

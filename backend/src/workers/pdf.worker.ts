@@ -1,9 +1,9 @@
 import { Job, Worker } from "bullmq";
-import { getSharedConnection } from "../config/bullmq";
-import logger from "../logger/logger.winston";
-import { JOB_NAMES, QUEUE_NAMES } from "../constants";
+import { getSharedConnection } from "../api/config/bullmq";
+import logger from "../api/logger/logger.winston";
+import { JOB_NAMES, QUEUE_NAMES } from "../api/constants";
 import { handleReceiptGeneration } from "../jobs/pdf/processors";
-import { ReceiptContent } from "../jobs/pdf/receipt.type";
+import { ReceiptContent } from "../schemas/validators";
 
 const worker = new Worker(
   QUEUE_NAMES.PDF,

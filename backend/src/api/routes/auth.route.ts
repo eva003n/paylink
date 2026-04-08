@@ -6,10 +6,10 @@ import {
   tokenRefresh,
 } from "../controllers/auth.controller";
 import { validate } from "../middlewares/validator.middleware";
-import {
+import  {
   merchantSignUPSchema,
   signInSchema,
-} from "@shared/schemas/validators";
+} from "@paylink/shared";
 import { protectRoute } from "../middlewares/auth.middleware";
 
 

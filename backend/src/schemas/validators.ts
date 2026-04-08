@@ -1,5 +1,5 @@
 import z from "zod";
-import { UserRoles } from "../models";
+import { UserRoles } from "../api/models";
 
 // export const signUpSchema = z.object({
 //   // username: z.string().min(4).max(64).optional(),
@@ -37,7 +37,7 @@ export const itemSchema = z.object({
   Value: z.union([z.string(), z.number()]),
 });
 
-export const idSchema = z.string("Id cannot be empty")
+export const idSchema = z.string("Id cannot be empty");
 
 const MpesaPaymentSTKSuccessSchema = z.object({
   Body: z.object({
@@ -104,12 +104,54 @@ export type PaymentSTK = z.infer<typeof paymentSTKSchema>;
 //   expiresAt: z.string().optional(),
 // });
 
+export const paymentDataSchema = z.object({
+  transactionId: z.string(),
+  phoneNumber: z.string(),
+  shortCode: z.coerce.number(),
+  amount: z.coerce.number(),
+});
 
+export const paymentQuerySchema = z.object({
+  transactionId: z.string(),
+  shortCode: z.coerce.number(),
+  checkoutRequestId: z.string(),
+  attempts: z.coerce.number(),
+});
+
+export const mpesaPaymentSchema = z.object({
+  refNo: z.string(),
+  amount: z.coerce.number(),
+  phoneNumber: z.string(),
+  date: z.string(),
+  transactionId: z.string(),
+});
+
+export const paymentConfirmationSchema = z.object({
+  mpesaReference: z.string(),
+  checkoutRequestId: z.string(),
+});
+
+export const emailDataSchema = z.object({
+  receiver:z.email()
+})
+
+export const receiptContentSchema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  businessName: z.string().optional(),
+  amount: z.coerce.number(),
+  phoneNumber: z.string(),
+  date: z.string().optional(),
+  reference: z.string(),
+  paymentType: z.string(),
+  account: z.string(),
+  paybill: z.coerce.number(),
+});
 // export type SignUpAuth = z.infer<typeof signUpSchema>;
 // export type MerchantSignUpAuth = z.infer<typeof merchantSignUPSchema>;
 // export type SignInAuth = z.infer<typeof signInSchema>;
 export type Token = z.infer<typeof TokenResponseSchema>;
-export type Id = z.infer<typeof idSchema>
+export type Id = z.infer<typeof idSchema>;
 export type JWT_Token = z.infer<typeof jwtSchema>;
 export type MpesaSTKFailed = z.infer<typeof MpesaPaymentSTKFailedSchema>;
 export type MpesaSTKSuccess = z.infer<typeof MpesaPaymentSTKSuccessSchema>;
@@ -117,4 +159,9 @@ export type MpesaSTKSuccess = z.infer<typeof MpesaPaymentSTKSuccessSchema>;
 export type PaymentSTKQueryRequest = z.infer<typeof mpesaSTKQueryRequest>;
 export type PaymentSTKQueryResponse = z.infer<typeof mpesaSTKQueryResultSchema>;
 export type PaymentSTKResponse = z.infer<typeof mpesaSTKPushResponseSchema>;
-// export type PaymentItem = z.infer<typeof itemSchema>
+export type PaymentData = z.infer<typeof paymentDataSchema>;
+export type PaymentQuery = z.infer<typeof paymentQuerySchema>;
+export type MpesaPayment = z.infer<typeof mpesaPaymentSchema>;
+export type PaymentConfirmation = z.infer<typeof paymentConfirmationSchema>;
+export type EmailData = z.infer<typeof emailDataSchema>
+export type ReceiptContent = z.infer<typeof receiptContentSchema>;

@@ -1,4 +1,4 @@
-import { configEnvSchema } from "@shared/schemas/validators";
+import { configEnvSchema } from "@paylink/shared";
 import { DataTypes } from "sequelize";
 import { QueryInterface } from "sequelize";
 

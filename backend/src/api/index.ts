@@ -1,8 +1,8 @@
 import { server } from "./app";
-import { sequelize, connectDb } from "../config/db/postgres";
-import { PORT } from "../config/env";
-import { connectRedis } from "../config/redis";
-import logger from "../logger/logger.winston";
+import { sequelize, connectDb } from "./config/db/postgres";
+import { PORT } from "./config/env";
+import { connectRedis } from "./config/redis";
+import logger from "./logger/logger.winston";
 
 const port = PORT;
 

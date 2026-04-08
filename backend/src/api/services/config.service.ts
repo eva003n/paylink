@@ -1,16 +1,17 @@
-import { Config } from "src/models";
-import { Id } from "src/schemas/validators";
+import { Config } from "../models";
+import { Id } from "../../schemas/validators";
 import {
-    ConfigEnv,
+  ConfigEnv,
   MerchantConfigInput,
   MerchantConfigUpdateInput,
-} from "@shared/schemas/validators";
+} from "@paylink/shared";
+import { ConfigDTO } from "../dto";
 
 const mapConfigData = (
   config: MerchantConfigInput | MerchantConfigUpdateInput,
 ) => {
   const data: Partial<{
-    env: ConfigEnv,
+    env: ConfigEnv;
     consumer_key: string;
     consumer_secret: string;
     short_code: string;
@@ -30,7 +31,8 @@ const mapConfigData = (
 };
 
 export const fetchConfig = async (merchantId: Id) => {
-  return await Config.findOne({ where: { merchant_id: merchantId } });
+  const config = await Config.findOne({ where: { merchant_id: merchantId } });
+  return config ? ConfigDTO.create(config) : null;
 };
 
 export const createConfig = async (
@@ -48,19 +50,19 @@ export const createConfig = async (
     ...mapConfigData(configData),
   });
 
-  return { created: true, config };
+  return { created: true, config: ConfigDTO.create(config) };
 };
 
 export const updateConfig = async (
   merchantId: Id,
   configData: MerchantConfigUpdateInput,
 ) => {
-  const config = await fetchConfig(merchantId);
+  const config = await Config.findOne({ where: { merchant_id: merchantId } });
   if (!config) return null;
 
   await config.update(mapConfigData(configData));
 
-  return config;
+  return ConfigDTO.create(config);
 };
 
 export const deleteConfig = async (merchantId: Id) => {

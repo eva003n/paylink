@@ -2,11 +2,14 @@ import axios, { AxiosError } from "axios";
 import { AUTH_DATA } from "../constants";
 import type {
   AnalyticsApiResponse,
+  ConfigApiSchema,
   LinksApiResponse,
   LinkType,
+  PaymentApiResponse,
 } from "@/validators/schemas";
-import type { FilterOption, LinkStatus, PaymentLink, PaymentLinkInput,  } from "@shared/schemas/validators";
-import type{ PaymentSTK } from "@/validators/schemas";
+
+import type { PaymentSTK } from "@/validators/schemas";
+import type { FilterOption, PaymentLinkInput, TX } from "@paylink/shared";
 // create axios instance
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URI || "/api",
@@ -91,32 +94,36 @@ export const authAPI = {
 };
 
 export const linksAPI = {
-  getAll: (options: FilterOption & {status: any}) => api.get<{}, LinksApiResponse>("/links", {
-    params: {
-      page: options.page,
-      limit: options.limit,
-      status: options.status
-    }
-  }),
+  getAll: (options: FilterOption & { status: any }) =>
+    api.get<{}, LinksApiResponse>("/links", {
+      params: {
+        page: options.page,
+        limit: options.limit,
+        status: options.status,
+      },
+    }),
   getByRef: (ref: string) => api.get<{}, LinkType>(`/links/${ref}`),
-  create: (d: PaymentLinkInput) => api.post<{}, LinkType, PaymentLinkInput>("/links", d),
+  create: (d: PaymentLinkInput) =>
+    api.post<{}, LinkType, PaymentLinkInput>("/links", d),
   update: (id: string, d: any) => api.patch(`/links/${id}`, d),
   remove: (id: string) => api.delete(`/links/${id}`),
 };
 
 export const mpesaAPI = {
-  stkPush: (d: PaymentSTK) => api.post<{}, any, PaymentSTK>("/payments/mpesa/stk-push", d),
+  stkPush: (d: PaymentSTK) =>
+    api.post<{}, { data: TX }, PaymentSTK>("/payments/mpesa/stk-push", d),
   query: (d: any) => api.post("/payments/mpesa/query", d),
   getTransaction: (id: string) => api.get(`/payments/mpesa/transaction/${id}`),
-  getAll: () => api.get("/payments/mpesa/transactions"),
+  getAll: () => api.get<{}, PaymentApiResponse>("/payments"),
 };
 
 export const dashboardAPI = {
   get: () => api.get<{}, AnalyticsApiResponse>("/analytics"),
 };
 export const configAPI = {
-  get: () => api.get("/config"),
-  save: (d: any) => api.put("/config", d),
+  get: () => api.get<{}, ConfigApiSchema>("/configs"),
+  save: (d: any) => api.post("/configs", d),
+  update: (d: any) => api.patch("/configs", d),
 };
 
 export default api;

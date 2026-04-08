@@ -13,7 +13,7 @@ export const fmtKESShort = (n: number) =>
 export const fmtDate = (d: string | Date) =>
   d ? format(new Date(d), "d MMM yyyy") : "—";
 
-export const fmtDateTime = (d: string) =>
+export const fmtDateTime = (d: Date) =>
   d ? format(new Date(d), "d MMM yyyy, h:mm a") : "—";
 
 export const fmtRelative = (d: Date) =>

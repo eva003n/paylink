@@ -4,7 +4,7 @@ import { protectRoute } from "../middlewares/auth.middleware";
 import {
   merchantConfigSchema,
   merchantConfigUpdateSchema,
-} from "@shared/schemas/validators";
+} from "@paylink/shared";
 import {
   createMerchantConfig,
   getMerchantConfig,

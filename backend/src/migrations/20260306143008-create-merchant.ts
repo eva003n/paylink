@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import { QueryInterface } from "sequelize";
-import { UserRoles } from "../models/index";
+import { UserRoles } from "../api/models/index";
 
 async function up({ context: queryInterface }: { context: QueryInterface }) {
   queryInterface.createTable("merchants", {

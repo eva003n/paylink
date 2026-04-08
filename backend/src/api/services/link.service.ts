@@ -1,11 +1,11 @@
 import base62 from "@sindresorhus/base62";
-import { FRONTEND_BASE_URI } from "../../config/env";
-import { Merchant, Link } from "../../models";
-import { FilterOption, PaymentLink } from "@shared/schemas/validators";
-import { Id } from "src/schemas/validators";
-import { LinkStatus } from "@shared/schemas/validators";
+import { FRONTEND_BASE_URI } from "../config/env";
+import { Merchant, Link } from "../models";
+import { FilterOption, PaymentLink } from "@paylink/shared";
+import { Id } from "../../schemas/validators";
+import { LinkStatus } from "@paylink/shared";
 import { LinkDTO } from "../dto";
-import { sequelize } from "src/config/db/postgres";
+import { sequelize } from "../config/db/postgres";
 
 export const generatePaymentLink = async (
   linkData: PaymentLink & { merchant_id: string },
@@ -52,7 +52,7 @@ export const findLink = async (token: Id) => {
     include: {
       model: Merchant,
       as: "Merchant",
-      attributes: [],// do not include any attributes i merchat
+      attributes: [], // do not include any attributes i merchat
 
       required: true, // perform inner join
     },

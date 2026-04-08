@@ -1,15 +1,15 @@
-import { NODE_ENV } from "../../config/env";
+import { NODE_ENV } from "../config/env";
 import {
   createUser,
   logInUser,
   logOutUser,
   renewToken,
 } from "../services/auth.service";
-import ApiError from "../../utils/ApiError";
-import ApiResponse from "../../utils/ApiResponse";
-import asyncHandler from "../../utils/asynchandler";
+import ApiError from "../utils/ApiError";
+import ApiResponse from "../utils/ApiResponse";
+import asyncHandler from "../utils/asynchandler";
 import { Request, Response, NextFunction } from "express";
-import { MerchantSignUpAuth } from "@shared/schemas/validators";
+import { MerchantSignUpAuth } from "@paylink/shared";
 
 export const signUp = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -53,13 +53,13 @@ export const signIn = asyncHandler(
       );
 
     if (!isValid)
-        return next(
-          ApiError.unAuthorizedRequest(
-            401,
-            req.originalUrl,
-            "Authentication failed",
-          ),
-        );
+      return next(
+        ApiError.unAuthorizedRequest(
+          401,
+          req.originalUrl,
+          "Authentication failed",
+        ),
+      );
     // send jwt token
     res
       .status(200)

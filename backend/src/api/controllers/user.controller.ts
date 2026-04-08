@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import asyncHandler from "src/utils/asynchandler";
+import asyncHandler from "../utils/asynchandler";
 import { fetchUser } from "../services/user.service";
-import ApiResponse from "src/utils/ApiResponse";
-import ApiError from "src/utils/ApiError";
-import { Id } from "src/schemas/validators";
+import ApiResponse from "../utils/ApiResponse";
+import ApiError from "../utils/ApiError";
+import { Id } from "../../schemas/validators";
 export const getUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id as Id

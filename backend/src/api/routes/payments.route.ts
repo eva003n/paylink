@@ -7,13 +7,11 @@ import {
 } from "../controllers/payment.controller";
 
 import { validate } from "../middlewares/validator.middleware";
-import { paymentSTKSchema } from "src/schemas/validators";
+import { paymentSTKSchema } from "../../schemas/validators";
 
 import { protectRoute } from "../middlewares/auth.middleware";
 
-
 const router: Router = Router();
-
 
 /* ----- public routes ----- */
 /*  Handle C2B transactions */
@@ -25,7 +23,7 @@ router
 /* -------- Protected routes ------- */
 
 router.use(protectRoute);
-router.route("/").get(getAllTransactions)
+router.route("/").get(getAllTransactions);
 router.route("/query").post(queryPayment);
 
 export default router;

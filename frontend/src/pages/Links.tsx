@@ -13,9 +13,8 @@ import type { LinkType } from "@/validators/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   paymentLinkSchema,
-  type PaymentLink,
   type PaymentLinkInput,
-} from "@shared/schemas/validators";
+} from "@paylink/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Check,
@@ -438,13 +437,15 @@ const LinksPage = () => {
   const [newLink, setNewLink] = useState<LinkType | null>(null);
   const [shareLink, setShareLink] = useState<LinkType | null>(null);
   const [filter, setFilter] = useState("all");
-  const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
+  const [page, /* setPage */] = useState(1);
+  const [limit,/*  setLimit */] = useState(10);
 
   const { data, isLoading } = useQuery({
     queryKey: ["links"],
     queryFn: () =>
-      linksAPI.getAll({page, limit, status:filter === "all"? undefined: filter}).then((r) =>  r.data.links),
+      linksAPI
+        .getAll({ page, limit, status: filter === "all" ? undefined : filter })
+        .then((r) => r.data.links),
   });
 
   const filtered = (data || []).filter(

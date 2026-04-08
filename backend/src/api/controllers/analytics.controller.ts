@@ -1,7 +1,7 @@
 
 import { Request, Response, NextFunction } from "express";
-import ApiResponse from "src/utils/ApiResponse";
-import asyncHandler from "src/utils/asynchandler";
+import ApiResponse from "../utils/ApiResponse";
+import asyncHandler from "../utils/asynchandler";
 import { generateAnalytics } from "../services/analytic.service";
 
 export const getAnalytics = asyncHandler(

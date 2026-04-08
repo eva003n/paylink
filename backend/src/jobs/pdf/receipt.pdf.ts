@@ -1,9 +1,8 @@
 import PDFDocument from "pdfkit";
 import { createWriteStream } from "fs";
-import { getAbsolutePath } from "../../utils";
-import { MONTHS_FULL } from "../../constants";
-import { ReceiptContent } from "./receipt.type";
-
+import { getAbsolutePath } from "../../api/utils";
+import { MONTHS_FULL } from "../../api/constants";
+import { ReceiptContent } from "../../schemas/validators";
 
 function getSuperScript(date: number) {
   const secondDigit = date.toString().split("")[1];
@@ -100,4 +99,3 @@ export const generatePDFReceipt = (data: ReceiptContent) => {
 
   receiptDocument.end();
 };
-

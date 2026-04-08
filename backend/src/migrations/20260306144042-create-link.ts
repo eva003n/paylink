@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import { QueryInterface } from "sequelize";
-import { linkStatusSchema } from "@shared/schemas/validators";
+import { linkStatusSchema } from "@paylink/shared";
 
 async function up({ context: queryInterface }: { context: QueryInterface }) {
   await queryInterface.createTable("links", {

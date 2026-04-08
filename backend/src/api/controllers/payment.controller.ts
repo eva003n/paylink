@@ -1,18 +1,18 @@
 import { Request, Response, NextFunction } from "express";
-import asyncHandler from "../../utils/asynchandler";
+import asyncHandler from "../utils/asynchandler";
 
 import { MpesaSTKSuccess } from "../../schemas/validators";
-import ApiResponse from "../../utils/ApiResponse";
+import ApiResponse from "../utils/ApiResponse";
 
 import {
   confirmMpesaPayment,
   findAllTransactions,
   initiateSTKPush,
 } from "../services/payment.service";
-import ApiError from "../../utils/ApiError";
+import ApiError from "../utils/ApiError";
 import { handleMpesaSTKPoll } from "../../jobs/payment/processors";
-import { PaymentSTK } from "src/schemas/validators";
-import { PaymentStatus } from "@shared/schemas/validators";
+import { PaymentSTK } from "../../schemas/validators";
+import { PaymentStatus } from "@paylink/shared";
 
 export const initiateMpesaSTKPush = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -90,7 +90,6 @@ export const confirmPayment = asyncHandler(
 
 export const getAllTransactions = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const status = req.query.status as PaymentStatus;

@@ -1,16 +1,12 @@
-import React, { useState } from "react";
 import AuthShell from "@/components/shared/AuthShell";
 import { useAuth } from "@/context/AuthContext";
-import {
-  merchantSignUPSchema,
-  type MerchantSignUpAuth,
-} from "@shared/schemas/validators";
+import { merchantSignUPSchema, type MerchantSignUpAuth } from "@paylink/shared";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { ArrowRight } from "lucide-react";
-import { Button, Input } from "@/components/ui";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Input, Button } from "@/components/ui";
 
 const SignUpPage = () => {
   const { registerUser, loading, setLoading } = useAuth();

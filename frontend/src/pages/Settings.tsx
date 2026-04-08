@@ -13,70 +13,97 @@ import {
   Info,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  configEnvSchema,
+  merchantConfigSchema,
+  type MerchantConfigInput,
+} from "@paylink/shared";
 
 interface SecretInputProps {
   label?: string;
   hint?: string;
+  error?: string;
   [key: string]: any;
 }
 
-const SecretInput: React.FC<SecretInputProps> = ({ label, hint, ...props }) => {
+const SecretInput: React.FC<SecretInputProps> = ({
+  label,
+  hint,
+  error,
+  ...props
+}) => {
   const [show, setShow] = useState(false);
   return (
     <div className="flex flex-col gap-1.5">
       {label && <label className="field-label">{label}</label>}
       <div className="relative">
-        <input
+        <Input
           type={show ? "text" : "password"}
           className="input pr-10"
+          error={error}
           {...props}
         />
-        <button
+        <Button
           type="button"
           onClick={() => setShow((s) => !s)}
-          className="absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
+          className="absolute top-1/2 right-3 -translate-y-1/2 bg-stone-50 transition-colors"
           style={{ color: "var(--color-stone-400)" }}
         >
           {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-        </button>
+        </Button>
       </div>
-      {hint && (
+      {error ? (
+        <p className="mt-0.5 text-xs text-red-500">{error}</p>
+      ) : hint ? (
         <p
           className="mt-0.5 text-xs"
           style={{ color: "var(--color-stone-400)" }}
         >
           {hint}
         </p>
+      ) : (
+        ""
       )}
     </div>
   );
 };
 
 const SettingsPage = () => {
-  const [form, setF] = useState({
-    env: "sandbox",
-    consumer_key: "",
-    consumer_secret: "",
-    shortcode: "",
-    passkey: "",
-    callback_url: "",
+  const {
+    handleSubmit,
+    reset,
+    getValues,
+    setValue,
+    register,
+    formState: { errors },
+  } = useForm<MerchantConfigInput>({
+    resolver: zodResolver(merchantConfigSchema),
+    defaultValues: { env: configEnvSchema.enum.Sandbox },
   });
-  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setF((f) => ({ ...f, [k]: e.target.value }));
+
+  const envOptions = [
+    configEnvSchema.enum.Sandbox,
+    configEnvSchema.enum.Production,
+  ];
 
   const { data, isLoading } = useQuery({
     queryKey: ["config"],
-    queryFn: () => configAPI.get().then((r) => r.data.config),
+    queryFn: () => configAPI.get().then((r) => r.data),
   });
 
   useEffect(() => {
-    if (data)
-      setF((f) => ({
-        ...f,
-        env: data.env || "sandbox",
-        shortcode: data.shortcode || "",
-        callback_url: data.callback_url || "",
-      }));
+    if (data) console.log(data);
+    reset(() => ({
+      ...getValues(),
+      env: data?.env || configEnvSchema.enum.Sandbox,
+      shortCode: data?.shortCode || "",
+      consumerKey: data?.consumerKey || "",
+      consumerSecret: data?.consumerSecret || "",
+      passKey: data?.passKey || "",
+      callbackUrl: data?.callbackUrl || "",
+    }));
   }, [data]);
 
   const mut = useMutation({
@@ -86,17 +113,8 @@ const SettingsPage = () => {
       toast.error(err.response?.data?.error || "Failed to save config"),
   });
 
-  const submit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!form.shortcode) {
-      toast.error("Shortcode is required");
-      return;
-    }
-    if (!form.callback_url) {
-      toast.error("Callback URL is required");
-      return;
-    }
-    mut.mutate(form);
+  const onSubmit: SubmitHandler<MerchantConfigInput> = (data) => {
+    mut.mutate(data);
   };
 
   const hasConfig = !!data;
@@ -152,14 +170,14 @@ const SettingsPage = () => {
               }}
             >
               {hasConfig
-                ? `Running in ${data.env} mode · Last updated ${new Date(data.updated_at).toLocaleDateString("en-KE")}`
+                ? `Running in ${data.env} mode · Last updated ${new Date(data.updatedAt).toLocaleDateString("en-KE")}`
                 : "Add your Daraja credentials to start processing real payments."}
             </p>
           </div>
         </div>
       )}
 
-      <form onSubmit={submit} className="flex flex-col gap-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
         {/* Environment */}
         <Card className="p-5">
           <h2 className="mb-1 font-display font-bold text-stone-900">
@@ -176,19 +194,23 @@ const SettingsPage = () => {
             className="flex gap-2 rounded-xl p-1"
             style={{ backgroundColor: "var(--color-stone-100)" }}
           >
-            {["sandbox", "live"].map((m) => (
+            {envOptions.map((m) => (
               <button
                 key={m}
                 type="button"
-                onClick={() => setF((f) => ({ ...f, env: m }))}
-                className="flex flex-wrap flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all"
+                onClick={() => setValue("env", m, { shouldValidate: true })}
+                className="flex flex-1 flex-wrap items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all"
                 style={
-                  form.env === m
+                  getValues("env") === m
                     ? {
                         backgroundColor:
-                          m === "live" ? "var(--color-brand-600)" : "white",
+                          m === configEnvSchema.enum.Production
+                            ? "var(--color-brand-600)"
+                            : "white",
                         color:
-                          m === "live" ? "white" : "var(--color-stone-900)",
+                          m === configEnvSchema.enum.Production
+                            ? "white"
+                            : "var(--color-stone-900)",
                         boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                       }
                     : { color: "var(--color-stone-500)" }
@@ -198,18 +220,23 @@ const SettingsPage = () => {
                   className="h-2 w-2 rounded-full"
                   style={{
                     backgroundColor:
-                      form.env === m
-                        ? m === "live"
+                      getValues("env") === m
+                        ? m === configEnvSchema.enum.Production
                           ? "rgba(255,255,255,0.7)"
                           : "var(--color-amber-400)"
                         : "var(--color-stone-300)",
                   }}
                 />
-                {m === "sandbox" ? "🧪 Sandbox" : "🟢 Production"}
+                {m === configEnvSchema.enum.Sandbox
+                  ? "🧪 Sandbox"
+                  : "🟢 Production"}
               </button>
             ))}
           </div>
-          {form.env === "live" && (
+          {errors.env && (
+            <p className="mt-2 text-xs text-red-500">{errors.env.message}</p>
+          )}
+          {getValues("env") === configEnvSchema.enum.Production && (
             <div
               className="mt-3 flex items-start gap-2.5 rounded-lg p-3 text-xs"
               style={{
@@ -255,8 +282,8 @@ const SettingsPage = () => {
             <div className="grid grid-cols-2 gap-4">
               <SecretInput
                 label="Consumer Key"
-                value={form.consumer_key}
-                onChange={set("consumer_key")}
+                {...register("consumerKey")}
+                error={errors.consumerKey?.message?.toString()}
                 placeholder={
                   hasConfig
                     ? "Leave blank to keep existing"
@@ -266,8 +293,8 @@ const SettingsPage = () => {
               />
               <SecretInput
                 label="Consumer Secret"
-                value={form.consumer_secret}
-                onChange={set("consumer_secret")}
+                {...register("consumerSecret")}
+                error={errors.consumerSecret?.message?.toString()}
                 placeholder={
                   hasConfig
                     ? "Leave blank to keep existing"
@@ -278,10 +305,10 @@ const SettingsPage = () => {
             </div>
             <Input
               label="Business Shortcode"
-              value={form.shortcode}
-              onChange={set("shortcode")}
+              {...register("shortCode")}
+              error={errors.shortCode?.message?.toString()}
               placeholder={
-                form.env === "sandbox"
+                getValues("env") === configEnvSchema.enum.Sandbox
                   ? "174379 (sandbox default)"
                   : "Your Paybill or Till number"
               }
@@ -289,8 +316,8 @@ const SettingsPage = () => {
             />
             <SecretInput
               label="Lipa Na M-Pesa Passkey"
-              value={form.passkey}
-              onChange={set("passkey")}
+              {...register("passKey")}
+              error={errors.passKey?.message?.toString()}
               placeholder={
                 hasConfig
                   ? "Leave blank to keep existing"
@@ -301,8 +328,8 @@ const SettingsPage = () => {
             <Input
               label="Callback URL"
               type="url"
-              value={form.callback_url}
-              onChange={set("callback_url")}
+              {...register("callbackUrl")}
+              error={errors.callbackUrl?.message?.toString()}
               placeholder="https://yourdomain.com/api/mpesa/callback"
               hint="Must be public HTTPS. Safaricom POSTs payment results here."
             />

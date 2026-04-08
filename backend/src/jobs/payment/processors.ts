@@ -6,18 +6,23 @@ import {
   MPESA_EXPRESS_SANDBOX_CALLBACK_URL,
   MPESA_SANDBOX_SHORTCODE,
   MPESA_SANDBOX_PARTYA,
-} from "../../config/env";
-import { mpesaClient } from "../../config/mpesa/mpesaclient";
-import { getTimeStamp } from "../../utils";
-import { PaymentConfirmation, PaymentData, PaymentQuery } from "./payment.type";
-import logger from "../../logger/logger.winston";
+} from "../../api/config/env";
+import { mpesaClient } from "../../api/config/mpesa/mpesaclient";
+import { getTimeStamp } from "../../api/utils";
+import {
+  PaymentConfirmation,
+  PaymentData,
+  PaymentQuery,
+} from "../../schemas/validators";
+import logger from "../../api/logger/logger.winston";
 import {
   PaymentSTKQueryResponse,
   PaymentSTKResponse,
 } from "../../schemas/validators";
-import { Client, Link, Payment, PaymentStatus } from "../../models";
-import { enqueueSTKPoll } from "../../queues";
-import { enqueuePaymentReceipt } from "../../queues/pdf.queue";
+import { Client, Link, Payment } from "../../api/models";
+import { enqueueSTKPoll } from "../../api/queues";
+import { enqueuePaymentReceipt } from "../../api/queues/pdf.queue";
+import { paymentStatusSchema } from "@paylink/shared";
 
 export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
   const shortCode =
@@ -121,21 +126,18 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
       return;
     }
 
-      const client = await Client.findByPk(transaction.client_id);
-        if (!client) {
-          logger.error(
-            `Client with ID ${transaction.client_id} doesn't exist`,
-          );
-          return;
-        }
+    const client = await Client.findByPk(transaction.client_id);
+    if (!client) {
+      logger.error(`Client with ID ${transaction.client_id} doesn't exist`);
+      return;
+    }
 
     const code = response.ResultCode;
     if (code == 0) {
       logger.info(
         `Mpesa express query successfulL CheckoutID: ${response.CheckoutRequestID} `,
       );
-      transaction.set("status", PaymentStatus.Successful);
-
+      transaction.set("status", paymentStatusSchema.enum.Completed);
 
       // generate payment receipt pdf
       await enqueuePaymentReceipt({
@@ -153,7 +155,7 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
     // if user hasn't acted or canceled request
     if (code > 0) {
       // after all attempts the transaction is marked as failed
-      transaction.set("status", PaymentStatus.Failed);
+      transaction.set("status", paymentStatusSchema.enum.Failed);
     }
     // update transaction status
     await transaction.save();

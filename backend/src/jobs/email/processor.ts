@@ -1,6 +1,6 @@
-import logger from "../../logger/logger.winston";
-import { sendMail } from "../../mail/email";
-import { EmailData } from "./email.types";
+import logger from "../../api/logger/logger.winston";
+import { sendMail } from "../../api/mail/email";
+import { EmailData } from "../../schemas/validators";
 
 export const handleEmail = async (data: EmailData) => {
   try {

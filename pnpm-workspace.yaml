@@ -1,5 +1,5 @@
-#  shared packages
+#  define where the packages are located
 packages: 
+- "shared"
 - "frontend"
 - "backend"
-- "shared"
