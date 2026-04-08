@@ -73,7 +73,7 @@ export const createLinkResponseSchema = z.object({
     // client_name: z.string().optional(),
     // mpesaRef: z.string(),
 
-    expiresAt: z.date().optional(),
+    expiresAt: z.string(),
     total_transactions: z.number().optional(),
     paid_count: z.number().optional(),
     created_at: z.date().optional(),

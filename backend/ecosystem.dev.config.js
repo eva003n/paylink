@@ -6,11 +6,13 @@ module.exports = {
       instances: "-1",
       exec_mode: "cluster",
       autorestart: true,
+      wait_ready: true, // start when services are ready
+
       kill_timeout: 3000,
       env_development: {
         //.env
         PORT: 8000,
-        NODE_ENV: "development"
+        NODE_ENV: "development",
       },
     },
     {
@@ -18,6 +20,7 @@ module.exports = {
       script: "./dist/workers/payment.worker.js",
       instances: 1, // payments are safer processed in single threaded
       exec_mode: "fork",
+      wait_ready: true, // start when services are ready
       autorestart: true,
       env_development: {
         NODE_ENV: "development",

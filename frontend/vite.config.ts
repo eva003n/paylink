@@ -9,6 +9,7 @@ console.log(path.resolve(__dirname, "../shared"));
 export default defineConfig({
   plugins: [react(), tailwindcss(), tsconfigPaths()],
   resolve: {
+    
     // alias: {
     //   "@": path.resolve(__dirname, "src"),
     //   "@shared": path.resolve(__dirname, "../shared")
@@ -23,6 +24,7 @@ export default defineConfig({
         rewrite: (path) => path.replace("/api", "/api/v1")
       },
     },
+  
     fs: {
       allow: [".."] // allow access outside root(frontend dir)
     }

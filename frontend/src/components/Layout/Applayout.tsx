@@ -3,7 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { cn } from "src/utils";
+import { cn } from "../../utils";
 import Logo from "../shared/Logo";
 import { Button } from "../ui";
 

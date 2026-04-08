@@ -23,7 +23,7 @@ export const fmtPhone = (p: string) => {
   if (!p) return "—";
   const s = String(p);
   if (s.startsWith("254") && s.length === 12)
-    return `+254 ${s.slice(3, 6)} ${s.slice(6, 9)} ${s.slice(9)}`;
+    return `+254 ${s.slice(3, 6)} ${s.slice(6, 9).replace(s.slice(6, 9), "XXX")} ${s.slice(9)}`;
   return s;
 };
 

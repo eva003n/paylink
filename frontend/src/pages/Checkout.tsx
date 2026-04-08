@@ -26,7 +26,7 @@ interface StepBarProps {
 
 interface STKWaitingProps {
   phone: string;
-  countdown: number;
+  countdown: string;
   onCancel: () => void;
 }
 
@@ -65,6 +65,55 @@ interface PaymentFailedProps {
   onRetry: () => void;
 }
 
+
+ const  useCountdown = (expiresAt: string) => {
+  const [timeLeft, setTimeLeft] = useState(() => {
+    return Math.max(
+      0,
+      Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000)
+    );
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const diff = Math.floor(
+        (new Date(expiresAt).getTime() - Date.now()) / 1000
+      );
+
+      setTimeLeft(diff > 0 ? diff : 0);
+
+      if (diff <= 0) {
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [expiresAt]);
+
+  return timeLeft;
+}
+
+const formatTime = (seconds: number) => {
+  const hrs = Math.floor(seconds / (60 * 60));
+  const mins = Math.ceil(seconds / 60);
+  const secs = seconds % 60;
+
+  return `${hrs}:${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+type CountDownProps = {
+  expiresAt: string;
+};
+
+const CountdownTimer = ({ expiresAt }: CountDownProps) => {
+  const timeLeft = useCountdown(expiresAt);
+
+  if (timeLeft === 0) {
+    return <span className="text-amber-400">Expired</span>;
+  }
+
+  return <span>{formatTime(timeLeft)}</span>;
+}
 /* ── Step progress ───────────────────────────────────────────────────── */
 const StepBar: React.FC<StepBarProps> = ({ step }) => {
   const steps = ["Enter details", "Done"];
@@ -122,78 +171,87 @@ const StepBar: React.FC<StepBarProps> = ({ step }) => {
   );
 };
 
+
 /* ── STK waiting screen ──────────────────────────────────────────────── */
 const STKWaiting: React.FC<STKWaitingProps> = ({
   phone,
   countdown,
   onCancel,
-}) => (
-  <div className="animate-fade-up text-center">
-    <div
-      className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl"
-      style={{
-        backgroundColor: "#0c1a10",
-        animation: "var(--animate-pulse-ring)",
-      }}
-    >
-      <Phone className="h-9 w-9" style={{ color: "var(--color-brand-400)" }} />
-    </div>
-
-    <h3 className="mb-2 font-display text-xl font-bold text-stone-900">
-      Check your phone
-    </h3>
-    <p className="mb-2 text-sm" style={{ color: "var(--color-stone-500)" }}>
-      We've sent an M-Pesa prompt to
-    </p>
-    <p className="mb-6 font-mono text-lg font-bold text-stone-900">
-      {fmtPhone(phone)}
-    </p>
-    <p
-      className="mx-auto mb-6 max-w-xs text-sm leading-relaxed"
-      style={{ color: "var(--color-stone-500)" }}
-    >
-      Enter your <strong>M-Pesa PIN</strong> when prompted on your phone to
-      complete payment.
-    </p>
-
-    <div
-      className="mb-8 inline-flex items-center gap-2 rounded-full px-4 py-2"
-      style={{ backgroundColor: "var(--color-stone-100)" }}
-    >
-      <Clock className="h-4 w-4" style={{ color: "var(--color-stone-500)" }} />
-      <span
-        className="font-mono text-sm font-bold"
-        style={{ color: "var(--color-stone-700)" }}
+}) => {
+  // console.log(phone)
+  return (
+    <div className="animate-fade-up text-center">
+      <div
+        className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl"
+        style={{
+          backgroundColor: "#0c1a10",
+          animation: "var(--animate-pulse-ring)",
+        }}
       >
-        Expires in {String(Math.floor(countdown / 60)).padStart(2, "0")}:
-        {String(countdown % 60).padStart(2, "0")}
-      </span>
-    </div>
-
-    {/* Animated dots */}
-    <div className="mb-8 flex justify-center gap-2">
-      {[0, 1, 2].map((i) => (
-        <div
-          key={i}
-          className="h-2 w-2 rounded-full"
-          style={{
-            backgroundColor: "var(--color-brand-400)",
-            animation: `var(--animate-bounce-dot)`,
-            animationDelay: `${i * 0.2}s`,
-          }}
+        <Phone
+          className="h-9 w-9"
+          style={{ color: "var(--color-brand-400)" }}
         />
-      ))}
+      </div>
+      <h3 className="mb-2 font-display text-xl font-bold text-stone-900">
+        Check your phone
+      </h3>
+      <p className="mb-2 text-sm" style={{ color: "var(--color-stone-500)" }}>
+        We've sent an M-Pesa prompt to
+      </p>
+      <p className="mb-6 font-mono text-lg font-bold text-stone-900">
+        {fmtPhone(phone)}
+      </p>
+      <p
+        className="mx-auto mb-6 max-w-xs text-sm leading-relaxed"
+        style={{ color: "var(--color-stone-500)" }}
+      >
+        Enter your <strong>M-Pesa PIN</strong> when prompted on your phone to
+        complete payment.
+      </p>
+      <div
+        className="mb-8 inline-flex items-center gap-2 rounded-full px-4 py-2"
+        style={{ backgroundColor: "var(--color-stone-100)" }}
+      >
+        <Clock
+          className="h-4 w-4"
+          style={{ color: "var(--color-stone-500)" }}
+        />
+        <span
+          className="font-mono text-sm font-bold"
+          style={{ color: "var(--color-stone-700)" }}
+        >
+          {/* Expires in {String(Math.floor(countdown / 60)).padStart(2, "0")}:
+          {String(countdown % 60).padStart(2, "0")} */}
+          Expires in <CountdownTimer expiresAt={countdown}/>
+        </span>
+      </div>
+      {/* Animated dots */}
+      <div className="mb-8 flex justify-center gap-2">
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="h-2 w-2 rounded-full"
+            style={{
+              backgroundColor: "var(--color-brand-400)",
+              animation: `var(--animate-bounce-dot)`,
+              animationDelay: `${i * 0.2}s`,
+            }}
+          />
+        ))}
+      </div>
+      <button
+        onClick={onCancel}
+        className="text-sm underline underline-offset-2 transition-colors"
+        style={{ color: "var(--color-stone-400)" }}
+      >
+        Cancel payment
+      </button>
     </div>
+  );
+};
 
-    <button
-      onClick={onCancel}
-      className="text-sm underline underline-offset-2 transition-colors"
-      style={{ color: "var(--color-stone-400)" }}
-    >
-      Cancel payment
-    </button>
-  </div>
-);
+
 
 /* ── Success screen ──────────────────────────────────────────────────── */
 const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
@@ -252,10 +310,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
           ["Transaction ID", transaction.id],
           ["M-Pesa Receipt", transaction.mpesaRef || "—"],
           ["Phone", fmtPhone(transaction.phoneNumber)],
-          [
-            "Date",
-            fmtDateTime(transaction.createdAt || transaction.updatedAt),
-          ],
+          ["Date", fmtDateTime(transaction.createdAt || transaction.updatedAt)],
         ].map(([label, val]) => (
           <div
             key={label}
@@ -316,7 +371,7 @@ const CheckoutPage = () => {
   const [loading, setLoading] = useState(false);
   const [txData, setTxData] = useState<TX | null>(null);
   const [txResult, setTxResult] = useState<TX | null>(null);
-  const [countdown, setCountdown] = useState(60);
+  const [countdown, setCountdown] = useState(new Date(Date.now() + 120_000).toISOString());
   const [failReason, setFailRsn] = useState("");
   const pollRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
@@ -345,7 +400,7 @@ const CheckoutPage = () => {
     error: linkError,
   } = useQuery({
     queryKey: ["link", reference],
-    queryFn: () => linksAPI.getByRef(reference!).then((r) => r),
+    queryFn: () => linksAPI.getByRef(reference!).then((r) => r.data),
     retry: 1,
   });
   const link = linkData;
@@ -358,13 +413,14 @@ const CheckoutPage = () => {
         phoneNumber: `254${data.phoneNumber}`,
       });
       setTxData(res.data);
-      setStep(1);
+      setStep(2);
+      //  timerRef.current = setInterval(() => {setCountdown(prev => prev--)}, 60_000);
       // startgPolling(res.data.checkout_request_id, link?.id as string);
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to initiate payment");
     } finally {
       setLoading(false);
-      reset();
+      // reset();
     }
   };
 
@@ -373,7 +429,7 @@ const CheckoutPage = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     setStep(1);
     setTxData(null);
-    setCountdown(60);
+    setCountdown("");
     toast("Payment cancelled");
   };
 
@@ -382,7 +438,7 @@ const CheckoutPage = () => {
     setTxData(null);
     setTxResult(null);
     setFailRsn("");
-    setCountdown(60);
+    setCountdown("");
   };
 
   if (linkLoading)
@@ -426,33 +482,33 @@ const CheckoutPage = () => {
     );
 
   /* Link not active */
-  // if (link.status !== linkStatusSchema.enum.Active && step < 3)
-  //   return (
-  //     <div
-  //       className="flex min-h-screen items-center justify-center p-6"
-  //       style={{ backgroundColor: "var(--color-stone-50)" }}
-  //     >
-  //       <div className="max-w-sm text-center">
-  //         <div
-  //           className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl"
-  //           style={{ backgroundColor: "var(--color-amber-50)" }}
-  //         >
-  //           <AlertTriangle
-  //             className="h-8 w-8"
-  //             style={{ color: "var(--color-amber-500)" }}
-  //           />
-  //         </div>
-  //         <h2 className="mb-2 font-display text-xl font-bold text-stone-900 capitalize">
-  //           Link {link.status}
-  //         </h2>
-  //         <p className="text-sm" style={{ color: "var(--color-stone-500)" }}>
-  //           {link.status === linkStatusSchema.enum.Paid
-  //             ? "This payment has already been completed."
-  //             : "This payment link is no longer accepting payments."}
-  //         </p>
-  //       </div>
-  //     </div>
-  //   );
+  if (link.status !== linkStatusSchema.enum.Active && step < 3)
+    return (
+      <div
+        className="flex min-h-screen items-center justify-center p-6"
+        style={{ backgroundColor: "var(--color-stone-50)" }}
+      >
+        <div className="max-w-sm text-center">
+          <div
+            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl"
+            style={{ backgroundColor: "var(--color-amber-50)" }}
+          >
+            <AlertTriangle
+              className="h-8 w-8"
+              style={{ color: "var(--color-amber-500)" }}
+            />
+          </div>
+          <h2 className="mb-2 font-display text-xl font-bold text-stone-900 capitalize">
+            Link {link.status}
+          </h2>
+          <p className="text-sm" style={{ color: "var(--color-stone-500)" }}>
+            {link.status === linkStatusSchema.enum.Paid
+              ? "This payment has already been completed."
+              : "This payment link is no longer accepting payments."}
+          </p>
+        </div>
+      </div>
+    );
 
   return (
     <div
@@ -577,7 +633,7 @@ const CheckoutPage = () => {
                     setValue("token", reference as string);
                     // setValue("phoneNumber", `254${getValues("phoneNumber")}`);
                   }}
-                  disabled={getValues("phoneNumber")?.length < 9}
+                  // disabled={getValues("phoneNumber")?.length < 9}
                 >
                   Pay {fmtKES(Number(link?.amount))}
                 </Button>
@@ -596,10 +652,7 @@ const CheckoutPage = () => {
 
           {/* Step 3 — Success */}
           {step === 3 && (
-            <PaymentSuccess
-              transaction={txResult as TX }
-              link={link}
-            />
+            <PaymentSuccess transaction={txResult as TX} link={link} />
           )}
 
           {/* Step 4 — Failed */}

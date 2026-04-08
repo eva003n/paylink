@@ -61,7 +61,13 @@ const CreateModal: FC<CreateModalProps> = ({ open, onClose }) => {
   });
 
   const onSubmit = (data: PaymentLinkInput) => {
-    mut.mutate(data);
+    
+    mut.mutate({
+      ...data,
+      expiresAt: new Date(
+        data?.expiresAt as string,
+      ).toISOString(),
+    });
   };
 
   return (
@@ -98,8 +104,8 @@ const CreateModal: FC<CreateModalProps> = ({ open, onClose }) => {
           />
           <Input
             label="Due Date (optional)"
-            type="date"
-            {...register("expiresAt", { valueAsDate: true })}
+            type="datetime-local"
+            {...register("expiresAt", { valueAsDate: false })}
           />
         </div>
         <div className="flex flex-col gap-3 pt-1 sm:flex-row">

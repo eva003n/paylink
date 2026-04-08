@@ -7,7 +7,7 @@ import { protectRoute } from "../middlewares/auth.middleware";
 
 const router: Router = Router();
 
-router.route("/:token").get(getLink);
+router.route("/link").get(getLink);
 
 router.use(protectRoute);
 router.route("/").post(validate(paymentLinkSchema), createPaymentLink);

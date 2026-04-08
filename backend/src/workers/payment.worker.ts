@@ -14,6 +14,7 @@ const connection = getSharedConnection();
 // connect postgres
 (async () => {
   await connectDb();
+  process.send?.("ready"); // start worker process when its connected to external services(db and redis)
 })();
 
 const paymentWorker = new Worker(

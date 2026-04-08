@@ -1,11 +1,13 @@
 import { Queue } from "bullmq";
 import { getSharedConnection } from "../config/bullmq";
 import {
+  Id,
   PaymentConfirmation,
   PaymentData,
   PaymentQuery,
 } from "../../schemas/validators";
 import { JOB_NAMES, QUEUE_NAMES } from "../constants";
+import { number } from "zod";
 
 const connection = getSharedConnection();
 
@@ -32,6 +34,14 @@ export const enqueueSTKPoll = async (paymentQuery: PaymentQuery) => {
     jobId: paymentQuery.checkoutRequestId,
   });
 };
+
+// handle payment link expiry
+export const enqueuePaymentExpired = async (id: Id, delay: number) => {
+return await paymentQueue.add(JOB_NAMES.PAYMENT_EXPIRED, {linkId: id}, {
+  jobId: id,
+  delay // expire link
+})
+}
 export const enqueueSTKPaymentConfirmation = async (
   paymentData: PaymentConfirmation,
 ) => {

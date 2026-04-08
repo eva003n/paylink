@@ -28,6 +28,8 @@ export const generatePaymentLink = async (
   link.set("token", `${base62String}`);
 
   await link.save();
+
+  em
   return { merchant, link };
 };
 
@@ -47,12 +49,13 @@ export const findLink = async (token: Id) => {
       "amount",
       "status",
       "shortCode",
+      "expiresAt",
       [sequelize.col("Merchant.business_name"), "businessName"], // rename column
     ],
     include: {
       model: Merchant,
       as: "Merchant",
-      attributes: [], // do not include any attributes i merchat
+      attributes: [], // do not include any attributes i merchant
 
       required: true, // perform inner join
     },

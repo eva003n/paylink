@@ -4,10 +4,10 @@
     {
       "path": "./tsconfig.app.json",
     },
-     {
-      "path": "../shared"
+    //  {
+    //   "path": "../shared"
 
-    }
+    // }
   ],
 
 }

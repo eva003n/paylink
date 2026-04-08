@@ -12,7 +12,7 @@ const gracefulStartUp = async () => {
   // connect redis
   await connectRedis();
 
-  process.send?.("ready");
+  process.send?.("ready");// start api process when its connected to external services(db and redis)
   logger.info("Server gracefully started");
 };
 

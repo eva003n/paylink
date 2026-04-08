@@ -102,7 +102,12 @@ export const linksAPI = {
         status: options.status,
       },
     }),
-  getByRef: (ref: string) => api.get<{}, LinkType>(`/links/${ref}`),
+  getByRef: (ref: string) =>
+    api.get<{}, { data: LinkType }>(`/links/link`, {
+      params: {
+        token: ref,
+      },
+    }),
   create: (d: PaymentLinkInput) =>
     api.post<{}, LinkType, PaymentLinkInput>("/links", d),
   update: (id: string, d: any) => api.patch(`/links/${id}`, d),

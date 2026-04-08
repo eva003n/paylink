@@ -94,7 +94,7 @@ const SettingsPage = () => {
   });
 
   useEffect(() => {
-    if (data) console.log(data);
+    if (data) {
     reset(() => ({
       ...getValues(),
       env: data?.env || configEnvSchema.enum.Sandbox,
@@ -104,10 +104,11 @@ const SettingsPage = () => {
       passKey: data?.passKey || "",
       callbackUrl: data?.callbackUrl || "",
     }));
+  }
   }, [data]);
 
   const mut = useMutation({
-    mutationFn: configAPI.save,
+    mutationFn: !data ?configAPI.save: configAPI.update,
     onSuccess: () => toast.success("Daraja credentials saved!"),
     onError: (err: any) =>
       toast.error(err.response?.data?.error || "Failed to save config"),
