@@ -1,10 +1,16 @@
 import { Worker, Job } from "bullmq";
-import { getSharedConnection } from "../api/config/bullmq";
+import { enableRedisConnetion, getSharedConnection } from "../api/config/bullmq";
 import logger from "../api/logger/logger.winston";
 import { JOB_NAMES, QUEUE_NAMES } from "../api/constants";
 import { handleEmail } from "../jobs/email/processor";
 import { EmailData } from "../schemas/validators";
 
+(
+  async() => {
+    await enableRedisConnetion()
+    process.send?.("ready"); // start worker process when its connected to external services(db and redis)
+  }
+)()
 const worker = new Worker(
   QUEUE_NAMES.EMAIL,
   async (job: Job<EmailData>) => {
