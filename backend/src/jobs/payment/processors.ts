@@ -75,8 +75,32 @@ export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
 
       // if request suecessfull add  checkoutrequestid and add to queue for STK query
       const transaction = await Payment.findByPk(paymentData.transactionId);
+
+      if (!transaction) {
+        logger.error(
+          `Transaction with ID ${paymentData.transactionId} doesn't exist`,
+        );
+        return;
+      }
       transaction?.set("checkout_request_id", response.CheckoutRequestID);
       await transaction?.save();
+
+      // Validate checkout_request_id exists before enqueueing
+      if (!transaction.checkout_request_id) {
+        logger.error(
+          `Cannot enqueue STK poll: checkout_request_id is missing for transaction ${transaction.id}`,
+        );
+        return;
+      }
+
+      await enqueueSTKPoll({
+        transactionId: transaction.id,
+        shortCode: paymentData.shortCode,
+        checkoutRequestId: transaction.checkout_request_id,
+        attempts: 0,
+      });
+
+      logger.info(`Enqueued STK poll for transaction ${transaction.id}`);
     } else {
       logger.error(
         `STP push to PhoneNumber:${paymentData.phoneNumber} failed with response code: ${code}. ResponseDesc: ${response.ResponseDescription}`,
@@ -84,8 +108,9 @@ export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
     }
   } catch (error) {
     logger.error(
-      `Error:${error.message}, Mpesa Stk pu6sh to PhoneNumber: ${paymentData.phoneNumber}`,
+      ` Mpesa Stk push to PhoneNumber: ${paymentData.phoneNumber} failed with Error:${error.message},`,
     );
+
   }
 };
 
@@ -156,8 +181,24 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
 
     // if user hasn't acted or canceled request
     if (code > 0) {
-      // after all attempts the transaction is marked as failed
-      transaction.set("status", paymentStatusSchema.enum.Failed);
+        // requeue only when transaction is pending and max attempts is not reached
+
+      if (
+        transaction.status == paymentStatusSchema.enum.Pending &&
+        paymentQuery.attempts < 5
+      ) {
+        enqueueSTKPoll({
+          ...paymentQuery,
+          attempts: paymentQuery.attempts + 1,
+        });
+
+        logger.info(
+          `Re-ebqueued STK poll for transaction ${transaction.id}`,
+        );
+      } else {
+        // after all attempts the transaction is marked as failed
+        transaction.set("status", paymentStatusSchema.enum.Failed);
+      }
     }
     // update transaction status
     await transaction.save();
@@ -165,7 +206,9 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
       `Transaction ID: ${transaction?.id} Status: ${transaction?.status}`,
     );
   } catch (error) {
+
     logger.error(`Error while making stk query request:${error.message}`);
+    throw new Error(error)
   }
 };
 
@@ -207,10 +250,12 @@ export const handlePaymentConfirmation = async (
       transactionId: transaction.id,
       shortCode: link.shortCode,
       checkoutRequestId: transaction.checkout_request_id,
-      // attempts: 0,
+      attempts: 0,
     });
 
-    logger.info(`Enqueued STK poll job ID: ${job.id} for transaction ${transaction.id}`);
+    logger.info(
+      `Enqueued STK poll job ID: ${job.id} for transaction ${transaction.id}`,
+    );
   } catch (error) {
     logger.error(
       `Error confirming payment CheckoutRequestId: ${payment.checkoutRequestId}`,
@@ -219,12 +264,14 @@ export const handlePaymentConfirmation = async (
         stack: error instanceof Error ? error.stack : undefined,
       },
     );
-    return;
+    throw new Error(error);
+    
   }
 };
 
 export const handleLinkExpiry = async (linkData: LinkExpiry) => {
-  const link = await Link.findByPk(linkData.linkId);
+  try {
+    const link = await Link.findByPk(linkData.linkId);
   if (!link) {
     logger.error(`Link with ID: ${linkData.linkId} does not exists`);
     return;
@@ -234,4 +281,8 @@ export const handleLinkExpiry = async (linkData: LinkExpiry) => {
   await link.save();
 
   logger.info(`Link with ID: ${link.id} updated to status: ${link.status}`);
+  }catch(error) {
+    logger.error(`Error while expiring link with ID: ${linkData.linkId} error: ${error.message}`)
+
+  }
 };
