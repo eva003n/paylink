@@ -12,11 +12,23 @@ import {
 } from "../env";
 import ServiceError from "../../utils/ServiceError";
 import logger from "../../logger/logger.winston";
+import { redisClient } from "../redis";
+import { MPESA_TOKEN_DATA } from "../../constants";
 
 type TokenResponse = {
   access_token: string;
   expires_in: number;
 };
+
+
+let token: string | null = null
+let expiryMs: number = 0
+
+redisClient.get(MPESA_TOKEN_DATA.TOKEN).then(t => token = t || token).catch((error) => logger.error(`Redis error at mpesa client: ${error.message}`))
+redisClient
+  .get(MPESA_TOKEN_DATA.EXPIRY)
+  .then((ex) => (expiryMs = Number(ex) || expiryMs))
+  .catch((error) => logger.error(`Redis error at mpesa client: ${error.message}`));
 
 class MpesaClient {
   private audience: string;
@@ -24,7 +36,7 @@ class MpesaClient {
   private consumerSecret: string;
   private authUrl: string;
   private token: string | null;
-  private tokenExpiry: number; // expires in 1 hour
+  private tokenExpiryMs: number ; // expires in 1 hour
   private api: AxiosInstance;
 
   constructor() {
@@ -42,8 +54,8 @@ class MpesaClient {
     this.authUrl = (
       NODE_ENV === "production" ? PROD_MPESA_AUTH_URL : MPESA_SANDBOX_AUTH_URL
     ) as string;
-    this.token = null;
-    this.tokenExpiry = 0;
+    this.token = token;
+    this.tokenExpiryMs = expiryMs;
 
     this.api = axios.create({
       baseURL: this.audience,
@@ -56,7 +68,7 @@ class MpesaClient {
     this.api.interceptors.request.use(
       (config) => {
         logger.info(
-          `Mpesa request: url:${config.url} token expiry: ${this.tokenExpiry}`,
+          `Mpesa request: url:${config.url} token expiry: ${this.tokenExpiryMs}`,
         );
         // configure outh header
         // config.headers.Authorization = `Bearer ${this.token}`;
@@ -94,11 +106,11 @@ class MpesaClient {
   }
 
   private async getAccessToken() {
-    // get the current time in milliseconds and convert to seconds
-    const currentTimeSec = Date.now() / 1000;
+    // get the current time in milliseconds
+    const currentTimeMs = Date.now();
 
     // if access token is still valid
-    if (this.token && currentTimeSec < this.tokenExpiry) {
+    if (this.token && currentTimeMs < this.tokenExpiryMs) {
       return this.token;
     }
 
@@ -119,8 +131,15 @@ class MpesaClient {
       },
     );
     this.token = response.data.access_token;
-    this.tokenExpiry = currentTimeSec + response.data.expires_in - 60; // minus 60 so that the request is sent 1 minute before the token expires to avoid token expiring mid-level request
+    // mpesa return expires_in(seconds) as a string convert to number for good math(convert to milliseconds)
+    const expiresAt = Number(response.data.expires_in) * 1000;
+    this.tokenExpiryMs = currentTimeMs + expiresAt - 60; // minus 60 so that the request is sent 1 minute before the token expires to avoid token expiring mid-level request
+   
+    // save to redis
+    await redisClient.set(MPESA_TOKEN_DATA.TOKEN, this.token)
+    await redisClient.set(MPESA_TOKEN_DATA.EXPIRY, this.tokenExpiryMs)
 
+    logger.info(`Mpesa token refreshed `);
     return response.data.access_token;
   }
 
@@ -129,13 +148,13 @@ class MpesaClient {
     url: string,
     data?: D,
   ): Promise<T> {
-    const token = await this.getAccessToken();
+    const _token = await this.getAccessToken();
     const response = await this.api.request({
       method,
       url,
       data,
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${_token}`,
       },
     });
     return response.data;
