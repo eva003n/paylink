@@ -12,13 +12,20 @@ import { createRedisConnection } from "../config/redis";
 
 export const paymentQueue = new Queue(QUEUE_NAMES.PAYMENT, {
   connection: createRedisConnection().options,
+  
   defaultJobOptions: {
-    removeOnComplete: true,
-    removeOnFail: false,
-    attempts: 5,
+    removeOnComplete: {
+      age: 3600, // keep up to i hour
+      count: 1000 // limit to 1000 per hour
+    },
+    removeOnFail: {
+      age: 85400,  // (24 * 3600),  keep up to 1 day
+      count: 5000 // limit upto 5000 per day 
+    },
+    attempts: 5, // max retries 
     backoff: {
       type: "exponential",
-      delay: 5000, //(earlier was 2000) 10s, 20s, 30s
+      delay: 5000, //(earlier was 2000) 5s, 10s, 20s, 30s, 40s
     },
   },
 });
@@ -28,7 +35,7 @@ export const enqueueSTKPush = async (paymentData: PaymentData) => {
     jobId: paymentData.transactionId,
   });
 };
-export const enqueueSTKPoll = async (paymentQuery: PaymentQuery) => {
+export const enqueueSTKPoll = async (paymentQuery: PaymentQuery, delay?: number) => {
   const existingJob = await paymentQueue.getJob(paymentQuery.checkoutRequestId)
 
   if(existingJob) {
@@ -37,7 +44,7 @@ export const enqueueSTKPoll = async (paymentQuery: PaymentQuery) => {
 
   return await paymentQueue.add(JOB_NAMES.STK_POLL, paymentQuery, {
     // jobId: paymentQuery.transactionId,
-    // delay: 2000
+    delay: delay || 0
   });
 };
 
