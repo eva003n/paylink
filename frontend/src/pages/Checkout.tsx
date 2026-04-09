@@ -14,7 +14,7 @@ import {
   Clock,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { linkStatusSchema, type TX } from "@paylink/shared";
+import { linkStatusSchema, paymentStatusSchema, type TX } from "@paylink/shared";
 import type { LinkType } from "@/validators/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { paymentSTKSchema, type PaymentSTK } from "@/validators/schemas";
@@ -26,7 +26,7 @@ interface StepBarProps {
 
 interface STKWaitingProps {
   phone: string;
-  countdown: string;
+  countdown: number;
   onCancel: () => void;
 }
 
@@ -66,7 +66,7 @@ interface PaymentFailedProps {
 }
 
 
- const  useCountdown = (expiresAt: string) => {
+ const  useCountdown = (expiresAt: number) => {
   const [timeLeft, setTimeLeft] = useState(() => {
     return Math.max(
       0,
@@ -102,7 +102,7 @@ const formatTime = (seconds: number) => {
 }
 
 type CountDownProps = {
-  expiresAt: string;
+  expiresAt: number;
 };
 
 const CountdownTimer = ({ expiresAt }: CountDownProps) => {
@@ -116,7 +116,7 @@ const CountdownTimer = ({ expiresAt }: CountDownProps) => {
 }
 /* ── Step progress ───────────────────────────────────────────────────── */
 const StepBar: React.FC<StepBarProps> = ({ step }) => {
-  const steps = ["Enter details", "Done"];
+  const steps = ["Enter details", 'Confirm PIN', "Done"];
   return (
     <div className="mb-8 flex items-center">
       {steps.map((label, i) => {
@@ -371,7 +371,7 @@ const CheckoutPage = () => {
   const [loading, setLoading] = useState(false);
   const [txData, setTxData] = useState<TX | null>(null);
   const [txResult, setTxResult] = useState<TX | null>(null);
-  const [countdown, setCountdown] = useState(new Date(Date.now() + 120_000).toISOString());
+  const [countdown, setCountdown] = useState(80);
   const [failReason, setFailRsn] = useState("");
   const pollRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
@@ -405,6 +405,49 @@ const CheckoutPage = () => {
   });
   const link = linkData;
 
+    const startPolling = ( paymentId: string) => {
+      let secs = 60;
+      setCountdown(secs);
+
+      timerRef.current = setInterval(() => {
+        secs--;
+        setCountdown(secs);
+        if (secs <= 0) {
+          clearInterval(timerRef.current as number);
+          clearInterval(pollRef.current as number);
+          setFailRsn("Payment timed out — the M-Pesa prompt expired.");
+          setStep(4);
+        }
+      }, 1000);
+
+      pollRef.current = setInterval(async () => {
+        try {
+          const res = await mpesaAPI.query(paymentId);
+          const  transaction  = res.data;
+          const status = transaction?.status || "";
+
+          if (status === paymentStatusSchema.enum.Completed) {
+            clearInterval(pollRef.current as number);
+            clearInterval(timerRef.current as number);
+            setTxResult(transaction);
+            setStep(3);
+          } else if (
+            status === paymentStatusSchema.enum.Failed 
+          ) {
+            clearInterval(pollRef.current as number);
+            clearInterval(timerRef.current as number);
+            setFailRsn(
+             
+                "Payment was declined or cancelled.",
+            );
+            setStep(4);
+          }
+        } catch {
+          /* keep polling */
+        }
+      }, 5000);
+    };
+
   const onPay: SubmitHandler<PaymentSTK> = async (data) => {
     setLoading(true);
     try {
@@ -415,7 +458,7 @@ const CheckoutPage = () => {
       setTxData(res.data);
       setStep(2);
       //  timerRef.current = setInterval(() => {setCountdown(prev => prev--)}, 60_000);
-      // startgPolling(res.data.checkout_request_id, link?.id as string);
+      // startPolling(res.data.checkout_request_id, link?.id as string);
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to initiate payment");
     } finally {
@@ -429,7 +472,8 @@ const CheckoutPage = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     setStep(1);
     setTxData(null);
-    setCountdown("");
+    setCountdown(60);
+    reset()
     toast("Payment cancelled");
   };
 
@@ -438,7 +482,7 @@ const CheckoutPage = () => {
     setTxData(null);
     setTxResult(null);
     setFailRsn("");
-    setCountdown("");
+    setCountdown(60);
   };
 
   if (linkLoading)

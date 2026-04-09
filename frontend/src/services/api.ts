@@ -109,7 +109,7 @@ export const linksAPI = {
       },
     }),
   create: (d: PaymentLinkInput) =>
-    api.post<{}, LinkType, PaymentLinkInput>("/links", d),
+    api.post<{}, {data: LinkType}, PaymentLinkInput>("/links", d),
   update: (id: string, d: any) => api.patch(`/links/${id}`, d),
   remove: (id: string) => api.delete(`/links/${id}`),
 };
@@ -117,7 +117,7 @@ export const linksAPI = {
 export const mpesaAPI = {
   stkPush: (d: PaymentSTK) =>
     api.post<{}, { data: TX }, PaymentSTK>("/payments/mpesa/stk-push", d),
-  query: (d: any) => api.post("/payments/mpesa/query", d),
+  query: (id:  string) => api.get<{}, {data: TX }>(`/payments/:${id}/status`),
   getTransaction: (id: string) => api.get(`/payments/mpesa/transaction/${id}`),
   getAll: () => api.get<{}, PaymentApiResponse>("/payments"),
 };

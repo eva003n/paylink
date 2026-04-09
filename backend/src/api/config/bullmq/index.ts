@@ -6,7 +6,7 @@ let sharedRedisConnection: IORedis | null = null;
 export function createConnection(): IORedis {
   return new IORedis(REDIS_URL as string, {
     maxRetriesPerRequest: null, // error out faster
-    enableReadyCheck: false,
+    enableReadyCheck: true, // ready validation
   });
 }
 
@@ -18,4 +18,16 @@ export const getSharedConnection = (): IORedis => {
     );
   }
   return sharedRedisConnection;
+};
+
+export const enableRedisConnetion = async () => {
+  const redis = getSharedConnection();
+  try {
+    await redis.ping();
+
+    logger.info("Redis connection verified (PING)");
+  } catch (err) {
+    logger.error(`Redis connection failed: ${err.message}`);
+    process.exit(1); // fail fast
+  }
 };
