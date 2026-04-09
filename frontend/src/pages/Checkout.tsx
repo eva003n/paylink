@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { data, Link, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { linksAPI, mpesaAPI } from "@/services/api";
 import { Button, Input, Spinner } from "@/components/ui";
 import { fmtKES, fmtDateTime, fmtPhone, generateReceiptPDF, cn } from "@/utils";
@@ -221,9 +221,9 @@ const STKWaiting: React.FC<STKWaitingProps> = ({
           className="font-mono text-sm font-bold"
           style={{ color: "var(--color-stone-700)" }}
         >
-          {/* Expires in {String(Math.floor(countdown / 60)).padStart(2, "0")}:
-          {String(countdown % 60).padStart(2, "0")} */}
-          Expires in <CountdownTimer expiresAt={countdown}/>
+          Expires in {String(Math.floor(countdown / 60)).padStart(2, "0")}:
+          {String(countdown % 60).padStart(2, "0")}
+          {/* Expires in <CountdownTimer expiresAt={countdown}/> */}
         </span>
       </div>
       {/* Animated dots */}
@@ -366,6 +366,7 @@ const PaymentFailed: React.FC<PaymentFailedProps> = ({ reason, onRetry }) => (
 
 /* ── Main checkout page ──────────────────────────────────────────────── */
 const CheckoutPage = () => {
+  const qc = useQueryClient()
   const { reference } = useParams();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -417,6 +418,7 @@ const CheckoutPage = () => {
           clearInterval(pollRef.current as number);
           setFailRsn("Payment timed out — the M-Pesa prompt expired.");
           setStep(4);
+          qc.invalidateQueries({ queryKey: ["dashboard"] });
         }
       }, 1000);
 
@@ -457,8 +459,7 @@ const CheckoutPage = () => {
       });
       setTxData(res.data);
       setStep(2);
-      //  timerRef.current = setInterval(() => {setCountdown(prev => prev--)}, 60_000);
-      // startPolling(res.data.checkout_request_id, link?.id as string);
+      startPolling(res.data.id);
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to initiate payment");
     } finally {
