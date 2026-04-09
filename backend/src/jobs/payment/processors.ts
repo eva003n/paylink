@@ -98,7 +98,10 @@ export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
         shortCode: paymentData.shortCode,
         checkoutRequestId: transaction.checkout_request_id,
         attempts: 0,
-      });
+      },
+      60000 // poll after 30 or 60 seconds when status is available to avoid busy waiting
+    
+    );
 
       logger.info(`Enqueued STK poll for transaction ${transaction.id}`);
     } else {
@@ -193,7 +196,7 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
         });
 
         logger.info(
-          `Re-ebqueued STK poll for transaction ${transaction.id}`,
+          `Re-enqueued STK poll for transaction ${transaction.id}`,
         );
       } else {
         // after all attempts the transaction is marked as failed
@@ -245,7 +248,7 @@ export const handlePaymentConfirmation = async (
       return;
     }
 
-    // query payment status
+    // query payment status(becomes the source of truth for payment status)
     const job = await enqueueSTKPoll({
       transactionId: transaction.id,
       shortCode: link.shortCode,
