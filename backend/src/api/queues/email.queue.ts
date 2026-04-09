@@ -1,13 +1,12 @@
 import { Queue } from "bullmq";
-import { getSharedConnection } from "../config/bullmq";
 import { JOB_NAMES, QUEUE_NAMES } from "../constants";
 import { randomUUID } from "crypto";
 import { EmailData } from "../../schemas/validators";
+import { createRedisConnection } from "../config/redis";
 
-const connection = getSharedConnection();
 
 const emailQueue = new Queue(QUEUE_NAMES.EMAIL, {
-  connection: connection.options,
+    connection: createRedisConnection().options,
   defaultJobOptions: {
     removeOnComplete: true,
     removeOnFail: false,

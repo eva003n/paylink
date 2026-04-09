@@ -1,15 +1,13 @@
 import { Job, Worker } from "bullmq";
-import {
-  enableRedisConnetion,
-  getSharedConnection,
-} from "../api/config/bullmq";
+
 import logger from "../api/logger/logger.winston";
 import { JOB_NAMES, QUEUE_NAMES } from "../api/constants";
 import { handleReceiptGeneration } from "../jobs/pdf/processors";
 import { ReceiptContent } from "../schemas/validators";
+import { connectRedis, createRedisConnection } from "../api/config/redis";
 
 (async () => {
-  await enableRedisConnetion();
+  await connectRedis();
   process.send?.("ready"); // start worker process when its connected to external services(db and redis)
 })();
 
@@ -25,7 +23,8 @@ const worker = new Worker(
     }
   },
   {
-    connection: getSharedConnection().options,
+  
+    connection: createRedisConnection().options,
     concurrency: 1,
   },
 );

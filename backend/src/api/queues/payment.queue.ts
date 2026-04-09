@@ -1,5 +1,4 @@
 import { Queue } from "bullmq";
-import { getSharedConnection } from "../config/bullmq";
 import {
   LinkExpiry,
   PaymentConfirmation,
@@ -8,18 +7,18 @@ import {
 } from "../../schemas/validators";
 import { JOB_NAMES, QUEUE_NAMES } from "../constants";
 import logger from "../logger/logger.winston";
+import { createRedisConnection } from "../config/redis";
 
-const connection = getSharedConnection();
 
 export const paymentQueue = new Queue(QUEUE_NAMES.PAYMENT, {
-  connection: connection.options,
+  connection: createRedisConnection().options,
   defaultJobOptions: {
     removeOnComplete: true,
     removeOnFail: false,
     attempts: 5,
     backoff: {
       type: "exponential",
-      delay: 2000, // 2s, 4s, 8s
+      delay: 5000, //(earlier was 2000) 10s, 20s, 30s
     },
   },
 });
@@ -37,7 +36,7 @@ export const enqueueSTKPoll = async (paymentQuery: PaymentQuery) => {
   }
 
   return await paymentQueue.add(JOB_NAMES.STK_POLL, paymentQuery, {
-    // jobId: paymentQuery.checkoutRequestId,
+    // jobId: paymentQuery.transactionId,
     // delay: 2000
   });
 };

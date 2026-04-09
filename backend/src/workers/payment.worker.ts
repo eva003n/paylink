@@ -1,5 +1,4 @@
 import { Worker } from "bullmq";
-import { enableRedisConnetion, getSharedConnection } from "../api/config/bullmq";
 import { JOB_NAMES, QUEUE_NAMES } from "../api/constants";
 import {
   handleLinkExpiry,
@@ -9,13 +8,13 @@ import {
 } from "../jobs/payment/processors";
 import logger from "../api/logger/logger.winston";
 import { connectDb, sequelize } from "../api/config/db/postgres";
+import { connectRedis, createRedisConnection } from "../api/config/redis";
 
-// connect redis
-const connection = getSharedConnection();
+
 // connect postgres
 (async () => {
   await connectDb();
-  await enableRedisConnetion()
+  await connectRedis();
   process.send?.("ready"); // start worker process when its connected to external services(db and redis)
 })();
 
@@ -36,11 +35,11 @@ const paymentWorker = new Worker(
     }
   },
   {
-    connection: connection.options,
-    concurrency: 1, // process upto 5 jobs simultaneously
+    connection: createRedisConnection().options,
+    concurrency: 1, // process on 1 job at a time
     limiter: {
-      max: 1, // jobs per duration
-      duration: 12000, // 5 jobs within 12 seconds
+      max: 5, //(earlier was 1) 5 request per minute
+      duration: 60000, //(earlier was 12000) 5 request within 1 minute
     },
   },
 );

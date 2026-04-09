@@ -1,12 +1,10 @@
 import { Queue } from "bullmq";
-import { getSharedConnection } from "../config/bullmq";
 import { JOB_NAMES, QUEUE_NAMES } from "../constants";
 import { ReceiptContent } from "../../schemas/validators";
-
-const connection = getSharedConnection();
+import { createRedisConnection } from "../config/redis";
 
 export const pdfQueue = new Queue(QUEUE_NAMES.PDF, {
-  connection: connection.options,
+  connection: createRedisConnection().options,
   defaultJobOptions: {
     removeOnComplete: true,
     removeOnFail: false,

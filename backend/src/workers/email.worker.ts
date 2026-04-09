@@ -1,13 +1,14 @@
 import { Worker, Job } from "bullmq";
-import { enableRedisConnetion, getSharedConnection } from "../api/config/bullmq";
+
 import logger from "../api/logger/logger.winston";
 import { JOB_NAMES, QUEUE_NAMES } from "../api/constants";
 import { handleEmail } from "../jobs/email/processor";
 import { EmailData } from "../schemas/validators";
+import { connectRedis, createRedisConnection } from "../api/config/redis";
 
 (
   async() => {
-    await enableRedisConnetion()
+    await connectRedis()
     process.send?.("ready"); // start worker process when its connected to external services(db and redis)
   }
 )()
@@ -23,7 +24,7 @@ const worker = new Worker(
     }
   },
   {
-    connection: getSharedConnection().options,
+    connection: createRedisConnection().options,
     concurrency: 5,
     limiter: {
       max: 100, // 100 email
