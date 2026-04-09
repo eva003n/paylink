@@ -86,6 +86,9 @@ export const confirmPayment = asyncHandler(
         checkoutRequestId: payment.Body.stkCallback.CheckoutRequestID,
       });
     }
+
+    // immediate response to mpesa webhook
+    res.status(200)
   },
 );
 
