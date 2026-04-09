@@ -38,7 +38,9 @@ export const itemSchema = z.object({
 });
 
 export const idSchema = z.string("Id cannot be empty");
-
+export const IdParamSchema = z.object({
+  id: idSchema
+})
 const MpesaPaymentSTKSuccessSchema = z.object({
   Body: z.object({
     stkCallback: z.object({
@@ -76,6 +78,7 @@ const mpesaSTKPushResponseSchema = z.object({
   MerchantRequestID: z.string(),
   CheckoutRequestID: z.string(),
   ResponseCode: z.number(),
+  ResponseDescription: z.string()
   // }),
 });
 const TokenResponseSchema = z.object({
@@ -115,7 +118,7 @@ export const paymentQuerySchema = z.object({
   transactionId: z.string(),
   shortCode: z.coerce.number(),
   checkoutRequestId: z.string(),
-  attempts: z.coerce.number(),
+  // attempts: z.coerce.number(),
 });
 
 export const mpesaPaymentSchema = z.object({
@@ -147,6 +150,10 @@ export const receiptContentSchema = z.object({
   account: z.string(),
   paybill: z.coerce.number(),
 });
+const linkExpirySchema = z.object({
+  linkId: z.string(),
+  delay: z.number(),
+});
 // export type SignUpAuth = z.infer<typeof signUpSchema>;
 // export type MerchantSignUpAuth = z.infer<typeof merchantSignUPSchema>;
 // export type SignInAuth = z.infer<typeof signInSchema>;
@@ -165,3 +172,5 @@ export type MpesaPayment = z.infer<typeof mpesaPaymentSchema>;
 export type PaymentConfirmation = z.infer<typeof paymentConfirmationSchema>;
 export type EmailData = z.infer<typeof emailDataSchema>
 export type ReceiptContent = z.infer<typeof receiptContentSchema>;
+export type LinkExpiry = z.infer<typeof linkExpirySchema>;
+export type IdParam = z.infer<typeof IdParamSchema>
