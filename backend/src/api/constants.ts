@@ -13,6 +13,10 @@ export const JOB_NAMES = {
     RECEIPT_EMAIL: "email.receipt"
 }
 
+export const MPESA_TOKEN_DATA = {
+    TOKEN: "mpesa_token",
+    EXPIRY: "mpesa_expiry"
+}
 export const MONTHS_FULL = [
   "January",
   "February",

@@ -25,7 +25,7 @@ const errorHandlerMiddleware = (
         ),
       );
   } else {
-    logger.error(err.message);
+    logger.error(`Eror middleware : ${err.message}`);
     // console.dir(err);
     return res
       .type("application/problem+json")
