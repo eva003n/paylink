@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import asyncHandler from "../utils/asynchandler";
 
-import { MpesaSTKSuccess } from "../../schemas/validators";
+import { Id, MpesaSTKSuccess } from "../../schemas/validators";
 import ApiResponse from "../utils/ApiResponse";
 
 import {
+  checkStatus,
   confirmMpesaPayment,
   findAllTransactions,
   initiateSTKPush,
@@ -105,3 +106,13 @@ export const getAllTransactions = asyncHandler(
       .json(new ApiResponse(200, payments, "Payments fetched successfully"));
   },
 );
+
+export const getPaymentStatus = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const paymentId = req.params.id as Id
+
+    const transaction = await checkStatus(paymentId)
+
+    res.status(200).json(new ApiResponse(200, transaction, "Payment transaction fetched successfully"))
+
+  })

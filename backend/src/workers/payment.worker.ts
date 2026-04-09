@@ -1,7 +1,8 @@
 import { Worker } from "bullmq";
-import { getSharedConnection } from "../api/config/bullmq";
+import { enableRedisConnetion, getSharedConnection } from "../api/config/bullmq";
 import { JOB_NAMES, QUEUE_NAMES } from "../api/constants";
 import {
+  handleLinkExpiry,
   handleMpesaSTKPoll,
   handleMpesaSTKPush,
   handlePaymentConfirmation,
@@ -14,6 +15,7 @@ const connection = getSharedConnection();
 // connect postgres
 (async () => {
   await connectDb();
+  await enableRedisConnetion()
   process.send?.("ready"); // start worker process when its connected to external services(db and redis)
 })();
 
@@ -27,6 +29,8 @@ const paymentWorker = new Worker(
         return await handleMpesaSTKPoll(job.data);
       case JOB_NAMES.CONFIRM_PAYMENT:
         return await handlePaymentConfirmation(job.data);
+      case JOB_NAMES.PAYMENT_EXPIRED:
+        return handleLinkExpiry(job.data);
       default:
         throw new Error(`Unknown job in payment worker: ${job.name}`);
     }
