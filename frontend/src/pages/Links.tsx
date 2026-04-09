@@ -55,7 +55,7 @@ const CreateModal: FC<CreateModalProps> = ({ open, onClose }) => {
       qc.invalidateQueries({ queryKey: ["dashboard"] });
       toast.success("Payment link created!");
       reset();
-      onClose(res);
+      onClose(res.data);
     },
     onError: (err: any) => toast.error(err?.message || "Failed to create link"),
   });
@@ -248,6 +248,7 @@ const LinkCard: FC<LinkCardProps> = ({ link, onShare }) => {
   const qc = useQueryClient();
   const [copied, setCopied] = useState(false);
   const [expanded, setExp] = useState(false);
+
 
   const cancelMut = useMutation({
     mutationFn: () => linksAPI.update(link.id, { status: "cancelled" }),
@@ -548,7 +549,7 @@ const LinksPage = () => {
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((link: any) => (
+          {filtered.map((link) => (
             <LinkCard key={link.id} link={link} onShare={setShareLink} />
           ))}
         </div>

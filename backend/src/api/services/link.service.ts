@@ -6,6 +6,7 @@ import { Id } from "../../schemas/validators";
 import { LinkStatus } from "@paylink/shared";
 import { LinkDTO } from "../dto";
 import { sequelize } from "../config/db/postgres";
+import { enqueuePaymentExpired } from "../queues/payment.queue";
 
 export const generatePaymentLink = async (
   linkData: PaymentLink & { merchant_id: string },
@@ -23,13 +24,16 @@ export const generatePaymentLink = async (
 
   const base62String = base62.encodeString(link.id);
   const baseUrl = FRONTEND_BASE_URI;
-  const url = `${baseUrl}/payments/payment-link?token=${base62String}`;
+  const url = `${baseUrl}/pay/${base62String}`;
   link.set("url", `${url}`);
   link.set("token", `${base62String}`);
 
   await link.save();
 
-  em
+  const expiryMs = new Date(link.expiresAt).getTime();
+  const delay = expiryMs - Date.now();
+
+  await enqueuePaymentExpired({ linkId: link.id, delay });
   return { merchant, link };
 };
 
@@ -63,6 +67,18 @@ export const findLink = async (token: Id) => {
 
   return link;
 };
+
+export const removeLink = async(id: Id) => {
+  const link = await Link.findByPk(id)
+  if(!link) {
+    return {link, deleted: false}
+  }
+  // delete link
+  await link.destroy()
+
+  return {link, deleted: true}
+
+}
 
 const getPaginatedLinks = async (id: Id, filtersOptions: FilterOptions) => {
   //inplements page by page logic

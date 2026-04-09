@@ -7,6 +7,7 @@ import {
   findLink,
   generatePaymentLink,
   getAllLinks,
+  removeLink,
 } from "../services/link.service";
 import { LinkStatus } from "@paylink/shared";
 import { Id } from "../../schemas/validators";
@@ -60,5 +61,23 @@ export const getLinks = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, links, "Links fetched successfully"));
+  },
+);
+
+export const deleteLink = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const linkId = req.params.id as Id;
+    const { link } = await removeLink(linkId);
+
+    if (!link)
+      return next(
+        ApiError.notFound(404, req.originalUrl, "Link does not exist"),
+      );
+
+
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, null, "link deleted successfully"));
   },
 );
