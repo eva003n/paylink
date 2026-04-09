@@ -30,6 +30,7 @@ module.exports = {
       name: "email-worker",
       script: "./dist/workers/email.worker.js",
       instances: 1, // control concurrency
+      wait_ready: true, // start when services are ready
       exec_mode: "fork",
       autorestart: true,
       env_development: {
@@ -41,6 +42,7 @@ module.exports = {
       script: "./dist/workers/pdf.worker.js",
       instances: 1, // control concurrency
       exec_mode: "fork",
+      wait_ready: true, // start when services are ready
       max_memory_restart: "700M",
       autorestart: true,
       env_development: {
