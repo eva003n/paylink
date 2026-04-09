@@ -10,6 +10,7 @@ import {
 import { mpesaClient } from "../../api/config/mpesa/mpesaclient";
 import { getTimeStamp } from "../../api/utils";
 import {
+  LinkExpiry,
   PaymentConfirmation,
   PaymentData,
   PaymentQuery,
@@ -22,7 +23,7 @@ import {
 import { Client, Link, Payment } from "../../api/models";
 import { enqueueSTKPoll } from "../../api/queues";
 import { enqueuePaymentReceipt } from "../../api/queues/pdf.queue";
-import { paymentStatusSchema } from "@paylink/shared";
+import { linkStatusSchema, paymentStatusSchema } from "@paylink/shared";
 
 export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
   const shortCode =
@@ -77,7 +78,9 @@ export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
       transaction?.set("checkout_request_id", response.CheckoutRequestID);
       await transaction?.save();
     } else {
-      logger.error(`STP push to PhoneNumber:${paymentData.phoneNumber} failed`);
+      logger.error(
+        `STP push to PhoneNumber:${paymentData.phoneNumber} failed with response code: ${code}. ResponseDesc: ${response.ResponseDescription}`,
+      );
     }
   } catch (error) {
     logger.error(
@@ -117,7 +120,6 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
       JSON.stringify(payload),
     );
 
-    console.dir(response);
     const transaction = await Payment.findByPk(paymentQuery.transactionId);
     if (!transaction) {
       logger.error(
@@ -177,7 +179,7 @@ export const handlePaymentConfirmation = async (
 
     if (!transaction) {
       logger.error(
-        `Payment with CheckoutRequestId: ${payment.checkoutRequestId} doesn'gt exists `,
+        `Payment with CheckoutRequestId: ${payment.checkoutRequestId} doesn't exists `,
       );
       return;
     }
@@ -191,19 +193,45 @@ export const handlePaymentConfirmation = async (
       logger.error(`Link with ID: ${transaction.link_id} doesn't exists `);
       return;
     }
+
+    // Validate checkout_request_id exists before enqueueing
+    if (!transaction.checkout_request_id) {
+      logger.error(
+        `Cannot enqueue STK poll: checkout_request_id is missing for transaction ${transaction.id}`,
+      );
+      return;
+    }
+
     // query payment status
     const job = await enqueueSTKPoll({
       transactionId: transaction.id,
       shortCode: link.shortCode,
       checkoutRequestId: transaction.checkout_request_id,
-      attempts: 0,
+      // attempts: 0,
     });
 
-    logger.info(`Enqueued payment ID: ${job.id} for status querying`);
+    logger.info(`Enqueued STK poll job ID: ${job.id} for transaction ${transaction.id}`);
   } catch (error) {
     logger.error(
-      `Error confirming payment CheckoutRequestId: ${payment.checkoutRequestId} message:${error.message}`,
+      `Error confirming payment CheckoutRequestId: ${payment.checkoutRequestId}`,
+      {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      },
     );
     return;
   }
+};
+
+export const handleLinkExpiry = async (linkData: LinkExpiry) => {
+  const link = await Link.findByPk(linkData.linkId);
+  if (!link) {
+    logger.error(`Link with ID: ${linkData.linkId} does not exists`);
+    return;
+  }
+
+  link.set("status", linkStatusSchema.enum.Expired);
+  await link.save();
+
+  logger.info(`Link with ID: ${link.id} updated to status: ${link.status}`);
 };
