@@ -28,39 +28,6 @@ export const analyticsDatsResponse = z.object({
   }),
 });
 
-export const linksResponseSchema = z.object({
-  data: z.object({
-    links: z.array(
-      paymentLinkSchema.extend({
-        id: z.string(),
-        merchant_id: z.string(),
-        status: linkStatusSchema,
-        url: z.string(),
-        createdAt: z.date(),
-        updatedAt: z.date(),
-        business_name: z.string().optional(),
-        client_name: z.string().optional(),
-        reference: z.string().optional(),
-        description: z.string().optional(),
-        due_date: z.date().optional(),
-        total_transactions: z.number().optional(),
-        paid_count: z.number().optional(),
-        created_at: z.date().optional(),
-      }),
-    ),
-    currentPage: z.number(),
-    totalPages: z.number(),
-    totalItems: z.number(),
-  }),
-});
-export const paymentsResponseSchema = z.object({
-  data: z.object({
-    payments: z.array(transactionSchema),
-    currentPage: z.number(),
-    totalPages: z.number(),
-    totalItems: z.number(),
-  }),
-});
 export const createLinkResponseSchema = z.object({
   data: paymentLinkSchema.extend({
     id: z.string(),
@@ -79,6 +46,24 @@ export const createLinkResponseSchema = z.object({
     created_at: z.date().optional(),
   }),
 });
+
+export const linksResponseSchema = z.object({
+  data: z.object({
+    links: z.array(createLinkResponseSchema.shape.data),
+    currentPage: z.number(),
+    totalPages: z.number(),
+    totalItems: z.number(),
+  }),
+});
+export const paymentsResponseSchema = z.object({
+  data: z.object({
+    payments: z.array(transactionSchema),
+    currentPage: z.number(),
+    totalPages: z.number(),
+    totalItems: z.number(),
+  }),
+});
+
 
 export const paymentSTKSchema = z.object({
   token: z.string(),
