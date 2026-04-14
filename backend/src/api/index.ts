@@ -40,3 +40,14 @@ const gracefulShutDown = async () => {
 };
 process.on("SIGINT", gracefulShutDown);
 process.on("SIGTERM", gracefulShutDown);
+
+process.on("uncaughtException", (error) => {
+  logger.error(`Unhandled exception: ${error.message}`)
+  process.exit(1)
+
+})
+process.on("unhandledRejection", () => {
+  logger.error(`Unhandled rejection`)
+  process.exit(1)
+
+})
