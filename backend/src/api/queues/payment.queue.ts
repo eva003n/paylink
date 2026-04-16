@@ -43,7 +43,7 @@ export const enqueueSTKPoll = async (paymentQuery: PaymentQuery, delay?: number)
   }
 
   return await paymentQueue.add(JOB_NAMES.STK_POLL, paymentQuery, {
-    // jobId: paymentQuery.transactionId,
+    jobId: paymentQuery.checkoutRequestId,
     delay: delay || 0
   });
 };

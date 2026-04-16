@@ -445,9 +445,11 @@ const CheckoutPage = () => {
             setStep(4);
           }
         } catch {
+
           /* keep polling */
         }
       }, 5000);
+
     };
 
   const onPay: SubmitHandler<PaymentSTK> = async (data) => {
@@ -459,7 +461,7 @@ const CheckoutPage = () => {
       });
       setTxData(res.data);
       setStep(2);
-      startPolling(res.data.id);
+      startPolling("")
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to initiate payment");
     } finally {

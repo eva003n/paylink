@@ -134,6 +134,7 @@ const getPaginatedPayments = async (id: Id, filtersOptions: FilterOptions) => {
 export const checkStatus = async(id: Id) => {
   const payment = await Payment.findByPk(id)
 
+
   return payment
 
 }
