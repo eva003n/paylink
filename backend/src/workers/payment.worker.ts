@@ -5,6 +5,7 @@ import {
   handleMpesaSTKPoll,
   handleMpesaSTKPush,
   handlePaymentConfirmation,
+  updateTransactionStatus,
 } from "../jobs/payment/processors";
 import logger from "../api/logger/logger.winston";
 import { connectDb, sequelize } from "../api/config/db/postgres";
@@ -56,6 +57,9 @@ worker.on("failed", (job, error) => {
     message: error.message,
     stack: error.stack,
   });
+  // after all 5 retries fail mark transaction as failed(mpesa is down or network issue)
+  updateTransactionStatus(job?.id as string)
+
 });
 
 

@@ -461,7 +461,7 @@ const CheckoutPage = () => {
       });
       setTxData(res.data);
       setStep(2);
-      startPolling("")
+      startPolling(res.data.id)
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to initiate payment");
     } finally {
