@@ -23,11 +23,15 @@ const worker = new Worker(
     }
   },
   {
-  
     connection: createRedisConnection().options,
     concurrency: 1,
   },
 );
+
+worker.on("error", (error) => {
+  logger.error(`PDF Worker error: ${error.message}`);
+  process.exit(1);
+})
 
 const shutDown = async () => {
   logger.info("Gracefully shutting down pdf worker");
@@ -37,3 +41,4 @@ const shutDown = async () => {
 
 process.on("SIGTERM", shutDown);
 process.on("SIGINT", shutDown);
+

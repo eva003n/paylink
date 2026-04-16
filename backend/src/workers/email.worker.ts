@@ -6,12 +6,10 @@ import { handleEmail } from "../jobs/email/processor";
 import { EmailData } from "../schemas/validators";
 import { connectRedis, createRedisConnection } from "../api/config/redis";
 
-(
-  async() => {
-    await connectRedis()
-    process.send?.("ready"); // start worker process when its connected to external services(db and redis)
-  }
-)()
+(async () => {
+  await connectRedis();
+  process.send?.("ready"); // start worker process when its connected to external services(db and redis)
+})();
 const worker = new Worker(
   QUEUE_NAMES.EMAIL,
   async (job: Job<EmailData>) => {
@@ -33,6 +31,10 @@ const worker = new Worker(
   },
 );
 
+worker.on("error", (error) => {
+  logger.error(`Email Worker error: ${error.message}`);
+  process.exit(1)
+});
 const shutDown = async () => {
   logger.info("Gracefully shutting down email worker");
   await worker.close();
@@ -41,3 +43,4 @@ const shutDown = async () => {
 
 process.on("SIGTERM", shutDown);
 process.on("SIGINT", shutDown);
+

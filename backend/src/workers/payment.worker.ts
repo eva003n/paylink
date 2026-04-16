@@ -10,7 +10,6 @@ import logger from "../api/logger/logger.winston";
 import { connectDb, sequelize } from "../api/config/db/postgres";
 import { connectRedis, createRedisConnection } from "../api/config/redis";
 
-
 // connect postgres
 (async () => {
   await connectDb();
@@ -18,7 +17,7 @@ import { connectRedis, createRedisConnection } from "../api/config/redis";
   process.send?.("ready"); // start worker process when its connected to external services(db and redis)
 })();
 
-const paymentWorker = new Worker(
+const worker = new Worker(
   QUEUE_NAMES.PAYMENT,
   async (job) => {
     switch (job.name) {
@@ -44,28 +43,31 @@ const paymentWorker = new Worker(
   },
 );
 
-paymentWorker.on("active", (job) => {
+worker.on("active", (job) => {
   logger.info(`Worker picked up job: ${job.id} with name: ${job.name}`);
 });
 
-paymentWorker.on("completed", (job) => {
+worker.on("completed", (job) => {
   logger.info(`Job completed: ${job.id} with name: ${job.name}`);
 });
 
-paymentWorker.on("failed", (job, error) => {
+worker.on("failed", (job, error) => {
   logger.error(`Job failed: ${job?.id} with name: ${job?.name}`, {
     message: error.message,
     stack: error.stack,
   });
 });
 
-paymentWorker.on("error", (error) => {
-  logger.error(`Worker error:`, { message: error.message, stack: error.stack });
+
+
+worker.on("error", (error) => {
+  logger.error(`Payment Worker error: ${error.message}`);
+  process.exit(1);
 });
 // gracefull shutdown of workers(process in flight jobs before exiting)
 const shutDown = async () => {
   logger.info(`Gracefully shuting down payment worker`);
-  await paymentWorker.close();
+  await worker.close();
   await sequelize.close();
   process.exit(0);
 };
