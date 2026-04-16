@@ -62,8 +62,6 @@ export const initiateSTKPush = async ({
 
   logger.info(`Enqueued STK push for Phone: ${phoneNumber}`);
 
-  
-
   return { link, transaction, invalid: false, job };
 };
 export const validateMpesaPayment = async () => {};
