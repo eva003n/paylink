@@ -57,11 +57,11 @@ const MpesaPaymentSTKSuccessSchema = z.object({
 
 const mpesaSTKQueryResultSchema = z.object({
   // data: z.object({
-  ResponseCode: z.number(),
+  ResponseCode: z.string(),
   ResponseDescription: z.string(),
   MerchantRequestID: z.string(),
   CheckoutRequestID: z.string(),
-  ResultCode: z.number(),
+  ResultCode: z.string(),
   ResultDesc: z.string(),
   // }),
 });
