@@ -117,7 +117,7 @@ export const linksAPI = {
 export const mpesaAPI = {
   stkPush: (d: PaymentSTK) =>
     api.post<{}, { data: TX }, PaymentSTK>("/payments/mpesa/stk-push", d),
-  query: (id:  string) => api.get<{}, {data: TX }>(`/payments/:${id}/status`),
+  query: (id:  string) => api.get<{}, {data: TX }>(`/payments/${id}/status`),
   getTransaction: (id: string) => api.get(`/payments/mpesa/transaction/${id}`),
   getAll: () => api.get<{}, PaymentApiResponse>("/payments"),
 };
