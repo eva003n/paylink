@@ -1,7 +1,6 @@
 import { Worker } from "bullmq";
-import { JOB_NAMES, QUEUE_NAMES } from "../api/constants";
+import { JOB_NAMES, WORKER_NAMES } from "../api/constants";
 import {
-  handleLinkExpiry,
   handleMpesaSTKPoll,
   handleMpesaSTKPush,
   handlePaymentConfirmation,
@@ -11,15 +10,18 @@ import logger from "../api/logger/logger.winston";
 import { connectDb, sequelize } from "../api/config/db/postgres";
 import { connectRedis, createRedisConnection } from "../api/config/redis";
 
+
 // connect postgres
 (async () => {
-  await connectDb();
-  await connectRedis();
+  connectDb();
+   connectRedis();
   process.send?.("ready"); // start worker process when its connected to external services(db and redis)
 })();
 
+const redisClient = createRedisConnection();
+
 const worker = new Worker(
-  QUEUE_NAMES.PAYMENT,
+  WORKER_NAMES.PAYMENT,
   async (job) => {
     switch (job.name) {
       case JOB_NAMES.STK_PUSH:
@@ -28,14 +30,12 @@ const worker = new Worker(
         return await handleMpesaSTKPoll(job.data);
       case JOB_NAMES.CONFIRM_PAYMENT:
         return await handlePaymentConfirmation(job.data);
-      case JOB_NAMES.PAYMENT_EXPIRED:
-        return handleLinkExpiry(job.data);
       default:
         throw new Error(`Unknown job in payment worker: ${job.name}`);
     }
   },
   {
-    connection: createRedisConnection().options,
+    connection: redisClient.options,
     concurrency: 1, // process on 1 job at a time
     limiter: {
       max: 5, //(earlier was 1) 5 request per minute
@@ -73,6 +73,7 @@ const shutDown = async () => {
   logger.info(`Gracefully shuting down payment worker`);
   await worker.close();
   await sequelize.close();
+  await redisClient.quit(); // waits for pending commands to complete
   process.exit(0);
 };
 
