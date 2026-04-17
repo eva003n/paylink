@@ -1,14 +1,22 @@
 export  const QUEUE_NAMES = {
     PAYMENT: "paylink_payment",
     EMAIL: "paylink_email",
-    PDF: "paylink_pdf"
+    PDF: "paylink_pdf",
+    Link: "paylink_link"
 } 
+
+export const WORKER_NAMES = {
+    PAYMENT: "payment_worker",
+    EMAIL: "email_worker",
+    PDF: "pdf_worker",
+    LINK: "link_worker",
+}
 
 export const JOB_NAMES = {
     STK_PUSH: "stk.push",
     STK_POLL: "stk.poll",
     CONFIRM_PAYMENT: "stk.payment",
-    PAYMENT_EXPIRED: "payment.expired",
+    LINK_EXPIRED: "payment.expired",
     PDF_RECEIPT: "pdf.receipt",
     RECEIPT_EMAIL: "email.receipt"
 }
