@@ -10,15 +10,15 @@ import logger from "../api/logger/logger.winston";
 import { connectDb, sequelize } from "../api/config/db/postgres";
 import { connectRedis, createRedisConnection } from "../api/config/redis";
 
+const redisClient = createRedisConnection();
 
 // connect postgres
 (async () => {
-  connectDb();
-   connectRedis();
+  await  connectDb();
+   await connectRedis(redisClient);
   process.send?.("ready"); // start worker process when its connected to external services(db and redis)
 })();
 
-const redisClient = createRedisConnection();
 
 const worker = new Worker(
   WORKER_NAMES.PAYMENT,

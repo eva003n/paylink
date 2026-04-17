@@ -6,25 +6,26 @@ import { updateTransactionStatus } from "../jobs/payment/processors";
 import { connectDb } from "../api/config/db/postgres";
 import { handleLinkExpiry } from "../jobs/link/processor";
 
+const redisClient = createRedisConnection();
+
 (async () => {
-   connectDb();
-   connectRedis();
+ 
+  await  connectDb();
+     await connectRedis(redisClient);
+
 
   process.send?.("ready"); // start worker process when its connected to external services(db and redis)
 })();
-
-const redisClient = createRedisConnection();
 
 const worker = new Worker(
   WORKER_NAMES.LINK,
   async (job) => {
     switch (job.name) {
       case JOB_NAMES.LINK_EXPIRED:
-    return handleLinkExpiry(job.data);
+        return handleLinkExpiry(job.data);
       default:
         throw new Error(`Unknown job in link worker: ${job.name}`);
     }
-
   },
 
   {

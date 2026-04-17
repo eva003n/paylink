@@ -7,14 +7,15 @@ import { EmailData } from "../schemas/validators";
 import { connectRedis, createRedisConnection } from "../api/config/redis";
 import { connectDb } from "../api/config/db/postgres";
 
+const redisClient = createRedisConnection();
 
-(() => {
-  connectDb()
-  connectRedis();
+
+(async() => {
+
+  await  connectDb();
+     await connectRedis(redisClient);
   process.send?.("ready"); // start worker process when its connected to external services(db and redis)
 })();
-
-const redisClient = createRedisConnection();
 
 const worker = new Worker(
   WORKER_NAMES.EMAIL,

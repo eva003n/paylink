@@ -7,13 +7,14 @@ import { ReceiptContent } from "../schemas/validators";
 import { connectRedis, createRedisConnection } from "../api/config/redis";
 import { connectDb } from "../api/config/db/postgres";
 
+const redisClient = createRedisConnection();
+
 (async () => {
-  connectDb()
-   connectRedis();
+  await connectDb();
+  await connectRedis(redisClient);
+
   process.send?.("ready"); // start worker process when its connected to external services(db and redis)
 })();
-
-const redisClient = createRedisConnection();
 
 const worker = new Worker(
   WORKER_NAMES.PDF,
@@ -35,15 +36,14 @@ const worker = new Worker(
 worker.on("error", (error) => {
   logger.error(`PDF Worker error: ${error.message}`);
   process.exit(1);
-})
+});
 
 const shutDown = async () => {
   logger.info("Gracefully shutting down pdf worker");
   await worker.close();
-  await redisClient.quit()
+  await redisClient.quit();
   process.exit(0);
 };
 
 process.on("SIGTERM", shutDown);
 process.on("SIGINT", shutDown);
-
