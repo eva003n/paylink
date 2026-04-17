@@ -49,5 +49,16 @@ module.exports = {
         NODE_ENV: "development",
       },
     },
+    {
+      name: "link-worker",
+      script: "./dist/workers/link.worker.js",
+      instances: 1, // control concurrency
+      exec_mode: "fork",
+      wait_ready: true, // start when services are ready
+      autorestart: true,
+      env_development: {
+        NODE_ENV: "development",
+      },
+    },
   ],
 };
