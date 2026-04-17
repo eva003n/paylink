@@ -6,7 +6,7 @@ import { Id } from "../../schemas/validators";
 import { LinkStatus } from "@paylink/shared";
 import { LinkDTO } from "../dto";
 import { sequelize } from "../config/db/postgres";
-import { enqueuePaymentExpired } from "../queues/payment.queue";
+import { enqueueLinkExpired } from "../queues/";
 
 export const generatePaymentLink = async (
   linkData: PaymentLink & { merchant_id: string },
@@ -33,7 +33,7 @@ export const generatePaymentLink = async (
   const expiryMs = new Date(link.expiresAt).getTime();
   const delay = expiryMs - Date.now();
 
-  await enqueuePaymentExpired({ linkId: link.id, delay });
+  await enqueueLinkExpired({ linkId: link.id, delay });
   return { merchant, link };
 };
 

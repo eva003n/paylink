@@ -9,7 +9,7 @@ import { sequelize } from "../config/db/postgres";
 
 import { enqueueSTKPush } from "../queues/index";
 import { Id, PaymentSTK } from "../../schemas/validators";
-import { enqueueSTKPaymentConfirmation } from "../queues/payment.queue";
+import { enqueueSTKPaymentConfirmation } from "../queues";
 import { PaymentConfirmation } from "../../schemas/validators";
 import logger from "../logger/logger.winston";
 import { Client } from "../models/index";

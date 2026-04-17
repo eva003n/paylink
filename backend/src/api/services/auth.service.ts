@@ -1,11 +1,12 @@
 import { compare } from "bcryptjs";
 import type { MerchantSignUpAuth, SignInAuth } from "@paylink/shared";
 
-import { Merchant, UserRoles } from "../models/index";
+import { Merchant } from "../models/index";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../config/env";
 import { redisClient } from "../config/redis";
 import { UserDTO } from "../dto";
+import { type UserRole } from "@paylink/shared";
 
 export const createUser = async (authData: MerchantSignUpAuth) => {
   const [newuser, created] = await Merchant.findOrCreate({
@@ -84,7 +85,7 @@ export const renewToken = async (oldRefreshToken: string) => {
   return { exists, _accessToken: accessToken, _refreshToken: newRefreshToken };
 };
 
-const generateToken = async (user: { id: string; role: UserRoles }) => {
+const generateToken = async (user: { id: string; role: UserRole }) => {
   // access token
   const accessToken = jwt.sign(user, ACCESS_TOKEN_SECRET as string, {
     issuer: "authapi",
