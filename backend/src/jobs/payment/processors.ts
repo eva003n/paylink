@@ -11,7 +11,6 @@ import { mpesaClient } from "../../api/config/mpesa/mpesaclient";
 import { getTimeStamp } from "../../api/utils";
 import {
   Id,
-  LinkExpiry,
   PaymentConfirmation,
   PaymentData,
   PaymentQuery,
@@ -22,9 +21,8 @@ import {
   PaymentSTKResponse,
 } from "../../schemas/validators";
 import { Client, Link, Payment } from "../../api/models";
-import { enqueueSTKPoll } from "../../api/queues";
-import { enqueuePaymentReceipt } from "../../api/queues/pdf.queue";
-import { linkStatusSchema, paymentStatusSchema } from "@paylink/shared";
+import { enqueueSTKPoll, enqueuePaymentReceipt } from "../../api/queues";
+import { paymentStatusSchema } from "@paylink/shared";
 
 export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
   const shortCode =
@@ -269,24 +267,7 @@ export const handlePaymentConfirmation = async (
   }
 };
 
-export const handleLinkExpiry = async (linkData: LinkExpiry) => {
-  try {
-    const link = await Link.findByPk(linkData.linkId);
-    if (!link) {
-      logger.error(`Link with ID: ${linkData.linkId} does not exists`);
-      return;
-    }
 
-    link.set("status", linkStatusSchema.enum.Expired);
-    await link.save();
-
-    logger.info(`Link with ID: ${link.id} updated to status: ${link.status}`);
-  } catch (error) {
-    logger.error(
-      `Error while expiring link with ID: ${linkData.linkId} error: ${error.message}`,
-    );
-  }
-};
 
 export const updateTransactionStatus = async (checkoutId: Id) => {
   const transaction = await Payment.findOne({
