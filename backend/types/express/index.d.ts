@@ -1,12 +1,12 @@
 import { Request } from "express";
-import { User, UserRoles } from "../../src/api/models";
+import { type UserRole } from "@paylink/shared";
 
 declare global {
   namespace Express {
     interface Request {
       user: {
         id: string;
-        role: UserRoles;
+        role: UserRole;
       };
     }
   }

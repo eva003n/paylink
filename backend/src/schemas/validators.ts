@@ -1,5 +1,5 @@
 import z from "zod";
-import { UserRoles } from "../api/models";
+import { userRoleSchema} from "@paylink/shared";
 
 // export const signUpSchema = z.object({
 //   // username: z.string().min(4).max(64).optional(),
@@ -18,7 +18,7 @@ import { UserRoles } from "../api/models";
 
 export const jwtSchema = z.object({
   id: z.string(),
-  role: z.enum([...Object.values(UserRoles)]),
+  role: z.enum([...Object.values(userRoleSchema.enum)]),
 });
 
 const MpesaPaymentSTKFailedSchema = z.object({

@@ -23,7 +23,7 @@ app.use(
   }),
 );
 
-// rate limit reqyest
+// rate limit requests
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15min

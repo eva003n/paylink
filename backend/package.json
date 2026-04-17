@@ -13,7 +13,7 @@
     "pdf": "ts-node -r tsconfig-paths/register --project tsconfig.app.json src/jobs/pdf/receipt.pdf.ts",
     "dev": "nodemon",
     "make:migration": "ts-node -r tsconfig-paths/register --project tsconfig.app.json src/make-migrations.ts",
-    "migrate": "ts-node -r tsconfig-paths/register --project tsconfig.app.json src/config/db/umzug.ts",
+    "migrate": "ts-node --project tsconfig.app.json src/api/config/db/umzug.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -1,4 +1,4 @@
-import { Merchant, UserRoles } from "./merchants.model";
+import { Merchant } from "./merchants.model";
 import { Payment } from "./payments.model";
 import { Link } from "./link.model";
 import { Client } from "./client.model";
@@ -38,4 +38,4 @@ Config.belongsTo(Merchant, {
   foreignKey: "merchant_id",
 });
 
-export { Merchant, UserRoles, Payment, Link, Client, Config };
+export { Merchant, Payment, Link, Client, Config };

@@ -1,10 +1,12 @@
 import { paymentQueue } from "./payment.queue";
-import { pdfQueue } from "./pdf.queue";
+import { enqueuePaymentReceipt, pdfQueue } from "./pdf.queue";
 import { emailQueue } from "./email.queue";
-import { enqueueSTKPush, enqueueSTKPoll } from "./payment.queue";
+import { enqueueSTKPush, enqueueSTKPoll, enqueueSTKPaymentConfirmation } from "./payment.queue";
+import { enqueueLinkExpired } from "./link.queue";
 import { ExpressAdapter } from "@bull-board/express";
 import { createBullBoard } from "@bull-board/api";
 import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
+
 // import { privateRoute, protectRoute } from "../api/middlewares/auth.middleware";
 import { NODE_ENV } from "../config/env";
 
@@ -36,7 +38,10 @@ export {
   paymentQueue,
   pdfQueue,
   enqueueSTKPush,
+  enqueueLinkExpired,
+  enqueueSTKPaymentConfirmation,
   enqueueSTKPoll,
+  enqueuePaymentReceipt,
   bullBoardRouter,
   serverAdapter,
 };

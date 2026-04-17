@@ -1,5 +1,8 @@
 import z from "zod";
 
+
+export const userRoleSchema = z.enum(["Admin", "Merchant"])
+
 export const signUpSchema = z.object({
   // username: z.string().min(4).max(64).optional(),
   email: z.email("Invalid email provided"),
@@ -34,6 +37,7 @@ export const linkStatusSchema = z.enum([
 export const paymentStatusSchema = z.enum([
   "Pending",
   "Completed",
+  "Cancelled",
   "Failed",
 ]);
 export const paymentLinkSchema = z.object({
@@ -79,6 +83,7 @@ const filterOptionSchema = z.object({
 });
 
 
+export type UserRole = z.infer<typeof userRoleSchema>
 export type TX = z.infer<typeof transactionSchema>;
 export type PaymentLinkInput = z.input<typeof paymentLinkSchema>;
 export type MerchantConfigInput = z.infer<typeof merchantConfigSchema>;

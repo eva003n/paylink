@@ -25,7 +25,7 @@ const SignUpPage = () => {
     setLoading(true);
     try {
       const res = await registerUser(data);
-      toast.success(res.message);
+      toast.success("Account created");
       navigate("/sign-in");
     } catch (error) {
       toast.error("Authentication failed");

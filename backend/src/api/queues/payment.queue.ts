@@ -1,6 +1,5 @@
 import { Queue } from "bullmq";
 import {
-  LinkExpiry,
   PaymentConfirmation,
   PaymentData,
   PaymentQuery,
@@ -48,13 +47,7 @@ export const enqueueSTKPoll = async (paymentQuery: PaymentQuery, delay?: number)
   });
 };
 
-// handle payment link expiry
-export const enqueuePaymentExpired = async (linkData: LinkExpiry) => {
-return await paymentQueue.add(JOB_NAMES.PAYMENT_EXPIRED, linkData, {
-  jobId: linkData.linkId,
-  delay: linkData.delay // expire link
-})
-}
+
 export const enqueueSTKPaymentConfirmation = async (
   paymentData: PaymentConfirmation,
 ) => {

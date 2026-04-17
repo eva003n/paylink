@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "paylink-api",
       script: "./dist/api/index.js",
-      instances: "-1",
+      instances: "max",
       exec_mode: "cluster",
       autorestart: true,
       wait_ready: true, // start when services are ready
