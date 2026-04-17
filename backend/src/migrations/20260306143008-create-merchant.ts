@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import { QueryInterface } from "sequelize";
-import { UserRoles } from "../api/models/index";
+import { userRoleSchema } from "@paylink/shared";
 
 async function up({ context: queryInterface }: { context: QueryInterface }) {
   queryInterface.createTable("merchants", {
@@ -28,9 +28,9 @@ async function up({ context: queryInterface }: { context: QueryInterface }) {
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM(...Object.values(UserRoles)),
+      type: DataTypes.ENUM(...Object.values(userRoleSchema.enum)),
       allowNull: false,
-      defaultValue: UserRoles.MERCHANT,
+      defaultValue: userRoleSchema.enum.Merchant,
     },
     createdAt: {
       type: DataTypes.DATE,

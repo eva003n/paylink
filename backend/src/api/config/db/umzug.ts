@@ -10,7 +10,7 @@ const umzug = new Umzug({
       NODE_ENV === "production"
         ? "dist/migrations/.*js"
         : "src/migrations/*.ts",
-      { cwd: `${getAbsolutePath("../../../", __dirname)}` },
+      { cwd: `${getAbsolutePath("../../../../", __dirname)}` },
     ],
   },
   context: sequelize.getQueryInterface(),

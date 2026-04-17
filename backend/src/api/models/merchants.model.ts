@@ -1,17 +1,15 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../config/db/postgres";
 import { hash } from "bcryptjs";
-export enum UserRoles {
-  MERCHANT = "merchant",
-  ADMIN = "admin", // for the admin u would create their own table but for simplicity thus combination
-}
+import { userRoleSchema, type UserRole } from "@paylink/shared";
+
 export class Merchant extends Model {
   declare id: string;
   declare business_name: string;
   declare email: string;
   declare password: string;
   declare phone_number: string;
-  declare role: UserRoles;
+  declare role: UserRole;
   declare createdAt?: Date;
   declare updatedAt?: Date;
 
@@ -64,9 +62,9 @@ Merchant.init(
       defaultValue: "",
     },
     role: {
-      type: DataTypes.ENUM(...Object.values(UserRoles)),
+      type: DataTypes.ENUM(...Object.values(userRoleSchema.enum)),
       allowNull: false,
-      defaultValue: UserRoles.MERCHANT,
+      defaultValue: userRoleSchema.enum.Merchant,
     },
   },
   {
