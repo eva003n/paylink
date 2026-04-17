@@ -2,7 +2,7 @@ import { paymentQueue } from "./payment.queue";
 import { enqueuePaymentReceipt, pdfQueue } from "./pdf.queue";
 import { emailQueue } from "./email.queue";
 import { enqueueSTKPush, enqueueSTKPoll, enqueueSTKPaymentConfirmation } from "./payment.queue";
-import { enqueueLinkExpired } from "./link.queue";
+import { enqueueLinkExpired, linkQueue } from "./link.queue";
 import { ExpressAdapter } from "@bull-board/express";
 import { createBullBoard } from "@bull-board/api";
 import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
@@ -29,6 +29,7 @@ createBullBoard({
     new BullMQAdapter(emailQueue, { readOnlyMode: readOnly }),
     new BullMQAdapter(paymentQueue, { readOnlyMode: readOnly }),
     new BullMQAdapter(pdfQueue, { readOnlyMode: readOnly }),
+    new BullMQAdapter(linkQueue, { readOnlyMode: readOnly }),
   ],
   serverAdapter,
 });
@@ -37,6 +38,7 @@ export {
   emailQueue,
   paymentQueue,
   pdfQueue,
+  linkQueue,
   enqueueSTKPush,
   enqueueLinkExpired,
   enqueueSTKPaymentConfirmation,
