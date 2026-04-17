@@ -11,7 +11,6 @@ import {
   initiateSTKPush,
 } from "../services/payment.service";
 import ApiError from "../utils/ApiError";
-import { handleMpesaSTKPoll } from "../../jobs/payment/processors";
 import { PaymentSTK } from "../../schemas/validators";
 import { PaymentStatus } from "@paylink/shared";
 
@@ -47,11 +46,11 @@ export const initiateMpesaSTKPush = asyncHandler(
   },
 );
 
-export const queryPayment = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    await handleMpesaSTKPoll(req.body);
-  },
-);
+// export const queryPayment = asyncHandler(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     await handleMpesaSTKPoll(req.body);
+//   },
+// );
 
 export const confirmPayment = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {

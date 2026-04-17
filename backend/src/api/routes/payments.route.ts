@@ -4,7 +4,7 @@ import {
   getAllTransactions,
   getPaymentStatus,
   initiateMpesaSTKPush,
-  queryPayment,
+  //queryPayment,
 } from "../controllers/payment.controller";
 
 import { validate } from "../middlewares/validator.middleware";
@@ -27,6 +27,6 @@ router.route("/:id/status").get(validate(IdParamSchema), getPaymentStatus)
 
 router.use(protectRoute);
 router.route("/").get(getAllTransactions);
-router.route("/query").post(queryPayment);
+//router.route("/query").post(queryPayment);
 
 export default router;
