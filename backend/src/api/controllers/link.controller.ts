@@ -2,12 +2,14 @@ import { Request, Response, NextFunction } from "express";
 import asyncHandler from "../utils/asynchandler";
 import ApiError from "../utils/ApiError";
 import ApiResponse from "../utils/ApiResponse";
-import { PaymentLink } from "@paylink/shared";
+import { LinkUpdateState, PaymentLink } from "@paylink/shared";
+import { LinkDTO } from "../dto";
 import {
   findLink,
   generatePaymentLink,
   getAllLinks,
   removeLink,
+  updateLinkStatus as updateLinkStatusService,
 } from "../services/link.service";
 import { LinkStatus } from "@paylink/shared";
 import { Id } from "../../schemas/validators";
@@ -61,6 +63,27 @@ export const getLinks = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, links, "Links fetched successfully"));
+  },
+);
+
+export const updateLinkStatus = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id, status } = req.body as LinkUpdateState;
+    const linkId = req.params.id as Id || id;
+
+
+    const { link } = await updateLinkStatusService(linkId as string, status, req.user.id);
+
+    if (!link)
+      return next(
+        ApiError.notFound(404, req.originalUrl, "Link does not exist"),
+      );
+
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, LinkDTO.create(link), "Link status updated successfully"),
+      );
   },
 );
 

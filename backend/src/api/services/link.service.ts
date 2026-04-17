@@ -80,6 +80,24 @@ export const removeLink = async(id: Id) => {
 
 }
 
+export const updateLinkStatus = async (
+  id: Id,
+  status: LinkStatus,
+  merchantId: Id,
+) => {
+  const link = await Link.findOne({
+    where: {
+      id,
+      merchant_id: merchantId,
+    },
+  });
+
+  if (!link) return { link: null, updated: false };
+
+  const updatedLink = await link.update({ status });
+  return { link: updatedLink, updated: true };
+};
+
 const getPaginatedLinks = async (id: Id, filtersOptions: FilterOptions) => {
   //inplements page by page logic
   const offset = (filtersOptions.page - 1) * filtersOptions.limit;
@@ -110,3 +128,4 @@ const getPaginatedLinks = async (id: Id, filtersOptions: FilterOptions) => {
     totalItems: count,
   };
 };
+

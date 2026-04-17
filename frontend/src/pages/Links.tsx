@@ -12,6 +12,7 @@ import { copyToClipboard, fmtKES, cn, fmtRelative, fmtDate } from "@/utils";
 import type { LinkType } from "@/validators/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  linkStatusSchema,
   paymentLinkSchema,
   type PaymentLinkInput,
 } from "@paylink/shared";
@@ -251,7 +252,7 @@ const LinkCard: FC<LinkCardProps> = ({ link, onShare }) => {
 
 
   const cancelMut = useMutation({
-    mutationFn: () => linksAPI.update(link.id, { status: "cancelled" }),
+    mutationFn: () => linksAPI.update(link.id, { status: linkStatusSchema.enum.Cancelled }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["links"] });
       toast.success("Link cancelled");
