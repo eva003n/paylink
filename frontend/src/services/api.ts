@@ -9,7 +9,7 @@ import type {
 } from "@/validators/schemas";
 
 import type { PaymentSTK } from "@/validators/schemas";
-import type { FilterOption, PaymentLinkInput, TX } from "@paylink/shared";
+import type { FilterOption, PaymentLinkInput, TX, LinkUpdateState } from "@paylink/shared";
 // create axios instance
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URI || "/api",
@@ -110,7 +110,7 @@ export const linksAPI = {
     }),
   create: (d: PaymentLinkInput) =>
     api.post<{}, {data: LinkType}, PaymentLinkInput>("/links", d),
-  update: (id: string, d: any) => api.patch(`/links/${id}`, d),
+  update: (id: string, d: LinkUpdateState) => api.patch(`/links/${id}/status`, d),
   remove: (id: string) => api.delete(`/links/${id}`),
 };
 

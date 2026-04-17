@@ -18,7 +18,7 @@ export const createRedisConnection = () => {
 export const redisClient = createRedisConnection()
 
 // ping redis to ensure we are connected
-export const ensureRedisConnetion = async () => {
+export const ensureRedisConnetion = async (redisClient: IORedis) => {
   try {
     await redisClient.ping();
     logger.info("Redis connection verified (PING)");
@@ -28,6 +28,6 @@ export const ensureRedisConnetion = async () => {
   }
 };
 
-export const connectRedis = () => ensureRedisConnetion();
+export const connectRedis = (connection: IORedis ) => ensureRedisConnetion(connection);
 
 

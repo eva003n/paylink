@@ -16,7 +16,7 @@ export const JOB_NAMES = {
     STK_PUSH: "stk.push",
     STK_POLL: "stk.poll",
     CONFIRM_PAYMENT: "stk.payment",
-    LINK_EXPIRED: "payment.expired",
+    LINK_EXPIRED: "link.expired",
     PDF_RECEIPT: "pdf.receipt",
     RECEIPT_EMAIL: "email.receipt"
 }

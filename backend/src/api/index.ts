@@ -1,7 +1,7 @@
 import { server } from "./app";
 import { sequelize, connectDb } from "./config/db/postgres";
 import { PORT } from "./config/env";
-import { connectRedis } from "./config/redis";
+import { connectRedis, redisClient } from "./config/redis";
 import logger from "./logger/logger.winston";
 
 const port = PORT;
@@ -10,7 +10,7 @@ const gracefulStartUp = async () => {
   // connect to other services
   await connectDb();
   // connect redis
-  await connectRedis();
+  await connectRedis(redisClient);
 
   process.send?.("ready");// start api process when its connected to external services(db and redis)
   logger.info("Server gracefully started");

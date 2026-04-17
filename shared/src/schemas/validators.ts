@@ -82,6 +82,10 @@ const filterOptionSchema = z.object({
   limit: z.number().min(10, "Limit must be at least 10"),
 });
 
+export const updateLinkStatusSchema = z.object({
+  id: z.string().optional(),
+  status: linkStatusSchema
+})
 
 export type UserRole = z.infer<typeof userRoleSchema>
 export type TX = z.infer<typeof transactionSchema>;
@@ -100,3 +104,4 @@ export type FilterOption = z.infer<typeof filterOptionSchema>
 export type LinkStatus = z.infer<typeof linkStatusSchema>
 export type PaymentStatus = z.infer<typeof paymentStatusSchema>
 export type ConfigEnv = z.infer<typeof configEnvSchema>
+export type LinkUpdateState = z.infer<typeof updateLinkStatusSchema>
