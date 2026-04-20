@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input, Button } from "@/components/ui";
+import { Input, Button, SecretInput } from "@/components/ui";
 
 const SignUpPage = () => {
   const { registerUser, loading, setLoading } = useAuth();
@@ -24,7 +24,7 @@ const SignUpPage = () => {
   const onSubmit: SubmitHandler<MerchantSignUpAuth> = async (data) => {
     setLoading(true);
     try {
-      const res = await registerUser(data);
+      await registerUser(data);
       toast.success("Account created");
       navigate("/sign-in");
     } catch (error) {
@@ -96,15 +96,13 @@ const SignUpPage = () => {
           </div>
           <div>
             <label className={lblClass}>Password</label>
-            <Input
-              type="password"
-              minLength={8}
-              maxLength={72}
+            <SecretInput
+              // label="Password"
               {...register("password", { required: true })}
-              placeholder="Min. 8 characters"
-              className={fieldClass}
+              error={errors.password?.message?.toString()}
+              className="w-full rounded-lg border border-white/20 bg-white/10 px-3.5 py-2.5 text-sm text-white placeholder-stone-500 transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/50 focus:outline-none"
               variant={errors.password && "error"}
-              error={errors.password && errors.password.message}
+              autoComplete="off"
             />
           </div>
           <Button

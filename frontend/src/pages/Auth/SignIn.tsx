@@ -4,7 +4,7 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { signInSchema, type SignInAuth } from "@paylink/shared";
 import AuthShell from "@/components/shared/AuthShell";
-import { Button, Input } from "@/components/ui";
+import { Button, Input, SecretInput } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 
@@ -66,13 +66,13 @@ const SignInPage = () => {
             <label className="mb-1.5 block text-xs font-semibold tracking-wider text-stone-400 uppercase">
               Password
             </label>
-            <Input
-              type="password"
+            <SecretInput
+            // label="Password"
               {...register("password", { required: true })}
-              placeholder="••••••••"
-              variant={errors.password && "error"}
-              error={errors.password && errors.password.message}
+              error={errors.password?.message?.toString()}
               className="w-full rounded-lg border border-white/20 bg-white/10 px-3.5 py-2.5 text-sm text-white placeholder-stone-500 transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/50 focus:outline-none"
+              variant={errors.password && "error"}
+              autoComplete="off"
             />
           </div>
           <Button
