@@ -14,4 +14,14 @@ Freelancers or small service providers who need a professional way to invoice cl
 - Sharing code between the frontend and backend enabling isolation and preventing corruption
 
 ### Installation
-
+#### Step 1: Clone the repository
+Run inside terminal
+```bash
+git clone https://github.com/eva003n/paylink.git
+```
+#### Step 2: Install node js
+If installing manually u must have node js pre-installed> Otherwise skip this step
+#### Step 3: Docker installation
+Must have docker pre-installed
+ 
+### Usage
