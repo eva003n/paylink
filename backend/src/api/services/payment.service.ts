@@ -1,10 +1,6 @@
 import { Link, Merchant, Payment } from "../models/index";
 import base62 from "@sindresorhus/base62";
-import {
-  linkStatusSchema,
-  FilterOption,
-  PaymentStatus,
-} from "@paylink/shared";
+import { linkStatusSchema, FilterOption, PaymentStatus } from "@paylink/shared";
 import { sequelize } from "../config/db/postgres";
 
 import { enqueueSTKPush } from "../queues/index";
@@ -128,11 +124,32 @@ const getPaginatedPayments = async (id: Id, filtersOptions: FilterOptions) => {
   };
 };
 
+export const checkStatus = async (id: Id) => {
+  const payment = await Payment.findByPk(id, {
+    attributes: [
+      "id",
+      "status",
+      "amount",
+      [sequelize.col("mpesa_ref"), "mpesaRef"],
+      [sequelize.col("Merchant.business_name"), "businessName"],
+      [sequelize.col("Client.email"), "clientEmail"],
+      [sequelize.col("Client.phone_number"), "phoneNumber"],
+      "createdAt",
+      "updatedAt",
+    ],
+    include: [
+      {
+        model: Merchant,
+        attributes: [],
+        required: true,
+      },
+      {
+        model: Client,
+        attributes: [],
+        required: true,
+      },
+    ],
+  });
 
-export const checkStatus = async(id: Id) => {
-  const payment = await Payment.findByPk(id)
-
-
-  return payment
-
-}
+  return payment;
+};

@@ -40,10 +40,7 @@ const TxDetail = ({ tx, open, onClose }: TxDetailProps) => {
   const download = async () => {
     setDl(true);
     try {
-      await generateReceiptPDF(tx, {
-        business_name: tx?.businessName,
-        client_name: tx?.clientName,
-      });
+      await generateReceiptPDF(tx as TX);
       toast.success("Receipt downloaded!");
     } catch {
       toast.error("Failed to generate receipt");

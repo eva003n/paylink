@@ -70,6 +70,7 @@ export const transactionSchema = z.object({
   status: paymentStatusSchema,
   businessName: z.string(),
   clientName: z.string(),
+  clientEmail: z.string(),
   phoneNumber: z.string(),
   amount: z.string(),
   mpesaRef: z.string(),

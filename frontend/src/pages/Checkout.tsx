@@ -61,7 +61,6 @@ interface TxData {
 
 interface PaymentSuccessProps {
   transaction: TX;
-  link: LinkType;
 }
 
 interface PaymentFailedProps {
@@ -256,21 +255,20 @@ const STKWaiting: React.FC<STKWaitingProps> = ({
 /* ── Success screen ──────────────────────────────────────────────────── */
 const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
   transaction,
-  link,
 }) => {
-  const [downloading, setDl] = useState(false);
+  // const [downloading, setDl] = useState(false);
 
-  const download = async () => {
-    setDl(true);
-    try {
-      await generateReceiptPDF(transaction, link);
-      toast.success("Receipt downloaded!");
-    } catch {
-      toast.error("Failed to generate receipt");
-    } finally {
-      setDl(false);
-    }
-  };
+  // const download = async () => {
+  //   setDl(true);
+  //   try {
+  //     await generateReceiptPDF(transaction, link);
+  //     toast.success("Receipt downloaded!");
+  //   } catch {
+  //     toast.error("Failed to generate receipt");
+  //   } finally {
+  //     setDl(false);
+  //   }
+  // };
 
   return (
     <div className="animate-fade-up text-center">
@@ -300,12 +298,12 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
         }}
       >
         <p
-          className="mb-3 text-xs font-bold tracking-wider uppercase"
-          style={{ color: "var(--color-stone-400)" }}
+          className="mb-3 text-xs font-bold tracking-wider text-white"
+          style={{ color: "var(--color-brand-100)" }}
         >
-          Receipt Summary
+          Payment receipt sent to your email {transaction.clientEmail}
         </p>
-        {[
+        {/* {[
           ["Amount Paid", fmtKES(Number(transaction.amount))],
           ["Transaction ID", transaction.id],
           ["M-Pesa Receipt", transaction.mpesaRef || "—"],
@@ -322,10 +320,10 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
               {val}
             </span>
           </div>
-        ))}
+        ))} */}
       </div>
 
-      <Button
+      {/* <Button
         variant="primary"
         size="xl"
         loading={downloading}
@@ -333,7 +331,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
       >
         <Download className="h-4 w-4" />
         Download PDF Receipt
-      </Button>
+      </Button> */}
     </div>
   );
 };
@@ -435,8 +433,7 @@ const CheckoutPage = () => {
           clearInterval(pollRef.current as number);
           clearInterval(timerRef.current as number);
           setTxResult(transaction);
-          setStep(3);
-          localStorage.setItem("payment_step", String(3));
+          localStorage.removeItem("payment_step");
         } else if (status === paymentStatusSchema.enum.Failed || status === paymentStatusSchema.enum.Cancelled) {
           clearInterval(pollRef.current as number);
           clearInterval(timerRef.current as number);
@@ -703,7 +700,7 @@ const CheckoutPage = () => {
 
           {/* Step 3 — Payment success */}
           {step === 3 && (
-            <PaymentSuccess transaction={txResult as TX} link={link} />
+            <PaymentSuccess transaction={txResult as TX} />
           )}
 
           {/* Step 4 — Payment failed */}
