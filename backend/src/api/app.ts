@@ -6,6 +6,7 @@ import helmet from "helmet";
 import morganMiddleware from "./logger/morgan";
 import { COOKIE_SECRET, CORS_ORIGIN_URLS, NODE_ENV } from "./config/env";
 import rateLimit from "express-rate-limit";
+import requestID from "express-request-id"
 
 const app = express();
 
@@ -50,7 +51,11 @@ app.use(express.urlencoded({ extended: false }));
 
 import { getAbsolutePath } from "./utils";
 app.use(express.static(getAbsolutePath("../../public", __dirname)));
+// assign each request a uique request id
+app.use(requestID())
+// log http request
 app.use(morganMiddleware);
+
 
 /* ---- API endpoints ---- */
 import authRouter from "./routes/auth.route";
