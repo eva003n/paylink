@@ -40,6 +40,7 @@ export const paymentStatusSchema = z.enum([
   "Cancelled",
   "Failed",
 ]);
+
 export const paymentLinkSchema = z.object({
   amount: z.coerce.number(),
   shortCode: z.coerce.number(),

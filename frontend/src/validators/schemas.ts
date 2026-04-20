@@ -12,21 +12,7 @@ export const apiResponseSuccessSchema = z.object({
   message: z.string(),
 });
 
-export const analyticsDatsResponse = z.object({
-  data: z.object({
-    stats: z.object({
-      totalCollectedPay: z.number(),
-      totalCompletedPay: z.number(),
-      activeLinks: z.number(),
-      totalLinks: z.number(),
-      paidLinks: z.number(),
-      pendingPayments: z.number(),
-      failedPayments: z.number(),
-    }),
-    recentTransactions: z.array(transactionSchema),
-    links: z.object(),
-  }),
-});
+
 
 export const createLinkResponseSchema = z.object({
   data: paymentLinkSchema.extend({
@@ -64,6 +50,27 @@ export const paymentsResponseSchema = z.object({
   }),
 });
 
+export const analyticsDatsResponse = z.object({
+  data: z.object({
+    stats: z.object({
+      totalCollectedPay: z.number(),
+      totalCompletedPay: z.number(),
+      activeLinks: z.number(),
+      totalLinks: z.number(),
+      paidLinks: z.number(),
+      pendingPayments: z.number(),
+      failedPayments: z.number(),
+    }),
+    recentTransactions: z.array(transactionSchema),
+    links: z.object({
+      active: z.number(),
+      paid: z.number(),
+      cancelled: z.number(),
+      expired: z.number(),
+      total: z.number()
+    }),
+  }),
+});
 
 export const paymentSTKSchema = z.object({
   token: z.string(),

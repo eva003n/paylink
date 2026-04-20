@@ -118,7 +118,7 @@ export const paymentQuerySchema = z.object({
   transactionId: z.string(),
   shortCode: z.coerce.number(),
   checkoutRequestId: z.string(),
-  attempts: z.coerce.number(),
+  // attempts: z.coerce.number(),
 });
 
 export const mpesaPaymentSchema = z.object({

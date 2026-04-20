@@ -14,7 +14,11 @@ import {
   Clock,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { linkStatusSchema, paymentStatusSchema, type TX } from "@paylink/shared";
+import {
+  linkStatusSchema,
+  paymentStatusSchema,
+  type TX,
+} from "@paylink/shared";
 import type { LinkType } from "@/validators/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { paymentSTKSchema, type PaymentSTK } from "@/validators/schemas";
@@ -65,19 +69,18 @@ interface PaymentFailedProps {
   onRetry: () => void;
 }
 
-
- const  useCountdown = (expiresAt: number) => {
+const useCountdown = (expiresAt: number) => {
   const [timeLeft, setTimeLeft] = useState(() => {
     return Math.max(
       0,
-      Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000)
+      Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000),
     );
   });
 
   useEffect(() => {
     const interval = setInterval(() => {
       const diff = Math.floor(
-        (new Date(expiresAt).getTime() - Date.now()) / 1000
+        (new Date(expiresAt).getTime() - Date.now()) / 1000,
       );
 
       setTimeLeft(diff > 0 ? diff : 0);
@@ -91,7 +94,7 @@ interface PaymentFailedProps {
   }, [expiresAt]);
 
   return timeLeft;
-}
+};
 
 const formatTime = (seconds: number) => {
   const hrs = Math.floor(seconds / (60 * 60));
@@ -99,7 +102,7 @@ const formatTime = (seconds: number) => {
   const secs = seconds % 60;
 
   return `${hrs}:${mins}:${secs.toString().padStart(2, "0")}`;
-}
+};
 
 type CountDownProps = {
   expiresAt: number;
@@ -113,10 +116,10 @@ const CountdownTimer = ({ expiresAt }: CountDownProps) => {
   }
 
   return <span>{formatTime(timeLeft)}</span>;
-}
+};
 /* ── Step progress ───────────────────────────────────────────────────── */
 const StepBar: React.FC<StepBarProps> = ({ step }) => {
-  const steps = ["Enter details", 'Confirm PIN', "Done"];
+  const steps = ["Enter details", "Confirm PIN", "Done"];
   return (
     <div className="mb-8 flex items-center">
       {steps.map((label, i) => {
@@ -170,7 +173,6 @@ const StepBar: React.FC<StepBarProps> = ({ step }) => {
     </div>
   );
 };
-
 
 /* ── STK waiting screen ──────────────────────────────────────────────── */
 const STKWaiting: React.FC<STKWaitingProps> = ({
@@ -250,8 +252,6 @@ const STKWaiting: React.FC<STKWaitingProps> = ({
     </div>
   );
 };
-
-
 
 /* ── Success screen ──────────────────────────────────────────────────── */
 const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
@@ -366,9 +366,11 @@ const PaymentFailed: React.FC<PaymentFailedProps> = ({ reason, onRetry }) => (
 
 /* ── Main checkout page ──────────────────────────────────────────────── */
 const CheckoutPage = () => {
-  const qc = useQueryClient()
+  const qc = useQueryClient();
   const { reference } = useParams();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(() => {
+    return Number(localStorage.getItem("payment_step")) || 1;
+  });
   const [loading, setLoading] = useState(false);
   const [txData, setTxData] = useState<TX | null>(null);
   const [txResult, setTxResult] = useState<TX | null>(null);
@@ -389,6 +391,7 @@ const CheckoutPage = () => {
   });
   useEffect(
     () => () => {
+      setStep(Number(localStorage.getItem("payment_step")) || 1);
       if (pollRef.current) clearInterval(pollRef.current);
       if (timerRef.current) clearInterval(timerRef.current);
     },
@@ -406,51 +409,47 @@ const CheckoutPage = () => {
   });
   const link = linkData;
 
-    const startPolling = ( paymentId: string) => {
-      let secs = 60;
+  const startPolling = (paymentId: string) => {
+    let secs = 90;
+    setCountdown(secs);
+
+    timerRef.current = setInterval(() => {
+      secs--;
       setCountdown(secs);
+      if (secs <= 0) {
+        clearInterval(timerRef.current as number);
+        clearInterval(pollRef.current as number);
+        setFailRsn("Payment timed out — the M-Pesa prompt expired.");
+        setStep(4);
+        qc.invalidateQueries({ queryKey: ["dashboard"] });
+      }
+    }, 1000);
 
-      timerRef.current = setInterval(() => {
-        secs--;
-        setCountdown(secs);
-        if (secs <= 0) {
-          clearInterval(timerRef.current as number);
+    pollRef.current = setInterval(async () => {
+      try {
+        const res = await mpesaAPI.query(paymentId);
+        const transaction = res.data;
+        const status = transaction?.status || "";
+
+        if (status === paymentStatusSchema.enum.Completed) {
           clearInterval(pollRef.current as number);
-          setFailRsn("Payment timed out — the M-Pesa prompt expired.");
+          clearInterval(timerRef.current as number);
+          setTxResult(transaction);
+          setStep(3);
+          localStorage.setItem("payment_step", String(3));
+        } else if (status === paymentStatusSchema.enum.Failed || status === paymentStatusSchema.enum.Cancelled) {
+          clearInterval(pollRef.current as number);
+          clearInterval(timerRef.current as number);
+          setFailRsn("Payment was declined or cancelled.");
           setStep(4);
-          qc.invalidateQueries({ queryKey: ["dashboard"] });
+          localStorage.setItem("payment_step", String(4));
+
         }
-      }, 1000);
-
-      pollRef.current = setInterval(async () => {
-        try {
-          const res = await mpesaAPI.query(paymentId);
-          const  transaction  = res.data;
-          const status = transaction?.status || "";
-
-          if (status === paymentStatusSchema.enum.Completed) {
-            clearInterval(pollRef.current as number);
-            clearInterval(timerRef.current as number);
-            setTxResult(transaction);
-            setStep(3);
-          } else if (
-            status === paymentStatusSchema.enum.Failed 
-          ) {
-            clearInterval(pollRef.current as number);
-            clearInterval(timerRef.current as number);
-            setFailRsn(
-             
-                "Payment was declined or cancelled.",
-            );
-            setStep(4);
-          }
-        } catch {
-
-          /* keep polling */
-        }
-      }, 5000);
-
-    };
+      } catch {
+        /* keep polling */
+      }
+    }, 5000);
+  };
 
   const onPay: SubmitHandler<PaymentSTK> = async (data) => {
     setLoading(true);
@@ -461,7 +460,8 @@ const CheckoutPage = () => {
       });
       setTxData(res.data);
       setStep(2);
-      startPolling(res.data.id)
+      localStorage.setItem("payment_step", String(2));
+      startPolling(res.data.id);
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to initiate payment");
     } finally {
@@ -474,14 +474,18 @@ const CheckoutPage = () => {
     if (pollRef.current) clearInterval(pollRef.current);
     if (timerRef.current) clearInterval(timerRef.current);
     setStep(1);
+    localStorage.removeItem("payment_step");
+
     setTxData(null);
     setCountdown(60);
-    reset()
+    reset();
     toast("Payment cancelled");
   };
 
   const handleRetry = () => {
     setStep(1);
+    localStorage.removeItem("payment_step");
+
     setTxData(null);
     setTxResult(null);
     setFailRsn("");
@@ -601,7 +605,7 @@ const CheckoutPage = () => {
         <div className="animate-fade-up rounded-3xl bg-white p-8 shadow-2xl animate-delay-100">
           {step < 3 && <StepBar step={step} />}
 
-          {/* Step 1 — Phone input */}
+          {/* Step 1 — Phone and email input */}
           {step === 1 && (
             <div className="animate-fade-up">
               <h2 className="mb-1.5 font-display text-xl font-bold text-stone-900">
@@ -688,7 +692,7 @@ const CheckoutPage = () => {
             </div>
           )}
 
-          {/* Step 2 — STK waiting */}
+          {/* Step 2 — STK waiting payment confirmation */}
           {step === 2 && (
             <STKWaiting
               phone={"254" + getValues("phoneNumber")}
@@ -697,12 +701,12 @@ const CheckoutPage = () => {
             />
           )}
 
-          {/* Step 3 — Success */}
+          {/* Step 3 — Payment success */}
           {step === 3 && (
             <PaymentSuccess transaction={txResult as TX} link={link} />
           )}
 
-          {/* Step 4 — Failed */}
+          {/* Step 4 — Payment failed */}
           {step === 4 && (
             <PaymentFailed reason={failReason} onRetry={handleRetry} />
           )}

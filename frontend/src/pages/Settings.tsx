@@ -1,14 +1,12 @@
-import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { configAPI } from "@/services/api";
-import { Card, Button, Input, PageHeader } from "@/components/ui";
+import { Card, Button, Input, PageHeader, SecretInput } from "@/components/ui";
 import { cn } from "@/utils";
 import {
   CheckCircle,
   AlertTriangle,
   ExternalLink,
-  Eye,
-  EyeOff,
   Save,
   Info,
 } from "lucide-react";
@@ -21,54 +19,9 @@ import {
   type MerchantConfigInput,
 } from "@paylink/shared";
 
-interface SecretInputProps {
-  label?: string;
-  hint?: string;
-  error?: string;
-  [key: string]: any;
-}
 
-const SecretInput: React.FC<SecretInputProps> = ({
-  label,
-  hint,
-  error,
-  ...props
-}) => {
-  const [show, setShow] = useState(false);
-  return (
-    <div className="flex flex-col gap-1.5">
-      {label && <label className="field-label">{label}</label>}
-      <div className="relative">
-        <Input
-          type={show ? "text" : "password"}
-          className="input pr-10"
-          error={error}
-          {...props}
-        />
-        <Button
-          type="button"
-          onClick={() => setShow((s) => !s)}
-          className="absolute top-1/2 right-3 -translate-y-1/2 bg-stone-50 transition-colors"
-          style={{ color: "var(--color-stone-400)" }}
-        >
-          {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-        </Button>
-      </div>
-      {error ? (
-        <p className="mt-0.5 text-xs text-red-500">{error}</p>
-      ) : hint ? (
-        <p
-          className="mt-0.5 text-xs"
-          style={{ color: "var(--color-stone-400)" }}
-        >
-          {hint}
-        </p>
-      ) : (
-        ""
-      )}
-    </div>
-  );
-};
+
+
 
 const SettingsPage = () => {
   const {
@@ -83,10 +36,7 @@ const SettingsPage = () => {
     defaultValues: { env: configEnvSchema.enum.Sandbox },
   });
 
-  const envOptions = [
-    configEnvSchema.enum.Sandbox,
-    configEnvSchema.enum.Production,
-  ];
+const qs = useQueryClient()
 
   const { data, isLoading } = useQuery({
     queryKey: ["config"],
@@ -109,10 +59,18 @@ const SettingsPage = () => {
 
   const mut = useMutation({
     mutationFn: !data ?configAPI.save: configAPI.update,
-    onSuccess: () => toast.success("Daraja credentials saved!"),
+    onSuccess: () => {
+      qs.invalidateQueries({queryKey: ["config"]})
+      toast.success("Daraja credentials saved!")
+    },
     onError: (err: any) =>
       toast.error(err.response?.data?.error || "Failed to save config"),
   });
+
+    const envOptions = [
+      configEnvSchema.enum.Sandbox,
+      configEnvSchema.enum.Production,
+    ];
 
   const onSubmit: SubmitHandler<MerchantConfigInput> = (data) => {
     mut.mutate(data);

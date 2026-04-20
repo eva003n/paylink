@@ -1,7 +1,8 @@
-import { Loader2, X, type LucideIcon } from "lucide-react";
+import { Eye, EyeOff, Loader2, X, type LucideIcon } from "lucide-react";
 import { cn } from "@/utils";
 import type { ClassValue } from "clsx";
 import React, {
+  useState,
   type ButtonHTMLAttributes,
   type FC,
   type HTMLAttributes,
@@ -107,6 +108,57 @@ export const Input: FC<InputProps> = ({
 
 Input.displayName = "Input";
 
+type SecretInputProps = {
+  label?: string;
+  hint?: string;
+  error?: string;
+  [key: string]: any;
+}
+export const SecretInput: React.FC<SecretInputProps> = ({
+  label,
+  hint,
+  error,
+  ...props
+}) => {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="flex flex-col gap-1.5">
+      {label && <label className="field-label">{label}</label>}
+      <div className="relative">
+        <Input
+          type={show ? "text" : "password"}
+          className="input pr-10"
+          error={error}
+          {...props}
+        />
+        <Button
+          type="button"
+          onClick={() => setShow((s) => !s)}
+          className="absolute top-1/2 right-3 -translate-y-1/2 bg-inherit transition-colors"
+          style={{ color: "var(--color-stone-400)" }}
+        >
+          {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        </Button>
+      </div>
+      {error ? (
+        <p className="mt-0.5 text-xs text-red-500">{error}</p>
+      ) : hint ? (
+        <p
+          className="mt-0.5 text-xs"
+          style={{ color: "var(--color-stone-400)" }}
+        >
+          {hint}
+        </p>
+      ) : (
+        ""
+      )}
+    </div>
+  );
+};
+
+SecretInput.displayName="SecretInput"
+
+
 type TextareaProps = {
   label: string;
   error?: string;
@@ -114,7 +166,33 @@ type TextareaProps = {
   className?: ClassValue;
 } & TextareaHTMLAttributes<HTMLTextAreaElement>;
 
-// ── Textarea ──────────────────────────────────────────────────────────
+type PaginateProps = {
+  currentPage: number,
+  totalPages: number,
+  offset: number
+}
+// export const Pagination: FC<PaginateProps> = ({totalPages = 1, offset = 3}) => {
+//   const pages = new Array(totalPages).fill(null)
+  
+//   return (
+//     <div>
+//       {
+//         for(let i = 0; i < totalPages; i++) {
+//           (
+//             <span></span>
+//           )
+
+//         }
+//       }
+
+
+
+//     </div>
+//   )
+
+
+// }
+//  Textarea 
 export const Textarea: FC<TextareaProps> = ({
   label,
   error,
@@ -192,7 +270,7 @@ export const StatusBadge: FC<StatusBadgeProps> = ({ status }) => {
     Active: "bg-blue-500",
     Paid: "bg-brand-500",
     Expired: "bg-stone-400",
-    Cancelled: "bg-stone-400",
+    Cancelled: "bg-yellow-400",
     Pending: "bg-amber-500",
     Completed: "bg-brand-500",
     Failed: "bg-red-500",

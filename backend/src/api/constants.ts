@@ -2,7 +2,7 @@ export  const QUEUE_NAMES = {
     PAYMENT: "paylink_payment",
     EMAIL: "paylink_email",
     PDF: "paylink_pdf",
-    Link: "paylink_link"
+    LINK: "paylink_link"
 } 
 
 export const WORKER_NAMES = {
