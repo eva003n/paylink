@@ -19,6 +19,8 @@ import {
   Plus,
   TrendingUp,
   Activity,
+  TriangleAlert,
+  Ban,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -31,7 +33,8 @@ const DashboardPage = () => {
   });
 
   const stats = data?.stats;
-  const links = data?.links || {};
+  const links = data?.links;
+
   const recent = data?.recentTransactions || [];
   const hour = new Date().getHours();
   const greeting =
@@ -142,12 +145,7 @@ const DashboardPage = () => {
                     <div
                       className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
                       style={{
-                        backgroundColor:
-                          tx.status === paymentStatusSchema.enum.Completed
-                            ? "var(--color-brand-50)"
-                            : tx.status === paymentStatusSchema.enum.Failed
-                              ? "var(--color-red-50)"
-                              : "var(--color-amber-50)",
+                        backgroundColor: "var(--color-stone-100)",
                       }}
                     >
                       {tx.status === paymentStatusSchema.enum.Completed ? (
@@ -155,15 +153,22 @@ const DashboardPage = () => {
                           className="h-4 w-4"
                           style={{ color: "var(--color-brand-600)" }}
                         />
+                      ) : tx.status === paymentStatusSchema.enum.Failed ? (
+                        <TriangleAlert
+                          className="h-4 w-4"
+                          style={{
+                            color: "var(--color-red-500)",
+                          }}
+                        />
+                      ) : tx.status === paymentStatusSchema.enum.Cancelled ? (
+                        <Ban
+                          className="h-4 w-4"
+                          style={{ color: "var(--color-yellow-500)" }}
+                        />
                       ) : (
                         <Clock
                           className="h-4 w-4"
-                          style={{
-                            color:
-                              tx.status === paymentStatusSchema.enum.Failed
-                                ? "var(--color-red-500)"
-                                : "var(--color-amber-500)",
-                          }}
+                          style={{ color: "var(--color-amber-500)" }}
                         />
                       )}
                     </div>
@@ -255,7 +260,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Link status bars */}
-          {!isLoading && links.total > 0 && (
+          {!isLoading && links!.total > 0 && (
             <div>
               <h2 className="mb-4 font-display font-bold text-stone-900">
                 Link Overview
@@ -264,22 +269,22 @@ const DashboardPage = () => {
                 {[
                   {
                     label: "Active",
-                    count: links.active,
+                    count: links?.active || 0,
                     color: "var(--color-blue-500)",
                   },
                   {
                     label: "Paid",
-                    count: links.paid,
+                    count: links?.paid || 0,
                     color: "var(--color-brand-500)",
                   },
                   {
                     label: "Expired",
-                    count: links.expired,
+                    count: links?.expired || 0,
                     color: "var(--color-stone-300)",
                   },
                   {
                     label: "Cancelled",
-                    count: links.cancelled,
+                    count: links?.cancelled || 0,
                     color: "var(--color-stone-300)",
                   },
                 ]
@@ -304,9 +309,9 @@ const DashboardPage = () => {
                         style={{ backgroundColor: "var(--color-stone-100)" }}
                       >
                         <div
-                          className="h-full rounded-full"
+                          className="rounded--full h-full"
                           style={{
-                            width: `${(count / links.total) * 100}%`,
+                            width: `${(count / links!.total || 1) * 100}%`,
                             backgroundColor: color,
                           }}
                         />

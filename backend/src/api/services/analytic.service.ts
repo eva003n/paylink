@@ -3,7 +3,8 @@ import { Id } from "../../schemas/validators";
 import { linkStatusSchema } from "@paylink/shared";
 import { paymentStatusSchema } from "@paylink/shared";
 import { sequelize } from "../config/db/postgres";
-import { paymentsDTO } from "../dto";
+import { paymentsDTO} from "../dto";
+
 
 export const generateAnalytics = async (id: Id) => {
   // total amount collected
@@ -25,6 +26,12 @@ export const generateAnalytics = async (id: Id) => {
   // total paid links
   const paidLinks = await Link.count({
     where: { status: linkStatusSchema.enum.Paid },
+  });
+  const expiredLinks = await Link.count({
+    where: { status: linkStatusSchema.enum.Expired},
+  });
+  const cancelledLinks = await Link.count({
+    where: { status: linkStatusSchema.enum.Cancelled },
   });
   // total pending payments
   const pendingPayments = await Payment.count({
@@ -76,6 +83,13 @@ export const generateAnalytics = async (id: Id) => {
     failedPayments,
   };
 
+  const links = {
+    active: activeLinks,
+    paid: paidLinks,
+    expired: expiredLinks,
+    cancelled: cancelledLinks,
+    total: totalLinks,
+  }
   // in sequelize dataValues prop contains the actual data(excluding sequelize internals)
-  return { stats, recentTransactions: recentTransactions.map((tx) => paymentsDTO.create(tx.dataValues)) };
+  return { stats, recentTransactions: recentTransactions.map((tx) => paymentsDTO.create(tx.dataValues)), links };
 };
