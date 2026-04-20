@@ -1,7 +1,7 @@
 import { Worker, Job } from "bullmq";
 
 import logger from "../api/logger/logger.winston";
-import { JOB_NAMES, WORKER_NAMES } from "../api/constants";
+import { JOB_NAMES, QUEUE_NAMES } from "../api/constants";
 import { handleEmail } from "../jobs/email/processor";
 import { EmailData } from "../schemas/validators";
 import { connectRedis, createRedisConnection } from "../api/config/redis";
@@ -18,7 +18,7 @@ const redisClient = createRedisConnection();
 })();
 
 const worker = new Worker(
-  WORKER_NAMES.EMAIL,
+  QUEUE_NAMES.EMAIL,
   async (job: Job<EmailData>) => {
     switch (job.name) {
       case JOB_NAMES.RECEIPT_EMAIL:

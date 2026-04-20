@@ -1,5 +1,5 @@
 import { Worker } from "bullmq";
-import { JOB_NAMES, WORKER_NAMES } from "../api/constants";
+import { JOB_NAMES, QUEUE_NAMES } from "../api/constants";
 import {
   handleMpesaSTKPoll,
   handleMpesaSTKPush,
@@ -21,7 +21,7 @@ const redisClient = createRedisConnection();
 
 
 const worker = new Worker(
-  WORKER_NAMES.PAYMENT,
+QUEUE_NAMES.PAYMENT, // worker muat have the same name as queue in order to work on tasks
   async (job) => {
     switch (job.name) {
       case JOB_NAMES.STK_PUSH:

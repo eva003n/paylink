@@ -1,5 +1,5 @@
 import { Worker } from "bullmq";
-import { JOB_NAMES, WORKER_NAMES } from "../api/constants";
+import { JOB_NAMES, QUEUE_NAMES } from "../api/constants";
 import { connectRedis, createRedisConnection } from "../api/config/redis";
 import logger from "../api/logger/logger.winston";
 import { updateTransactionStatus } from "../jobs/payment/processors";
@@ -18,11 +18,11 @@ const redisClient = createRedisConnection();
 })();
 
 const worker = new Worker(
-  WORKER_NAMES.LINK,
+  QUEUE_NAMES.LINK,
   async (job) => {
     switch (job.name) {
       case JOB_NAMES.LINK_EXPIRED:
-        return handleLinkExpiry(job.data);
+        return await handleLinkExpiry(job.data);
       default:
         throw new Error(`Unknown job in link worker: ${job.name}`);
     }

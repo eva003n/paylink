@@ -7,6 +7,7 @@ import {
 import { JOB_NAMES, QUEUE_NAMES } from "../constants";
 import logger from "../logger/logger.winston";
 import { createRedisConnection } from "../config/redis";
+// import { randomUUID } from "crypto";
 
 
 export const paymentQueue = new Queue(QUEUE_NAMES.PAYMENT, {
@@ -31,27 +32,26 @@ export const paymentQueue = new Queue(QUEUE_NAMES.PAYMENT, {
 
 export const enqueueSTKPush = async (paymentData: PaymentData) => {
   return await paymentQueue.add(JOB_NAMES.STK_PUSH, paymentData, {
-    jobId: paymentData.transactionId,
+    // jobId: paymentData.transactionId,
   });
 };
 export const enqueueSTKPoll = async (paymentQuery: PaymentQuery, delay?: number) => {
-  const existingJob = await paymentQueue.getJob(paymentQuery.checkoutRequestId)
+  const existingJob = await paymentQueue.getJob(paymentQuery.transactionId)
 
   if(existingJob) {
     logger.warn(`Job already exists: ${existingJob.id}`);
   }
 
   return await paymentQueue.add(JOB_NAMES.STK_POLL, paymentQuery, {
-    jobId: paymentQuery.checkoutRequestId,
+    jobId: paymentQuery.transactionId,
     delay: delay || 0
   });
 };
-
 
 export const enqueueSTKPaymentConfirmation = async (
   paymentData: PaymentConfirmation,
 ) => {
   return await paymentQueue.add(JOB_NAMES.CONFIRM_PAYMENT, paymentData, {
-    jobId: paymentData.checkoutRequestId,
+    jobId: paymentData.checkoutRequestId
   });
 };

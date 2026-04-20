@@ -1,7 +1,7 @@
 import { Job, Worker } from "bullmq";
 
 import logger from "../api/logger/logger.winston";
-import { JOB_NAMES, WORKER_NAMES } from "../api/constants";
+import { JOB_NAMES, QUEUE_NAMES} from "../api/constants";
 import { handleReceiptGeneration } from "../jobs/pdf/processors";
 import { ReceiptContent } from "../schemas/validators";
 import { connectRedis, createRedisConnection } from "../api/config/redis";
@@ -17,7 +17,7 @@ const redisClient = createRedisConnection();
 })();
 
 const worker = new Worker(
-  WORKER_NAMES.PDF,
+  QUEUE_NAMES.PDF,
   async (job: Job<ReceiptContent>) => {
     switch (job.name) {
       case JOB_NAMES.PDF_RECEIPT:
