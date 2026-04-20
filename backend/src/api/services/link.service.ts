@@ -98,7 +98,7 @@ export const updateLinkStatus = async (
   return { link: updatedLink, updated: true };
 };
 
-const getPaginatedLinks = async (id: Id, filtersOptions: FilterOptions) => {
+export const getPaginatedLinks = async (id: Id, filtersOptions: FilterOptions) => {
   //inplements page by page logic
   const offset = (filtersOptions.page - 1) * filtersOptions.limit;
 
