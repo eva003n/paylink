@@ -23,6 +23,7 @@ import {
 import { Client, Link, Payment } from "../../api/models";
 import { enqueueSTKPoll, enqueuePaymentReceipt } from "../../api/queues";
 import { paymentStatusSchema } from "@paylink/shared";
+import { Op } from "sequelize";
 
 export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
   const shortCode =
@@ -97,7 +98,7 @@ export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
           transactionId: transaction.id,
           shortCode: paymentData.shortCode,
           checkoutRequestId: transaction.checkout_request_id,
-          attempts: 0,
+     //     attempts: 1,
         },
         60000, // poll after 30 or 60 seconds when status is available to avoid busy waiting
       );
@@ -179,27 +180,16 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
         account: client.phone_number,
         paybill: shortCode,
       });
+    } else {
+      // user cancelled the prompt
+      if (code == 1032)
+        transaction.set("status", paymentStatusSchema.enum.Cancelled);
+
+      // if user hasn't acted on prompt
+      if(code === 1037) 
+          transaction.set("status", paymentStatusSchema.enum.Failed);
     }
 
-    // if user hasn't acted or canceled request
-    if (code > 0) {
-      // requeue only when transaction is pending and max attempts is not reached
-
-      if (
-        transaction.status == paymentStatusSchema.enum.Pending &&
-        paymentQuery.attempts < 5
-      ) {
-        enqueueSTKPoll({
-          ...paymentQuery,
-          attempts: paymentQuery.attempts + 1,
-        });
-
-        logger.info(`Re-enqueued STK poll for transaction ${transaction.id}`);
-      } else {
-        // after all attempts the transaction is marked as failed
-        transaction.set("status", paymentStatusSchema.enum.Failed);
-      }
-    }
     // update transaction status
     await transaction.save();
     logger.info(
@@ -215,6 +205,8 @@ export const handlePaymentConfirmation = async (
   payment: PaymentConfirmation,
 ) => {
   try {
+    console.log(payment)
+    
     const transaction = await Payment.findOne({
       where: { checkout_request_id: payment.checkoutRequestId },
     });
@@ -245,16 +237,18 @@ export const handlePaymentConfirmation = async (
     }
 
     // query payment status(becomes the source of truth for payment status)
-    const job = await enqueueSTKPoll({
-      transactionId: transaction.id,
-      shortCode: link.shortCode,
-      checkoutRequestId: transaction.checkout_request_id,
-      attempts: 0,
-    });
+    /*    setTimeout(() => {
+      enqueueSTKPoll({
+       transactionId: transaction.id,
+       shortCode: link.shortCode,
+       checkoutRequestId: transaction.checkout_request_id,
+       attempts: 1,
+     }); 
 
-    logger.info(
-      `Enqueued STK poll job ID: ${job.id} for transaction ${transaction.id}`,
-    );
+  }, 2000);
+  */
+
+    logger.info(`Enqueued STK poll for transaction ${transaction.id}`);
   } catch (error) {
     logger.error(
       `Error confirming payment CheckoutRequestId: ${payment.checkoutRequestId}`,
@@ -267,15 +261,22 @@ export const handlePaymentConfirmation = async (
   }
 };
 
-
-
-export const updateTransactionStatus = async (checkoutId: Id) => {
+export const updateTransactionStatus = async (txId: Id) => {
   const transaction = await Payment.findOne({
-    where: { checkout_request_id: checkoutId },
+    where: {
+      [Op.or]: [
+        {
+          checkout_request_id: txId
+        },
+        {
+          id: txId
+        }
+      ],
+    },
   });
   if (!transaction) {
     logger.error(
-      `Payment with CheckoutRequestId: ${checkoutId} doesn't exists `,
+      `Payment with CheckoutRequestId | ID: ${txId} doesn't exists `,
     );
     return;
   }
