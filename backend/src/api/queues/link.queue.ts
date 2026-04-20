@@ -3,7 +3,7 @@ import { JOB_NAMES, QUEUE_NAMES } from "../constants";
 import { createRedisConnection } from "../config/redis";
 import { LinkExpiry } from "../../schemas/validators";
 
-export const linkQueue = new Queue(QUEUE_NAMES.Link, {
+export const linkQueue = new Queue(QUEUE_NAMES.LINK, {
   connection: createRedisConnection().options,
   defaultJobOptions: {
     removeOnComplete: true,
