@@ -7,3 +7,4 @@ res.json
 /**/**/app.log
 /**/**/dist
 *Zone.Identifier*
+/**/**/*.tsbuildinfo

@@ -22,8 +22,5 @@
   ],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.32.1",
-  "dependencies": {
-    "zod": "^4.3.6"
-  }
+  "packageManager": "pnpm@10.32.1"
 }
