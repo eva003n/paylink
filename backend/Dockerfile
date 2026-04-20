@@ -22,6 +22,7 @@ FROM node:${NODE_VERSION}-alpine AS runner
 WORKDIR /app
 RUN npm install -g pm2
 COPY --from=build /app/dist .
+COPY --from=build /app/public ./public
 COPY ecosystem.config.js ./
 COPY package.json ./
 

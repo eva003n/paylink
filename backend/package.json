@@ -10,7 +10,7 @@
     "restart": "pm2 restart ecosystem.config.js",
     "stop": "pm2 stop ecosystem.config.js",
     "reload": "pm2 reload ecosystem.config.js",
-    "pdf": "ts-node -r tsconfig-paths/register --project tsconfig.app.json src/jobs/pdf/receipt.pdf.ts",
+    "pdf": " node dist/jobs/pdf/receipt.pdf.js",
     "dev": "nodemon",
     "make:migration": "ts-node -r tsconfig-paths/register --project tsconfig.app.json src/make-migrations.ts",
     "migrate": "ts-node --project tsconfig.app.json src/api/config/db/umzug.ts",
