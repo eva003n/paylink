@@ -57,7 +57,7 @@ export const generatePDFReceipt = (data: ReceiptContent) => {
       Title: "M-Pesa Payment Receipt",
       Author: "Paylink",
       Subject: "Payment confirmation",
-      CreationDate: new Date(),
+      CreationDate: new Date(Date.now()),
     },
   });
 
@@ -140,16 +140,16 @@ export const generatePDFReceipt = (data: ReceiptContent) => {
   const COL_SPLIT = TABLE_X + TABLE_W * 0.44; // label/value split
 
   const rows = [
-    ["Transaction ID",   data.reference],
+    // ["Transaction ID",   data.reference],
     ["M-Pesa Receipt",   data.reference],
     ["Business",         data.businessName],
     ["Service",          "M-Pesa STK Push"],
-    ["Client",           data.name],
+    ["Client",           data.email],
     ["M-Pesa Number",    fmtPhone(data.phoneNumber)],
-    ["Checkout ID",      data.reference],
+    // ["Checkout ID",      data.reference],
     ["Date",             fmtDateTime(data.date as string)],
     ["Payment Method",   "M-Pesa STK Push"],
-    ["Status",           "CONFIRMED ✓"],
+    ["Status",           data.status.toUpperCase()],
   ];
 
   // Section title
@@ -274,17 +274,17 @@ export const generatePDFReceipt = (data: ReceiptContent) => {
 logger.info(`✓ Receipt written to ${OUT}`);
 };
 
-const receiptData = {
-  name:        "Jane Doe",
-  email:       "jane.doe@example.com",
-  businessName:"Paylink Ltd",
-  amount:      1250.50,
-  phoneNumber: "254712345678",
-  date:        "2026-04-20T14:30:00.000Z",
-  reference:   "PLNK-20260420-001",
-  paymentType: "M-Pesa STK Push",
-  account:     "123456",
-  paybill:     123456,
-};
+// const receiptData = {
+//   name:        "Jane Doe",
+//   email:       "jane.doe@example.com",
+//   businessName:"Paylink Ltd",
+//   amount:      1250.50,
+//   phoneNumber: "254712345678",
+//   date:        "2026-04-20T14:30:00.000Z",
+//   reference:   "PLNK-20260420-001",
+//   paymentType: "M-Pesa STK Push",
+//   account:     "123456",
+//   paybill:     123456,
+// };
 
-generatePDFReceipt(receiptData);
+// generatePDFReceipt(receiptData);
