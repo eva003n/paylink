@@ -33,7 +33,7 @@ export const sendMail = async (receiver: string) => {
     attachments: [
       {
         filename: "receipt.pdf",
-        path: getAbsolutePath("../../public/doc/receipt.pdf", __dirname),
+        path: getAbsolutePath("../../../public/doc/receipt.pdf", __dirname),
       },
     ],
   });
