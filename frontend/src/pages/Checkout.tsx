@@ -298,10 +298,10 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
         }}
       >
         <p
-          className="mb-3 text-xs font-bold tracking-wider text-white"
+          className="mb-3 text-xs font-bold tracking-wider text-black"
           style={{ color: "var(--color-brand-100)" }}
         >
-          Payment receipt sent to your email {transaction.clientEmail}
+          Payment receipt sent to your email 
         </p>
         {/* {[
           ["Amount Paid", fmtKES(Number(transaction.amount))],
