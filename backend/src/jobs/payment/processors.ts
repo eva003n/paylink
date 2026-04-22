@@ -20,10 +20,11 @@ import {
   PaymentSTKQueryResponse,
   PaymentSTKResponse,
 } from "../../schemas/validators";
-import { Client, Link, Payment } from "../../api/models";
+import { Client, Link, Merchant, Payment } from "../../api/models";
 import { enqueueSTKPoll, enqueuePaymentReceipt } from "../../api/queues";
-import { paymentStatusSchema } from "@paylink/shared";
+import { paymentStatusSchema, TX } from "@paylink/shared";
 import { Op } from "sequelize";
+import {sequelize} from "../../api/config/db/postgres";
 
 export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
   const shortCode =
@@ -98,7 +99,7 @@ export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
           transactionId: transaction.id,
           shortCode: paymentData.shortCode,
           checkoutRequestId: transaction.checkout_request_id,
-     //     attempts: 1,
+          //     attempts: 1,
         },
         60000, // poll after 30 or 60 seconds when status is available to avoid busy waiting
       );
@@ -148,7 +149,31 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
       JSON.stringify(payload),
     );
 
-    const transaction = await Payment.findByPk(paymentQuery.transactionId);
+    const transaction = await Payment.findByPk(paymentQuery.transactionId, {
+      attributes: [
+        "id",
+        "status",
+        "amount",
+        [sequelize.col("mpesa_ref"), "mpesaRef"],
+        [sequelize.col("Merchant.business_name"), "businessName"],
+        [sequelize.col("Client.email"), "clientName"],
+        [sequelize.col("Client.phone_number"), "phoneNumber"],
+        "createdAt",
+        "updatedAt",
+      ],
+      include: [
+        {
+          model: Merchant,
+          attributes: [],
+          required: true,
+        },
+        {
+          model: Client,
+          attributes: [],
+          required: true,
+        },
+      ],
+    });
     if (!transaction) {
       logger.error(
         `Transaction with ID ${paymentQuery.transactionId} doesn't exist`,
@@ -156,29 +181,41 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
       return;
     }
 
-    const client = await Client.findByPk(transaction.client_id);
-    if (!client) {
-      logger.error(`Client with ID ${transaction.client_id} doesn't exist`);
-      return;
-    }
+    // const client = await Client.findByPk(transaction.client_id);
+    // if (!client) {
+    //   logger.error(`Client with ID ${transaction.client_id} doesn't exist`);
+    //   return;
+    // }
 
     const code = Number(response.ResultCode);
     if (code == 0) {
       logger.info(
         `Mpesa express query successfulL CheckoutID: ${response.CheckoutRequestID} `,
       );
+
       transaction.set("status", paymentStatusSchema.enum.Completed);
 
+      /*       const link = await Link.findByPk(transaction.link_id)
+      if(!link) {
+        logger.error(`Link with ID: ${transaction.link_id} does not exists `)
+        return
+      }
+// update link status 
+      link.set("status", linkStatusSchema.enum.Paid)
+      await link.save() */
+
+      const tx: TX = transaction as Payment as any;
       // generate payment receipt pdf
       await enqueuePaymentReceipt({
-        name: client.email.split("@")[0],
-        email: client.email,
-        phoneNumber: client.phone_number,
+        email: tx.clientEmail,
+        phoneNumber: tx.phoneNumber,
         reference: transaction.mpesa_ref,
-        amount: transaction.amount,
+        amount: Number(tx.amount),
         paymentType: "CustomerPayBillOnline",
-        account: client.phone_number,
         paybill: shortCode,
+        businessName: tx.businessName,
+        date: tx.updatedAt?.toString(),
+        status: tx.status,
       });
     } else {
       // user cancelled the prompt
@@ -186,8 +223,8 @@ export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
         transaction.set("status", paymentStatusSchema.enum.Cancelled);
 
       // if user hasn't acted on prompt
-      if(code === 1037) 
-          transaction.set("status", paymentStatusSchema.enum.Failed);
+      if (code === 1037)
+        transaction.set("status", paymentStatusSchema.enum.Failed);
     }
 
     // update transaction status
@@ -205,8 +242,8 @@ export const handlePaymentConfirmation = async (
   payment: PaymentConfirmation,
 ) => {
   try {
-    console.log(payment)
-    
+    console.log(payment);
+
     const transaction = await Payment.findOne({
       where: { checkout_request_id: payment.checkoutRequestId },
     });
@@ -266,11 +303,11 @@ export const updateTransactionStatus = async (txId: Id) => {
     where: {
       [Op.or]: [
         {
-          checkout_request_id: txId
+          checkout_request_id: txId,
         },
         {
-          id: txId
-        }
+          id: txId,
+        },
       ],
     },
   });
