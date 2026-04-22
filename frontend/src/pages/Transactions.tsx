@@ -95,7 +95,7 @@ const TxDetail = ({ tx, open, onClose }: TxDetailProps) => {
         <div className="divide-y divide-stone-100">
           {[
             ["Transaction ID", tx.id],
-            ["M-Pesa Receipt", tx.mpesaRef || "—"],
+            ["M-Pesa Receipt", tx.mpesaRef ],
             ["Phone", fmtPhone(tx.phoneNumber as string)],
             ["Business", tx.businessName || "—"],
             ["Client", tx.clientName || "—"],
@@ -144,7 +144,7 @@ const TransactionsPage = () => {
     refetchInterval: 15000,
   });
 
-  const filtered = (data || []).filter((tx) => {
+  const filtered = (data || []).filter((tx: TX) => {
     if (!search) return true;
     const q = search.toLowerCase();
     return (
@@ -210,7 +210,7 @@ const TransactionsPage = () => {
           />
         ) : (
           <div className="divide-y divide-stone-100">
-            {filtered.map((tx) => (
+            {filtered.map((tx: TX) => (
               <button
                 key={tx.id}
                 onClick={() => setSelected(tx)}
