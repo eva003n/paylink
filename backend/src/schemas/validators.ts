@@ -1,5 +1,5 @@
 import z from "zod";
-import { userRoleSchema} from "@paylink/shared";
+import { paymentStatusSchema, userRoleSchema} from "@paylink/shared";
 
 // export const signUpSchema = z.object({
 //   // username: z.string().min(4).max(64).optional(),
@@ -139,16 +139,15 @@ export const emailDataSchema = z.object({
 })
 
 export const receiptContentSchema = z.object({
-  name: z.string(),
-  email: z.string().email(),
+  email: z.email(),
   businessName: z.string().optional(),
   amount: z.coerce.number(),
   phoneNumber: z.string(),
   date: z.string().optional(),
   reference: z.string(),
   paymentType: z.string(),
-  account: z.string(),
   paybill: z.coerce.number(),
+  status: paymentStatusSchema,
 });
 const linkExpirySchema = z.object({
   linkId: z.string(),
