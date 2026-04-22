@@ -45,22 +45,6 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
       authAPI
         .me(_user?.id as string)
         // .then((res) => setUser(res.data.user))
-        .catch((error) => {
-          // console.error(error)
-          authAPI.refreshToken().then((res) => {
-            const { accessToken: token, expiresIn } = res.data;
-
-            localStorage.setItem(AUTH_DATA.PAYLINK_TOKEN, token || null);
-            localStorage.setItem(
-              AUTH_DATA.PAYLINK_TOKEN_EXPIRY,
-              JSON.stringify(expiresIn + Date.now() - 60_000),
-            );
-          });
-          // .catch(() => {
-          //   console.log(error)
-          // });
-          // if user doesn't remove auth data from local storage
-        })
         .finally(() => setLoading(false));
     }
   }, []);

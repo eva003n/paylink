@@ -6,10 +6,16 @@ import type {
   LinksApiResponse,
   LinkType,
   PaymentApiResponse,
+  TokenApiReponse,
 } from "@/validators/schemas";
 
 import type { PaymentSTK } from "@/validators/schemas";
-import type { FilterOption, PaymentLinkInput, TX, LinkUpdateState } from "@paylink/shared";
+import type {
+  FilterOption,
+  PaymentLinkInput,
+  TX,
+  LinkUpdateState,
+} from "@paylink/shared";
 // create axios instance
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URI || "/api",
@@ -71,12 +77,25 @@ api.interceptors.response.use(
     ) {
       // remove the local storage information and redirect user to login(user and token)
       // window.location.href = "/sign-in";
-      console.log(error.response.data);
-      localStorage.removeItem(AUTH_DATA.PAYLINK_TOKEN);
-      localStorage.removeItem(AUTH_DATA.PAYLINK_USER);
-      localStorage.removeItem(AUTH_DATA.PAYLINK_TOKEN_EXPIRY);
+      // console.log(error.response.data);
+      authAPI
+        .refreshToken()
+        .then((res) => {
+          const { accessToken: token, expiresIn } = res.data;
 
-      window.location.href = "/sign-in";
+          localStorage.setItem(AUTH_DATA.PAYLINK_TOKEN, String(token || null));
+          localStorage.setItem(
+            AUTH_DATA.PAYLINK_TOKEN_EXPIRY,
+            JSON.stringify(expiresIn + Date.now() - 60_000),
+          );
+        })
+        .catch(() => {
+          localStorage.removeItem(AUTH_DATA.PAYLINK_TOKEN);
+          localStorage.removeItem(AUTH_DATA.PAYLINK_USER);
+          localStorage.removeItem(AUTH_DATA.PAYLINK_TOKEN_EXPIRY);
+
+          window.location.href = "/sign-in";
+        });
     }
     // handle unexpected errors
     return Promise.reject(error);
@@ -90,7 +109,7 @@ export const authAPI = {
   login: (d: any) => api.post("/auth/sign-in", d),
   logout: () => api.delete("/auth/sign-out"),
   me: (id: string) => api.get(`/users/${id}`),
-  refreshToken: () => api.get("/auth/refresh-token"),
+  refreshToken: () => api.get<{}, TokenApiReponse>("/auth/refresh-token"),
 };
 
 export const linksAPI = {
@@ -109,15 +128,16 @@ export const linksAPI = {
       },
     }),
   create: (d: PaymentLinkInput) =>
-    api.post<{}, {data: LinkType}, PaymentLinkInput>("/links", d),
-  update: (id: string, d: LinkUpdateState) => api.patch(`/links/${id}/status`, d),
+    api.post<{}, { data: LinkType }, PaymentLinkInput>("/links", d),
+  update: (id: string, d: LinkUpdateState) =>
+    api.patch(`/links/${id}/status`, d),
   remove: (id: string) => api.delete(`/links/${id}`),
 };
 
 export const mpesaAPI = {
   stkPush: (d: PaymentSTK) =>
     api.post<{}, { data: TX }, PaymentSTK>("/payments/mpesa/stk-push", d),
-  query: (id:  string) => api.get<{}, {data: TX }>(`/payments/${id}/status`),
+  query: (id: string) => api.get<{}, { data: TX }>(`/payments/${id}/status`),
   getTransaction: (id: string) => api.get(`/payments/mpesa/transaction/${id}`),
   getAll: () => api.get<{}, PaymentApiResponse>("/payments"),
 };
