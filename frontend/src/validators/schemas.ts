@@ -88,6 +88,14 @@ const configResponseSchema = z.object({
     updatedAt: z.date(),
   }),
 });
+
+const tokenResponseSchema = z.object({
+  data: z.object({
+    accessToken: z.string(),
+    expiresIn: z.number(),
+  }),
+});
+
 export type PaymentSTK = z.infer<typeof paymentSTKSchema>;
 
 export type LinkType = z.infer<typeof createLinkResponseSchema>["data"];
@@ -95,4 +103,5 @@ export type AnalyticsApiResponse = z.infer<typeof analyticsDatsResponse>;
 export type LinksApiResponse = z.infer<typeof linksResponseSchema>;
 export type PaymentApiResponse = z.infer<typeof paymentsResponseSchema>;
 export type ConfigApiSchema = z.infer<typeof configResponseSchema>;
+export type TokenApiReponse = z.infer<typeof tokenResponseSchema>
 // export type LinkType = z.infer<typeof createLinkResponseSchema>
