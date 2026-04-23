@@ -22,8 +22,8 @@ const NAV = [
   const handleLogout = async () => {
     setLoading(true);
     try {
-       const res = await logOut();
-       toast.success(res.message);
+       await logOut();
+       toast.success("Logged out successfully");
        navigate("/sign-in");
     } catch (error) {
       toast.error(error.message);
