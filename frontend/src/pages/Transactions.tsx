@@ -25,7 +25,7 @@ import {
   Receipt,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { paymentStatusSchema, type TX } from "@paylink/shared";
+import { paymentStatusSchema, type PaymentStatus, type TX } from "@paylink/shared";
 
 type TransactionStatus = "completed" | "failed" | "pending";
 
@@ -52,23 +52,28 @@ const TxDetail = ({ tx, open, onClose }: TxDetailProps) => {
 
   const statusBg = (
     {
-      completed: {
+      Completed: {
         bg: "var(--color-brand-50)",
         border: "var(--color-brand-200)",
         text: "var(--color-brand-700)",
       },
-      failed: {
+      Failed: {
         bg: "var(--color-red-50)",
         border: "var(--color-red-200)",
         text: "var(--color-red-700)",
       },
-      pending: {
+      Pending: {
         bg: "var(--color-amber-50)",
         border: "var(--color-amber-200)",
         text: "var(--color-amber-700)",
       },
+      Cancelled: {
+        bg: "var(--color-orange-50)",
+        border: "var(--color-orange-200)",
+        text: "var(--color-orange-700)",
+      },
     } as const
-  )[tx.status as TransactionStatus] || {
+  )[tx.status as PaymentStatus] || {
     bg: "var(--color-stone-50)",
     border: "var(--color-stone-200)",
     text: "var(--color-stone-700)",
@@ -226,7 +231,9 @@ const TransactionsPage = () => {
                           ? "var(--color-red-50)"
                           : tx.status === paymentStatusSchema.enum.Pending
                             ? "var(--color-amber-50)"
-                            : "var(--color-stone-100)",
+                            : tx.status === paymentStatusSchema.enum.Cancelled
+                              ? "var(--color-orange-100)"
+                              : "var(--color-stone-100)",
                   }}
                 >
                   <Receipt

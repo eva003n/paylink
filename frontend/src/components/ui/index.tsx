@@ -270,7 +270,7 @@ export const StatusBadge: FC<StatusBadgeProps> = ({ status }) => {
     Active: "bg-blue-500",
     Paid: "bg-brand-500",
     Expired: "bg-stone-400",
-    Cancelled: "bg-yellow-400",
+    Cancelled: "bg-orange-400",
     Pending: "bg-amber-500",
     Completed: "bg-brand-500",
     Failed: "bg-red-500",

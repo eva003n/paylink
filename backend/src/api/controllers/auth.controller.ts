@@ -10,7 +10,7 @@ import ApiResponse from "../utils/ApiResponse";
 import asyncHandler from "../utils/asynchandler";
 import { Request, Response, NextFunction } from "express";
 import { MerchantSignUpAuth } from "@paylink/shared";
-
+import  jwt, { JwtPayload }  from "jsonwebtoken";
 export const signUp = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { businessName, email, password, phoneNumber }: MerchantSignUpAuth =
@@ -103,11 +103,18 @@ export const tokenRefresh = asyncHandler(
     const oldAccessToken =
       req.signedCookies.AccessToken ||
       req.headers["authorization"]?.split(" ")[1];
+
+      
     // make request idempotent, dont refresh if access token has not expired
     if (oldAccessToken) {
+      const decodedAccessToken = jwt.decode(oldAccessToken) as JwtPayload;
+      const currentTimeSec = Math.floor(Date.now() / 1000);
+      const remainingTimeMs =
+        ((decodedAccessToken.exp as number) - currentTimeSec) * 1000;
+        
       return res
         .status(200)
-        .json(new ApiResponse(200, null, "Refreshed successfully"));
+        .json(new ApiResponse(200, new ApiResponse(200, {accessToken: oldAccessToken, expiresIn: remainingTimeMs }), "Refreshed successfully"));
     }
 
     const oldRefreshToken = req.signedCookies.RefreshToken;

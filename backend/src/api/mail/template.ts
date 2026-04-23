@@ -9,7 +9,7 @@ export const template = (username: string) => {
     >
       <!-- Header -->
       <tr>
-        <td style="background: #0a2540; padding: 20px; text-align: center">
+        <td style="background: #0D2B1A; padding: 20px; text-align: center">
           <h1 style="color: #ffffff; margin: 0; font-size: 24px">Paylink</h1>
           <!-- Replace with actual logo URL -->
           <!-- <img src="https://yourdomain.com/logo.png" alt="Paylink Logo" height="40" /> -->
@@ -22,12 +22,9 @@ export const template = (username: string) => {
           <p style="color: #555; line-height: 1.6">Hi ${username},</p>
           <p style="color: #555; line-height: 1.6">
             Your payment has been successfully processed. Please find your
-            receipt attached as a PDF below.
+            receipt attached as a PDF.
           </p>
-          <p style="color: #555; line-height: 1.6">
-            If you have any questions, feel free to reply to this email or
-            contact our support team.
-          </p>
+         
           <p style="color: #555">
             Thank you for using <strong>Paylink</strong>.
           </p>

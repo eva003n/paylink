@@ -278,7 +278,7 @@ const LinkCard: FC<LinkCardProps> = ({ link, onShare }) => {
   return (
     <div className="card-hover">
       <div className="p-5">
-        <div className="mb-3 flex items-start justify-between gap-3">
+        <div className="mb-3 flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             <div className="mb-1 flex flex-wrap items-center gap-2">
               <h3 className="truncate font-semibold text-stone-900">

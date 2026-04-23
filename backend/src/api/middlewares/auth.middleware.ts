@@ -12,7 +12,8 @@ const protectRoute = asyncHandler(async (req, res, next) => {
     req.signedCookies.AccessToken ||
     req.headers["authorization"]?.split(" ")[1];
   // no token in cookie
-  if (accessToken === "null" || accessToken === "undefined") {
+  // console.log(typeof accessToken)
+  if (accessToken === "null" || accessToken === "undefined" || accessToken === undefined) {
     return next(
       ApiError.unAuthorizedRequest(
         401,
