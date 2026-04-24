@@ -9,6 +9,7 @@
     "dev:frontend": "pnpm --filter frontend dev",
     "dev:shared": "pnpm --filter @paylink/shared dev ",
     "start:dev": "pnpm --filter backend start:dev",
+    "build:backend": "pnpm --filter backend build",
     "build:shared": "pnpm --filter @paylink/shared build",
     "build": "pnpm build:shared && pnpm --filter backend build && pnpm --filter frontend build",
     "test": "echo \"Error: no test specified\" && exit 1"

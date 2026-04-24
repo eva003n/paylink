@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/api/index.js",
   "scripts": {
-    "build": "tsc -p tsconfig.app.json ",
+    "build": "exec tsc -p tsconfig.app.json ",
     "start": "tsc -p tsconfig.app.json && pm2 start ecosystem.config.js & pm2 logs",
     "start:dev": "tsc -p tsconfig.app.json && pm2 start ecosystem.dev.config.js && pm2 logs",
     "restart": "pm2 restart ecosystem.config.js",

@@ -1,5 +1,10 @@
 #  define where the packages are located
-packages: 
-- "shared"
-- "frontend"
-- "backend"
+packages:
+  - "shared"
+  - "frontend"
+  - "backend"
+allowBuilds:
+  core-js: false
+  esbuild: false
+  msgpackr-extract: false
+  msw: false
