@@ -1,14 +1,9 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
 import {
-  NODE_ENV,
-  PROD_MPESA_LIVE_API_URL,
-  MPESA_SANDBOX_API_URL,
-  PROD_CONSUMER_KEY,
-  SANDBOX_CONSUMER_KEY,
-  PROD_CONSUMER_SECRET,
-  SANDBOX_CONSUMER_SECRET,
-  PROD_MPESA_AUTH_URL,
-  MPESA_SANDBOX_AUTH_URL,
+  CONSUMER_KEY,
+  CONSUMER_SECRET,
+  MPESA_API_URL,
+  MPESA_AUTH_URL,
 } from "../env";
 import ServiceError from "../../utils/ServiceError";
 import logger from "../../logger/logger.winston";
@@ -20,15 +15,21 @@ type TokenResponse = {
   expires_in: number;
 };
 
+let token: string | null = null;
+let expiryMs: number = 0;
 
-let token: string | null = null
-let expiryMs: number = 0
-
-redisClient.get(MPESA_TOKEN_DATA.TOKEN).then(t => token = t || token).catch((error) => logger.error(`Redis error at mpesa client: ${error.message}`))
+redisClient
+  .get(MPESA_TOKEN_DATA.TOKEN)
+  .then((t) => (token = t || token))
+  .catch((error) =>
+    logger.error(`Redis error at mpesa client: ${error.message}`),
+  );
 redisClient
   .get(MPESA_TOKEN_DATA.EXPIRY)
   .then((ex) => (expiryMs = Number(ex) || expiryMs))
-  .catch((error) => logger.error(`Redis error at mpesa client: ${error.message}`));
+  .catch((error) =>
+    logger.error(`Redis error at mpesa client: ${error.message}`),
+  );
 
 class MpesaClient {
   private audience: string;
@@ -36,24 +37,14 @@ class MpesaClient {
   private consumerSecret: string;
   private authUrl: string;
   private token: string | null;
-  private tokenExpiryMs: number ; // expires in 1 hour
+  private tokenExpiryMs: number; // expires in 1 hour
   private api: AxiosInstance;
 
   constructor() {
-    this.audience = (
-      NODE_ENV === "production"
-        ? PROD_MPESA_LIVE_API_URL
-        : MPESA_SANDBOX_API_URL
-    ) as string;
-    this.consumerKey = (
-      NODE_ENV === "production" ? PROD_CONSUMER_KEY : SANDBOX_CONSUMER_KEY
-    ) as string;
-    this.consumerSecret = (
-      NODE_ENV === "production" ? PROD_CONSUMER_SECRET : SANDBOX_CONSUMER_SECRET
-    ) as string;
-    this.authUrl = (
-      NODE_ENV === "production" ? PROD_MPESA_AUTH_URL : MPESA_SANDBOX_AUTH_URL
-    ) as string;
+    this.audience = MPESA_API_URL as string;
+    this.consumerKey = CONSUMER_KEY as string;
+    this.consumerSecret = CONSUMER_SECRET as string;
+    this.authUrl = MPESA_AUTH_URL as string;
     this.token = token;
     this.tokenExpiryMs = expiryMs;
 
@@ -134,10 +125,10 @@ class MpesaClient {
     // mpesa return expires_in(seconds) as a string convert to number for good math(convert to milliseconds)
     const expiresAt = Number(response.data.expires_in) * 1000;
     this.tokenExpiryMs = currentTimeMs + expiresAt - 60; // minus 60 so that the request is sent 1 minute before the token expires to avoid token expiring mid-level request
-   
+
     // save to redis
-    await redisClient.set(MPESA_TOKEN_DATA.TOKEN, this.token)
-    await redisClient.set(MPESA_TOKEN_DATA.EXPIRY, this.tokenExpiryMs)
+    await redisClient.set(MPESA_TOKEN_DATA.TOKEN, this.token);
+    await redisClient.set(MPESA_TOKEN_DATA.EXPIRY, this.tokenExpiryMs);
 
     logger.info(`Mpesa token refreshed `);
     return response.data.access_token;

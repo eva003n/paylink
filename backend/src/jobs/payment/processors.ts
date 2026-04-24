@@ -1,11 +1,7 @@
 import {
-  NODE_ENV,
-  PROD_MPESA_EXPRESS_PASSKEY,
-  MPESA_EXPRESS_SANDBOX_PASSKEY,
-  PROD_MPESA_EXPRESS_CALLBACK_URL,
-  MPESA_EXPRESS_SANDBOX_CALLBACK_URL,
-  MPESA_SANDBOX_SHORTCODE,
-  MPESA_SANDBOX_PARTYA,
+  MPESA_EXPRESS_CALLBACK_URL,
+  MPESA_EXPRESS_PASSKEY,
+  MPESA_SHORTCODE,
 } from "../../api/config/env";
 import { mpesaClient } from "../../api/config/mpesa/mpesaclient";
 import { getTimeStamp } from "../../api/utils";
@@ -24,15 +20,11 @@ import { Client, Link, Merchant, Payment } from "../../api/models";
 import { enqueueSTKPoll, enqueuePaymentReceipt } from "../../api/queues";
 import { paymentStatusSchema, TX } from "@paylink/shared";
 import { Op } from "sequelize";
-import {sequelize} from "../../api/config/db/postgres";
+import { sequelize } from "../../api/config/db/postgres";
 
 export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
-  const shortCode =
-    NODE_ENV === "production" ? paymentData.shortCode : MPESA_SANDBOX_SHORTCODE;
-  const passkey =
-    NODE_ENV === "production"
-      ? PROD_MPESA_EXPRESS_PASSKEY
-      : MPESA_EXPRESS_SANDBOX_PASSKEY;
+  const shortCode = paymentData.shortCode || Number(MPESA_SHORTCODE);
+  const passkey = MPESA_EXPRESS_PASSKEY as string;
   const timeStamp = getTimeStamp();
 
   //create a transaction before hand the used the transactions id as the account reference
@@ -48,16 +40,10 @@ export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
     Timestamp: timeStamp,
     TransactionType: "CustomerPayBillOnline",
     Amount: Math.round(paymentData.amount), // amount to be paid by customer
-    PartyA:
-      NODE_ENV === "production"
-        ? paymentData.phoneNumber
-        : MPESA_SANDBOX_PARTYA, // customers phone number
+    PartyA: paymentData.phoneNumber,
     PartyB: shortCode,
     PhoneNumber: paymentData.phoneNumber, // to receive ussd prompt
-    CallBackURL:
-      NODE_ENV === "production"
-        ? PROD_MPESA_EXPRESS_CALLBACK_URL
-        : MPESA_EXPRESS_SANDBOX_CALLBACK_URL,
+    CallBackURL: MPESA_EXPRESS_CALLBACK_URL as string,
     AccountReference: paymentData.phoneNumber,
     TransactionDesc: "Make online payment",
   };
@@ -119,16 +105,8 @@ export const handleMpesaSTKPush = async (paymentData: PaymentData) => {
 };
 
 export const handleMpesaSTKPoll = async (paymentQuery: PaymentQuery) => {
-  const shortCode = (
-    NODE_ENV === "production"
-      ? paymentQuery.shortCode
-      : parseInt(MPESA_SANDBOX_SHORTCODE as string)
-  ) as number;
-  const passkey = (
-    NODE_ENV === "production"
-      ? PROD_MPESA_EXPRESS_PASSKEY
-      : MPESA_EXPRESS_SANDBOX_PASSKEY
-  ) as string;
+  const shortCode = paymentQuery.shortCode || Number(MPESA_SHORTCODE);
+  const passkey = MPESA_EXPRESS_PASSKEY as string;
   const timeStamp = getTimeStamp();
 
   const base64String = Buffer.from(
