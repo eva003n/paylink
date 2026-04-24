@@ -6,12 +6,12 @@ services:
     context: ./backend
     # include the image 
     dockerfile: Dockerfile
-  container_name: paylink_api
+  container_name: paylink_server
   # inject env variable into a container without baking them into the image which is not safe
   env_file:
      - backend/.env
      - backend/.env.development
-     - backend/.env.production
+   #   - backend/.env.production
 
   depends_on:
      - db 
@@ -25,7 +25,7 @@ services:
   # restart: true
   
  db:
-    image: postgres:15
+    image: postgres:18
     restart: always
     container_name: postgres_db
     env_file:
@@ -43,7 +43,7 @@ services:
     ports:
        - 5432:5432
     volumes:
-       - postgres_data:/var/lib/postgresql/data
+       - postgres_data:/var/lib/postgresql
     networks: 
        - app-net
  redis:
@@ -58,18 +58,18 @@ services:
       - app-net
    command: ["redis-server", "--appendonly", "yes"]
 
- frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: paylink_web
-    env_file:
-      - frontend/.env.development
-      - frontend/.env.production
-    ports:
-       - 5173:80
-    networks:
-       - app-net
+#  frontend:
+#     build:
+#       context: ./frontend
+#       dockerfile: Dockerfile
+#     container_name: paylink_web
+#     env_file:
+#       - frontend/.env.development
+#       - frontend/.env.production
+#     ports:
+#        - 5173:80
+#     networks:
+#        - app-net
 
 
 volumes:
