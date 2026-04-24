@@ -20,9 +20,9 @@ module.exports = {
     },
     {
       name: "payment-worker",
-      script: "./src/workers/payment.worker.js",
+      script: "./dist/workers/payment.worker.js",
       instances: 1, // payments are safer processed in single threaded
-      // exec_mode: "fork",
+      exec_mode: "fork",
       autorestart: true,
       env_production: {
         NODE_ENV: process.env.NODE_ENV,
@@ -30,9 +30,9 @@ module.exports = {
     },
     {
       name: "email-worker",
-      script: "./src/workers/email.worker.js",
+      script: "./dist/workers/email.worker.js",
       instances: 2, // control concurrency
-      // exec_mode: "fork",
+      exec_mode: "fork",
       autorestart: true,
       env_production: {
         NODE_ENV: process.env.NODE_ENV,
@@ -40,9 +40,9 @@ module.exports = {
     },
     {
       name: "pdf-worker",
-      script: "./src/workers/pdf.worker.js",
+      script: "./dist/workers/pdf.worker.js",
       instances: 1, // control concurrency
-      // exec_mode: "fork",
+      exec_mode: "fork",
       max_memory_restart: "700M",
       autorestart: true,
       env_production: {
@@ -56,7 +56,8 @@ module.exports = {
       exec_mode: "fork",
       wait_ready: true, // start when services are ready
       autorestart: true,
-      env_development: {
+      env_production: {
+        NODE_ENV: process.env.NODE_ENV,
       },
     },
   ],
