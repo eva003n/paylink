@@ -1,15 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import { data, Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { linksAPI, mpesaAPI } from "@/services/api";
 import { Button, Input, Spinner } from "@/components/ui";
-import { fmtKES, fmtDateTime, fmtPhone, generateReceiptPDF, cn } from "@/utils";
+import { fmtKES, fmtPhone, cn } from "@/utils";
 import {
   Shield,
   CheckCircle,
   XCircle,
   Phone,
-  Download,
   AlertTriangle,
   Clock,
 } from "lucide-react";
@@ -19,7 +18,6 @@ import {
   paymentStatusSchema,
   type TX,
 } from "@paylink/shared";
-import type { LinkType } from "@/validators/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { paymentSTKSchema, type PaymentSTK } from "@/validators/schemas";
 import { useForm, type SubmitHandler } from "react-hook-form";
@@ -34,30 +32,7 @@ interface STKWaitingProps {
   onCancel: () => void;
 }
 
-interface Transaction {
-  reference: string;
-  amount: number;
-  phone: string;
-  mpesa_receipt?: string;
-  completed_at?: string;
-  created_at: string;
-  status?: string;
-  result_desc?: string;
-}
 
-interface Link {
-  id: string;
-  amount: number;
-  business_name: string;
-  description?: string;
-  client_name?: string;
-  status: string;
-}
-
-interface TxData {
-  checkout_request_id: string;
-  reference: string;
-}
 
 interface PaymentSuccessProps {
   transaction: TX;
@@ -68,54 +43,6 @@ interface PaymentFailedProps {
   onRetry: () => void;
 }
 
-const useCountdown = (expiresAt: number) => {
-  const [timeLeft, setTimeLeft] = useState(() => {
-    return Math.max(
-      0,
-      Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000),
-    );
-  });
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const diff = Math.floor(
-        (new Date(expiresAt).getTime() - Date.now()) / 1000,
-      );
-
-      setTimeLeft(diff > 0 ? diff : 0);
-
-      if (diff <= 0) {
-        clearInterval(interval);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [expiresAt]);
-
-  return timeLeft;
-};
-
-const formatTime = (seconds: number) => {
-  const hrs = Math.floor(seconds / (60 * 60));
-  const mins = Math.ceil(seconds / 60);
-  const secs = seconds % 60;
-
-  return `${hrs}:${mins}:${secs.toString().padStart(2, "0")}`;
-};
-
-type CountDownProps = {
-  expiresAt: number;
-};
-
-const CountdownTimer = ({ expiresAt }: CountDownProps) => {
-  const timeLeft = useCountdown(expiresAt);
-
-  if (timeLeft === 0) {
-    return <span className="text-amber-400">Expired</span>;
-  }
-
-  return <span>{formatTime(timeLeft)}</span>;
-};
 /* ── Step progress ───────────────────────────────────────────────────── */
 const StepBar: React.FC<StepBarProps> = ({ step }) => {
   const steps = ["Enter details", "Confirm PIN", "Done"];
@@ -253,9 +180,7 @@ const STKWaiting: React.FC<STKWaitingProps> = ({
 };
 
 /* ── Success screen ──────────────────────────────────────────────────── */
-const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
-  transaction,
-}) => {
+const PaymentSuccess: React.FC<PaymentSuccessProps> = () => {
   // const [downloading, setDl] = useState(false);
 
   // const download = async () => {
@@ -370,7 +295,6 @@ const CheckoutPage = () => {
     return Number(localStorage.getItem("payment_step")) || 1;
   });
   const [loading, setLoading] = useState(false);
-  const [txData, setTxData] = useState<TX | null>(null);
   const [txResult, setTxResult] = useState<TX | null>(null);
   const [countdown, setCountdown] = useState(80);
   const [failReason, setFailRsn] = useState("");
@@ -455,7 +379,6 @@ const CheckoutPage = () => {
         ...data,
         phoneNumber: `254${data.phoneNumber}`,
       });
-      setTxData(res.data);
       setStep(2);
       localStorage.setItem("payment_step", String(2));
       startPolling(res.data.id);
@@ -473,7 +396,6 @@ const CheckoutPage = () => {
     setStep(1);
     localStorage.removeItem("payment_step");
 
-    setTxData(null);
     setCountdown(60);
     reset();
     toast("Payment cancelled");
@@ -483,7 +405,6 @@ const CheckoutPage = () => {
     setStep(1);
     localStorage.removeItem("payment_step");
 
-    setTxData(null);
     setTxResult(null);
     setFailRsn("");
     setCountdown(60);

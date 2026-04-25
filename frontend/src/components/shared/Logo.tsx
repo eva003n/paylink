@@ -1,6 +1,5 @@
 import type { ClassValue } from 'class-variance-authority/types';
 import { Shield } from 'lucide-react';
-import React from 'react'
 import { cn } from '@/utils';
 import { Link } from 'react-router-dom';
 

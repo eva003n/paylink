@@ -1,6 +1,6 @@
 import { cn } from "@/utils";
 import type { ClassValue } from "clsx";
-import React, { type FC, type ReactNode } from "react";
+import { type FC } from "react";
 
 type SkeletonProps = {
   className: ClassValue;

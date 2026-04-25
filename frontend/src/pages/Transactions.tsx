@@ -27,8 +27,6 @@ import {
 import toast from "react-hot-toast";
 import { paymentStatusSchema, type PaymentStatus, type TX } from "@paylink/shared";
 
-type TransactionStatus = "completed" | "failed" | "pending";
-
 interface TxDetailProps {
   tx: TX | null;
   open: boolean;

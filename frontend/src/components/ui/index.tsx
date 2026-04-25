@@ -166,11 +166,6 @@ type TextareaProps = {
   className?: ClassValue;
 } & TextareaHTMLAttributes<HTMLTextAreaElement>;
 
-type PaginateProps = {
-  currentPage: number,
-  totalPages: number,
-  offset: number
-}
 // export const Pagination: FC<PaginateProps> = ({totalPages = 1, offset = 3}) => {
 //   const pages = new Array(totalPages).fill(null)
   
