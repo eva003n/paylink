@@ -3,14 +3,16 @@ services:
   
  backend: 
   build:
-    context: ./backend
+    context: .
     # include the image 
-    dockerfile: Dockerfile
+    dockerfile: backend/Dockerfile
   container_name: paylink_server
+  environment:
+     NODE_ENV: production
   # inject env variable into a container without baking them into the image which is not safe
   env_file:
-     - backend/.env
-     - backend/.env.development
+   #   - backend/.env
+     - backend/.env.production
    #   - backend/.env.production
 
   depends_on:
@@ -29,13 +31,13 @@ services:
     restart: always
     container_name: postgres_db
     env_file:
-      - backend/.env.development
-    environment:
-          - POSTGRES_USER=paylink_admin
-          - POSTGRES_PASSWORD=paylink@2026
-          - POSTGRES_DB=paylink
+      - backend/.env.production
+   #  environment:
+   #        - POSTGRES_USER=${POSTGRES_USR}
+   #        - POSTGRES_PASSWORD=${POSTGRES_PASS}
+   #        - POSTGRES_DB=${DB_NAME}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U paylink_admin -d paylink"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d paylink"]
       interval: 10s
       retries: 5
       start_period: 30s
@@ -60,8 +62,8 @@ services:
 
 #  frontend:
 #     build:
-#       context: ./frontend
-#       dockerfile: Dockerfile
+#       context: .
+#       dockerfile: frontend/Dockerfile
 #     container_name: paylink_web
 #     env_file:
 #       - frontend/.env.development

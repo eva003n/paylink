@@ -1,17 +1,26 @@
 # Dependencies
-node_modules
+/**/**/node_modules
+/**/**/eslint.*
 # Build output
-dist
+# /**/**/dist
 # Docker files
 Dockerfile
 .dockerignore
 # Git
-.git
-.gitignore
+/**/**/.git
+/**/**/.gitignore
+/**/**/.gitattributes
+
 # Local development files
 .vitepress
 .idea
 .vscode
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+.history
+.nvmrc
+.prettierrc
+
+# documentation
+docs
+/**/**/assets
+
+*.md
