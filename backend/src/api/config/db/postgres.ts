@@ -2,6 +2,7 @@ import { Sequelize } from "sequelize";
 import logger from "../../logger/logger.winston";
 import { POSTGRES_URL } from "../env";
 
+
 export const sequelize = new Sequelize(POSTGRES_URL as string, {
   logging: logger.info.bind(logger),
 });

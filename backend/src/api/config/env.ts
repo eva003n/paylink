@@ -1,20 +1,17 @@
-import { config } from "dotenv-flow";
-import { getAbsolutePath } from "../utils/index";
+import { getAbsolutePath } from "../utils";
 
-// config({
-//   path: getAbsolutePath("../../.env"),
-// });
+import { getAbsolutePath } from "../utils";
 
-// config({
-//   path: getAbsolutePath(`../../.env.${process.env.NODE_ENV || "development"}`),
-// });
-config({
-  files: [
-    `${getAbsolutePath("../../../.env", __dirname)}`, // The base environment file (loaded first)
-    `${getAbsolutePath(`../../../.env.${process.env.NODE_ENV || "development"}`, __dirname)}`, // Local overrides (loaded second, overrides .env)
-    // `${process.env.NODE_ENV === "production" ? getAbsolutePath("../../.env.production", __dirname) : ""}`, // Environment-specific files (loaded last, overrides all)
-  ],
-});
+// only use in development
+if ((process.env.NODE_ENV || "development") !== "production") {
+  const dotenvFlow = require("dotenv-flow");
+  dotenvFlow.config({
+    files: [
+      `${getAbsolutePath("../../../.env", __dirname)}`, // The base environment file (loaded first)
+      `${getAbsolutePath(`../../../.env.${process.env.NODE_ENV || "development"}`, __dirname)}`, // Local overrides (loaded second, overrides .env)
+    ],
+  });
+}
 
 export const {
   NODE_ENV,
@@ -24,13 +21,6 @@ export const {
   COOKIE_SECRET,
   ACCESS_TOKEN_SECRET,
   REFRESH_TOKEN_SECRET,
-
-  /* ----- Production ----- */
-  // PROD_CORS_ORIGIN_URLS,
-  // PROD_FRONTEND_BASE_URI,
-  // PROD_COOKIE_SECRET,
-  // PROD_ACCESS_TOKEN_SECRET,
-  // PROD_REFRESH_TOKEN_SECRET,
 
   API_DOC_URI,
 

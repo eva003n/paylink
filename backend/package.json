@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/api/index.js",
   "scripts": {
-    "build": "exec tsc -p tsconfig.app.json ",
+    "build": "tsc -p tsconfig.app.json ",
     "start": "tsc -p tsconfig.app.json && pm2 start ecosystem.config.js & pm2 logs",
     "start:dev": "tsc -p tsconfig.app.json && pm2 start ecosystem.dev.config.js && pm2 logs",
     "restart": "pm2 restart ecosystem.config.js",
@@ -19,7 +19,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.24.0",
+  "packageManager": "pnpm@10.32.1",
   "dependencies": {
     "@bull-board/api": "^6.20.5",
     "@bull-board/express": "^6.20.5",
@@ -41,6 +41,7 @@
     "pdfkit": "^0.18.0",
     "pg": "^8.19.0",
     "pg-hstore": "^2.3.4",
+    "pm2": "^6.0.14",
     "sequelize": "^6.37.7",
     "umzug": "^3.8.2",
     "winston": "^3.19.0",

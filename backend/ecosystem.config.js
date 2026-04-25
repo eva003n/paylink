@@ -2,20 +2,14 @@ module.exports = {
   apps: [
     {
       name: "paylink-api",
-      script: "./src/index.js",
+      script: "./dist/api/index.js",
       instances: -1,
       exec_mode: "cluster",
       autorestart: true,
       kill_timeout: 3000,
       wait_ready: true, // enable graceful start up
       env_production: {
-        //.env
-        PORT: process.env.PORT,
-        NODE_ENV: process.env.NODE_ENV,
-
-        //.env.develoment or .env.production
-        PM2_PUBLIC_KEY: process.env.PM2_PUBLIC_KEY,
-        PM2_SECRET_KEY: process.env.PM2_SECRET_KEY,
+        NODE_ENV: "production"
       },
     },
     {
@@ -25,7 +19,7 @@ module.exports = {
       exec_mode: "fork",
       autorestart: true,
       env_production: {
-        NODE_ENV: process.env.NODE_ENV,
+        NODE_ENV: "production",
       },
     },
     {
@@ -35,7 +29,7 @@ module.exports = {
       exec_mode: "fork",
       autorestart: true,
       env_production: {
-        NODE_ENV: process.env.NODE_ENV,
+        NODE_ENV: "production",
       },
     },
     {
@@ -46,7 +40,7 @@ module.exports = {
       max_memory_restart: "700M",
       autorestart: true,
       env_production: {
-        NODE_ENV: process.env.NODE_ENV,
+        NODE_ENV: "production",
       },
     },
     {
@@ -57,7 +51,7 @@ module.exports = {
       wait_ready: true, // start when services are ready
       autorestart: true,
       env_production: {
-        NODE_ENV: process.env.NODE_ENV,
+        NODE_ENV: "production",
       },
     },
   ],

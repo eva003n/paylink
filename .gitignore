@@ -8,3 +8,4 @@ res.json
 /**/**/dist
 *Zone.Identifier*
 /**/**/*.tsbuildinfo
+/**/**/data

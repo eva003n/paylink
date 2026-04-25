@@ -9,7 +9,7 @@ module.exports = {
       wait_ready: true, // start when services are ready
 
       kill_timeout: 3000,
-      env_development: {
+      env: {
         //.env
         PORT: 8000,
         NODE_ENV: "development",
@@ -22,7 +22,8 @@ module.exports = {
       exec_mode: "fork",
       wait_ready: true, // start when services are ready
       autorestart: true,
-      env_development: {
+      env: {
+        //.env
         NODE_ENV: "development",
       },
     },
@@ -33,7 +34,8 @@ module.exports = {
       wait_ready: true, // start when services are ready
       exec_mode: "fork",
       autorestart: true,
-      env_development: {
+      env: {
+        
         NODE_ENV: "development",
       },
     },
@@ -56,7 +58,7 @@ module.exports = {
       exec_mode: "fork",
       wait_ready: true, // start when services are ready
       autorestart: true,
-      env_development: {
+      env: {
         NODE_ENV: "development",
       },
     },

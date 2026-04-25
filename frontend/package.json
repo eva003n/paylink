@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "shadcn-rm": "shadcn-remover remove",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
