@@ -18,12 +18,12 @@ import type {
 } from "@paylink/shared";
 // create axios instance
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URI || "/api",
+  baseURL: "/api",
   withCredentials: true,
   timeout: 20000, // 20 seconds
 });
 const api2 = axios.create({
-  baseURL: import.meta.env.VITE_API_URI || "/api",
+  baseURL:  "/api",
   withCredentials: true,
   timeout: 20000, // 20 seconds
 });

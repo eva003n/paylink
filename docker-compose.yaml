@@ -1,41 +1,14 @@
-# name: airwave-airtime
 services:
-  
- backend: 
-  build:
-    context: .
-    # include the image 
-    dockerfile: backend/Dockerfile
-  container_name: paylink_server
-  environment:
-     NODE_ENV: production
-  # inject env variable into a container without baking them into the image which is not safe
-  env_file:
-   #   - backend/.env
-     - backend/.env.production
-   #   - backend/.env.production
-
-  depends_on:
-     - db 
-     - redis 
-    
-
-  ports:
-    - 8000:8000
-  networks:
-    - app-net
-  # restart: true
-  
- db:
+  db:
     image: postgres:18
     restart: always
     container_name: postgres_db
     env_file:
       - backend/.env.production
-   #  environment:
-   #        - POSTGRES_USER=${POSTGRES_USR}
-   #        - POSTGRES_PASSWORD=${POSTGRES_PASS}
-   #        - POSTGRES_DB=${DB_NAME}
+    #  environment:
+    #        - POSTGRES_USER=${POSTGRES_USR}
+    #        - POSTGRES_PASSWORD=${POSTGRES_PASS}
+    #        - POSTGRES_DB=${DB_NAME}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d paylink"]
       interval: 10s
@@ -43,41 +16,92 @@ services:
       start_period: 30s
       timeout: 10s
     ports:
-       - 5432:5432
+      - 5432:5432
     volumes:
-       - postgres_data:/var/lib/postgresql
-    networks: 
-       - app-net
- redis:
-   image: redis:8.2.2-alpine
-   container_name: redis_server
-   # restart: always
-   ports:
-      - 6379:6379
-   volumes:
-      - ./data/redis:/data
-   networks:
+      - postgres_data:/var/lib/postgresql
+    networks:
       - app-net
-   command: ["redis-server", "--appendonly", "yes"]
 
-#  frontend:
-#     build:
-#       context: .
-#       dockerfile: frontend/Dockerfile
-#     container_name: paylink_web
-#     env_file:
-#       - frontend/.env.development
-#       - frontend/.env.production
-#     ports:
-#        - 5173:80
-#     networks:
-#        - app-net
+  migrate:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: paylink_migrations
+    environment:
+      NODE_ENV: production
 
+    env_file:
+      - backend/.env.production
+    command: pnpm --filter backend run db:migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - app-net
+   
+  backend:
+    build:
+      context: .
+      # include the image
+      dockerfile: backend/Dockerfile
+    container_name: paylink_server
+    environment:
+      NODE_ENV: production
+    # inject env variable into a container without baking them into the image which is not safe
+    env_file:
+      #   - backend/.env
+      - backend/.env.production
+      #   - backend/.env.production
+
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      migrate:
+        condition: service_completed_successfully
+
+    ports:
+      - 8000:8000
+    networks:
+      - app-net
+    # restart: true
+  redis:
+    image: redis:8.2.2-alpine
+    container_name: redis_server
+    # restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data/redis:/data
+    networks:
+      - app-net
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+      start_period: 15s
+      timeout: 5s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: paylink_web
+    env_file:
+      - frontend/.env.production
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - 5173:80
+    networks:
+      - app-net
 
 volumes:
   postgres_data: {}
 networks:
-   app-net:
-     driver: bridge
-        
-         
+  app-net:
+    driver: bridge

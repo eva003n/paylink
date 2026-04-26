@@ -1,6 +1,5 @@
 import { getAbsolutePath } from "../utils";
 
-import { getAbsolutePath } from "../utils";
 
 // only use in development
 if ((process.env.NODE_ENV || "development") !== "production") {
