@@ -35,7 +35,6 @@ module.exports = {
       exec_mode: "fork",
       autorestart: true,
       env: {
-        
         NODE_ENV: "development",
       },
     },
@@ -47,7 +46,7 @@ module.exports = {
       wait_ready: true, // start when services are ready
       max_memory_restart: "700M",
       autorestart: true,
-      env_development: {
+      env: {
         NODE_ENV: "development",
       },
     },
@@ -58,6 +57,17 @@ module.exports = {
       exec_mode: "fork",
       wait_ready: true, // start when services are ready
       autorestart: true,
+      env: {
+        NODE_ENV: "development",
+      },
+    },
+    {
+      name: "migrate-worker",
+      script: "./dist/api/config/db/umzug.js",
+      instances: 1, // control concurrency
+      exec_mode: "fork",
+      autorestart: false,
+      wait_ready: true, // start when services are ready
       env: {
         NODE_ENV: "development",
       },
