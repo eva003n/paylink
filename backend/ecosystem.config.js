@@ -8,8 +8,8 @@ module.exports = {
       autorestart: true,
       kill_timeout: 3000,
       wait_ready: true, // enable graceful start up
-      env_production: {
-        NODE_ENV: "production"
+      env: {
+        NODE_ENV: "production",
       },
     },
     {
@@ -18,7 +18,7 @@ module.exports = {
       instances: 1, // payments are safer processed in single threaded
       exec_mode: "fork",
       autorestart: true,
-      env_production: {
+      env: {
         NODE_ENV: "production",
       },
     },
@@ -28,7 +28,7 @@ module.exports = {
       instances: 2, // control concurrency
       exec_mode: "fork",
       autorestart: true,
-      env_production: {
+      env: {
         NODE_ENV: "production",
       },
     },
@@ -39,7 +39,7 @@ module.exports = {
       exec_mode: "fork",
       max_memory_restart: "700M",
       autorestart: true,
-      env_production: {
+      env: {
         NODE_ENV: "production",
       },
     },
@@ -50,7 +50,18 @@ module.exports = {
       exec_mode: "fork",
       wait_ready: true, // start when services are ready
       autorestart: true,
-      env_production: {
+      env: {
+        NODE_ENV: "production",
+      },
+    },
+    {
+      name: "migrate-worker",
+      script: "./dist/api/config/db/umzug.js",
+      instances: 1, // control concurrency
+      exec_mode: "fork",
+      autorestart: false,
+      wait_ready: true, // start when services are ready
+      env: {
         NODE_ENV: "production",
       },
     },
