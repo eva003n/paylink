@@ -1,3 +1,4 @@
+// import logger from "../logger/logger.winston";
 import { getAbsolutePath } from "../utils";
 
 
@@ -7,7 +8,7 @@ if ((process.env.NODE_ENV || "development") !== "production") {
   dotenvFlow.config({
     files: [
       `${getAbsolutePath("../../../.env", __dirname)}`, // The base environment file (loaded first)
-      `${getAbsolutePath(`../../../.env.${process.env.NODE_ENV || "development"}`, __dirname)}`, // Local overrides (loaded second, overrides .env)
+      `${getAbsolutePath(`../../../.env.development`, __dirname)}`, // Local overrides (loaded second, overrides .env)
     ],
   });
 }

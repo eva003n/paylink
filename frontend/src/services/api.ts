@@ -73,7 +73,8 @@ api.interceptors.response.use(
     if (
       error.response &&
       error.response.status === 401 &&
-      error.config?.url !== "/auth/sign-in"
+      error.config?.url !== "/auth/sign-in" &&
+      error.config?.url !== "/auth/sign-up"
     ) {
       // remove the local storage information and redirect user to login(user and token)
       // window.location.href = "/sign-in";

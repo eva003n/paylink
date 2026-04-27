@@ -10,9 +10,9 @@ export const sequelize = new Sequelize(POSTGRES_URL as string, {
 export const connectDb = async () => {
   try {
     await sequelize.authenticate();
-    logger.info("Postgres db connected successfully");
+    logger.warn(`Postgres db connected successfully: ${POSTGRES_URL}`);
   } catch (err) {
-    logger.error(`Error connecting to postgres database: ${err.message}`);
+    logger.error(`Error connecting to postgres database: ${err.message} url:${POSTGRES_URL}`);
     process.exit(1);
   }
 };

@@ -83,9 +83,9 @@ const DashboardPage = () => {
               icon={Link2}
             />
             <StatCard
-              label="Paid Links"
-              value={stats?.paidLinks || 0}
-              sub="Completed"
+              label="Expired Links"
+              value={stats?.expiredLinks || 0}
+              sub="Expired"
               icon={CheckCircle}
             />
             <StatCard

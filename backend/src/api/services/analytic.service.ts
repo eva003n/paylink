@@ -79,6 +79,7 @@ export const generateAnalytics = async (id: Id) => {
     activeLinks,
     totalLinks,
     paidLinks,
+    expiredLinks,
     pendingPayments,
     failedPayments,
   };
