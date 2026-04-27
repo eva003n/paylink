@@ -19,6 +19,15 @@ Freelancers or small service providers who need a professional way to invoice cl
 - Handling payment processing reliably
 - Creting a simple monorepo to share code bet frontend and backend, single source of truth for validation
 
+### Overview
+#### Login page
+![Login page](/assets/screenshoots/loginpage.png)
+#### Dashboard page
+![Dashboard page](/assets/screenshoots/dashboardpage.png)
+#### Transactions page
+![Transactions page](/assets/screenshoots/transactionspage.png)
+#### Links page
+![Payment links page](/assets/screenshoots/paymentlinkspage.png)
 ### Technologies
 
 - React + Tailwind CSS(**UI**))
@@ -71,18 +80,6 @@ Must have docker pre-installed
 ### API Usage
 
 The Paylink API provides programmatic access to all features:
-
-```bash
-# Example: Create a payment link
-curl -X POST http://localhost:8000/api/v1/links \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "amount": 2500,
-    "description": "Website Development",
-    "customerEmail": "client@example.com"
-  }'
-```
 
 See [API Documentation](./docs/api/endpoints.md) for complete endpoint reference.
 
