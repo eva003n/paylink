@@ -118,19 +118,6 @@ paylink/
 - **[API Endpoints](./docs/api/endpoints.md)** - Complete API reference
 - **[Main Documentation](./docs/README.md)** - Project overview and guides
 
-### Environment Variables
-
-#### Backend
-
-- `DATABASE_URL`: PostgreSQL connection string
-- `REDIS_URL`: Redis connection URL
-- `JWT_SECRET`: JWT signing secret
-- `MPESA_CONSUMER_KEY`: M-Pesa API credentials
-- `SMTP_HOST`: Email SMTP configuration
-
-#### Frontend
-
-- `VITE_API_BASE_URL`: Backend API URL
 
 ### Deployment
 
@@ -140,29 +127,6 @@ paylink/
 # Build and run in production
 docker compose -f docker-compose.yml up --build -d
 ```
-
-#### Manual Deployment
-
-```bash
-# Build all services
-pnpm build
-
-# Start with PM2
-pnpm --filter backend start
-```
-
-### Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-### License
-
-ISC License - see LICENSE file for details.
-
 ### Support
 
 For support and questions:

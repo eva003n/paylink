@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Send clients a payment link, trigger M-Pesa STK, and generate instant PDF receipts.",
   "scripts": {
-    "dev:backend": "pnpm --filter backend dev",
+    "dev:backend": "pnpm --filter backend start:dev",
     "stop:backend": "pnpm --filter backend stop",
     "dev:frontend": "pnpm --filter frontend dev",
     "dev:shared": "pnpm --filter @paylink/shared dev ",
