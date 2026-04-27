@@ -2,13 +2,16 @@ import logger from "../../logger/logger.winston";
 import { getAbsolutePath } from "../../utils/index";
 import { NODE_ENV } from "../env";
 import { sequelize } from "./postgres";
-import { SequelizeStorage, Umzug } from "umzug";
+import { SequelizeStorage, Umzug } from "umzug"
+
+logger.warn(getAbsolutePath("../../../../", __dirname));
+logger.warn(NODE_ENV)
 
 const umzug = new Umzug({
   migrations: {
     glob: [
       NODE_ENV === "production"
-        ? "dist/migrations/.*js"
+        ? "dist/migrations/*.js"
         : "src/migrations/*.ts",
       { cwd: `${getAbsolutePath("../../../../", __dirname)}` },
     ],
@@ -37,13 +40,14 @@ export const runMigrations = async () => {
 
   await umzug.up();
   let percentage =
-    (pendingMigrations.length / (await umzug.executed()).length) * 100;
+  (pendingMigrations.length / (await umzug.executed()).length) * 100;
 
   logger.info(`✅ Migrations done: ${percentage}%`);
 };
 
 (async () => {
   await runMigrations();
+  process.exit(0)
 })();
 
 export const revertLastMigration = async () => {
