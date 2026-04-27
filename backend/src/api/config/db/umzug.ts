@@ -4,8 +4,6 @@ import { NODE_ENV } from "../env";
 import { sequelize } from "./postgres";
 import { SequelizeStorage, Umzug } from "umzug"
 
-logger.warn(getAbsolutePath("../../../../", __dirname));
-logger.warn(NODE_ENV)
 
 const umzug = new Umzug({
   migrations: {
