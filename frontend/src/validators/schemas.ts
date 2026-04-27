@@ -58,6 +58,7 @@ export const analyticsDatsResponse = z.object({
       activeLinks: z.number(),
       totalLinks: z.number(),
       paidLinks: z.number(),
+      expiredLinks: z.number(),
       pendingPayments: z.number(),
       failedPayments: z.number(),
     }),
