@@ -84,8 +84,54 @@ The Paylink API provides programmatic access to all features:
 See [API Documentation](./docs/api/endpoints.md) for complete endpoint reference.
 
 ### Development
+Copy the env variables in the backend/.env.sample as follows 
+```bash 
+# backend/.env
+NODE_ENV=development
+PORT=8000
+```
+
+```bash
+# backend/.env.development 
+## Frontend urls
+CORS_ORIGIN_URLS=
+FRONTEND_BASE_URI=
+## Secyrity secrets
+COOKIE_SECRET=
+ACCESS_TOKEN_SECRET=
+REFRESH_TOKEN_SECRET=
+## API documentation
+API_DOC_URI=
+## Services
+POSTGRES_URL=
+REDIS_URL=
+
+### (Docker)
+POSTGRES_PASSWORD=
+POSTGRES_USER=
+POSTGRES_DB=
+
+## SMTP server
+SMTP_MAIL_SERVER=
+SMTP_USERNAME=
+SMTP_PASSWORD=
+# etheral sandbox for emails
+SMTP_MAIL_SERVER_PORT=
+APP_EMAIL=
+
+## M-Pesa config
+CONSUMER_KEY=
+CONSUMER_SECRET=
+MPESA_API_URL=
+MPESA_AUTH_URL=
+MPESA_EXPRESS_CALLBACK_URL=
+MPESA_EXPRESS_PASSKEY=
+MPESA_SHORTCODE=
+MPESA_PARTYA=
+```
 
 #### Available Scripts
+Must have node js and pnpm preinstalled
 
 ```bash
 # Install dependencies
@@ -96,6 +142,10 @@ pnpm dev:backend    # Start backend on port 8000
 pnpm dev:frontend   # Start frontend on port 5173
 ```
 
+#### Docker 
+```bash
+docker compose -f decker-compose.dev.yaml up
+```
 #### Project Structure
 
 ```
