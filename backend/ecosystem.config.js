@@ -3,8 +3,8 @@ module.exports = {
     {
       name: "paylink-api",
       script: "./dist/api/index.js",
-      instances: -1,
-      exec_mode: "cluster",
+      instances: "max",
+      exec_mode: "fork",
       autorestart: true,
       kill_timeout: 3000,
       wait_ready: true, // enable graceful start up
@@ -25,7 +25,7 @@ module.exports = {
     {
       name: "email-worker",
       script: "./dist/workers/email.worker.js",
-      instances: 2, // control concurrency
+      instances: 1, // control concurrency
       exec_mode: "fork",
       autorestart: true,
       env: {
