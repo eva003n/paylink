@@ -10,6 +10,7 @@ Dockerfile
 /**/**/.git
 /**/**/.gitignore
 /**/**/.gitattributes
+/**/**/tests
 
 # Local development files
 .vitepress

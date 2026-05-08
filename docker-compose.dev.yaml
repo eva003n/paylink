@@ -3,11 +3,8 @@ services:
     image: postgres:18
     restart: always
     container_name: postgres_db
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_DB: ${POSTGRES_DB}
-
+    env_file:
+      - backend/.env.development
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d paylink"]
       interval: 10s
@@ -37,49 +34,17 @@ services:
   #   restart: "no"
   #   networks:
   #     - app-net
-
+   
   backend:
     build:
       context: .
-      # include the image
       dockerfile: backend/Dockerfile
     container_name: paylink_server
     environment:
-      NODE_ENV: production
-      PORT: ${PORT}
-
-      # Frontend URLs
-      CORS_ORIGIN_URLS: ${CORS_ORIGIN_URLS}
-      FRONTEND_BASE_URI: ${FRONTEND_BASE_URI}
-
-      # Security secrets
-      COOKIE_SECRET: ${COOKIE_SECRET}
-      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET}
-      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
-
-      # API documentation
-      API_DOC_URI: ${API_DOC_URI}
-
-      # Services
-      POSTGRES_URL: ${POSTGRES_URL}
-      REDIS_URL: ${REDIS_URL}
-
-      # SMTP server
-      SMTP_MAIL_SERVER: ${SMTP_MAIL_SERVER}
-      SMTP_USERNAME: ${SMTP_USERNAME}
-      SMTP_PASSWORD: ${SMTP_PASSWORD}
-      SMTP_MAIL_SERVER_PORT: ${SMTP_MAIL_SERVER_PORT}
-      APP_EMAIL: ${APP_EMAIL}
-
-      # M-Pesa config
-      CONSUMER_KEY: ${CONSUMER_KEY}
-      CONSUMER_SECRET: ${CONSUMER_SECRET}
-      MPESA_API_URL: ${MPESA_API_URL}
-      MPESA_AUTH_URL: ${MPESA_AUTH_URL}
-      MPESA_EXPRESS_CALLBACK_URL: ${MPESA_EXPRESS_CALLBACK_URL}
-      MPESA_EXPRESS_PASSKEY: ${MPESA_EXPRESS_PASSKEY}
-      MPESA_SHORTCODE: ${MPESA_SHORTCODE}
-      MPESA_PARTYA: ${MPESA_PARTYA}
+      NODE_ENV: development
+    # inject env variable into a container without baking them into the image which is not safe
+    env_file:
+      - backend/.env.development
 
     depends_on:
       db:
@@ -90,7 +55,7 @@ services:
       #   condition: service_completed_successfully
 
     ports:
-      - "${PORT}:${PORT}"
+      - 8000:8000
     networks:
       - app-net
     # restart: true
@@ -117,7 +82,8 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
     container_name: paylink_web
-
+    # env_file:
+      # - frontend/.env.development
     depends_on:
       backend:
         condition: service_started
